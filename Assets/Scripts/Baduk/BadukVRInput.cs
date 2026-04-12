@@ -86,20 +86,25 @@ namespace Baduk
             Camera cam = Camera.main;
             Vector3 camPos = cam != null ? cam.transform.position : new Vector3(0, 1.6f, 0);
 
-            // pitch 제거 — 수평 방향만 사용해서 보드가 항상 똑바로 세워짐
             Vector3 flatForward = cam != null
                 ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
                 : Vector3.forward;
             if (flatForward == Vector3.zero) flatForward = Vector3.forward;
 
-            // 보드가 카메라를 정면으로 바라보도록 회전 (항상 수직)
+            // 보드 크기에 맞춰 스케일 축소 (최대 높이 1.2m로 제한)
+            float boardWorldHeight = cy * 2f;
+            float maxHeight = 1.2f;
+            float scale = boardWorldHeight > maxHeight ? maxHeight / boardWorldHeight : 1f;
+
             Quaternion yawRot = Quaternion.LookRotation(flatForward, Vector3.up);
             boardObj.rotation = yawRot * Quaternion.Euler(-90, 0, 0);
+            boardObj.localScale = Vector3.one * scale;
 
-            // 카메라 앞 20m, 눈높이에 보드 중심 배치
-            Vector3 boardCenter = camPos + flatForward * 12f;
-            boardCenter.y = 1.5f;
-            boardObj.position = boardCenter - boardObj.rotation * new Vector3(cx, 0f, -cy);
+            // 카메라 앞 2.5m, 눈높이에 보드 중심 배치
+            float distance = 2.5f;
+            Vector3 boardCenter = camPos + flatForward * distance;
+            boardCenter.y = camPos.y;
+            boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
         }
     }
 #else
@@ -127,20 +132,25 @@ namespace Baduk
             Camera cam = Camera.main;
             Vector3 camPos = cam != null ? cam.transform.position : new Vector3(0, 1.6f, 0);
 
-            // pitch 제거 — 수평 방향만 사용해서 보드가 항상 똑바로 세워짐
             Vector3 flatForward = cam != null
                 ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
                 : Vector3.forward;
             if (flatForward == Vector3.zero) flatForward = Vector3.forward;
 
-            // 보드가 카메라를 정면으로 바라보도록 회전 (항상 수직)
+            // 보드 크기에 맞춰 스케일 축소 (최대 높이 1.2m로 제한)
+            float boardWorldHeight = cy * 2f;
+            float maxHeight = 1.2f;
+            float scale = boardWorldHeight > maxHeight ? maxHeight / boardWorldHeight : 1f;
+
             Quaternion yawRot = Quaternion.LookRotation(flatForward, Vector3.up);
             boardObj.rotation = yawRot * Quaternion.Euler(-90, 0, 0);
+            boardObj.localScale = Vector3.one * scale;
 
-            // 카메라 앞 15m, 눈높이에 보드 중심 배치
-            Vector3 boardCenter = camPos + flatForward * 12f;
-            boardCenter.y = 1.5f;
-            boardObj.position = boardCenter - boardObj.rotation * new Vector3(cx, 0f, -cy);
+            // 카메라 앞 2.5m, 눈높이에 보드 중심 배치
+            float distance = 2.5f;
+            Vector3 boardCenter = camPos + flatForward * distance;
+            boardCenter.y = camPos.y;
+            boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
         }
 
         // PC 테스트: 마우스 클릭으로 돌 놓기

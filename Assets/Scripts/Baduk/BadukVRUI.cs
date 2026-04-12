@@ -125,7 +125,7 @@ namespace Baduk
             if (flatForward == Vector3.zero) flatForward = Vector3.forward;
 
             var rt = _canvas.GetComponent<RectTransform>();
-            rt.position = camPos + flatForward * 1.5f + Vector3.up * 0.1f;
+            rt.position = camPos + flatForward * 2.5f + Vector3.up * 1.2f;
             rt.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
         }
 

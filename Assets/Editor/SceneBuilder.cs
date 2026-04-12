@@ -51,7 +51,7 @@ public static class SceneBuilder
 
         mgr.AddComponent<SilverCare.Common.GameSceneManager>();
 
-        mgr.AddComponent<SilverCare.Common.TTSManager>();
+        var ttsManager = mgr.AddComponent<SilverCare.Common.TTSManager>();
 
         mgr.AddComponent<SilverCare.Common.AudioManager>();
         var bgmSrc = new GameObject("BGMSource").AddComponent<AudioSource>();
@@ -64,6 +64,11 @@ public static class SceneBuilder
         var ttsSrc = new GameObject("TTSSource").AddComponent<AudioSource>();
         ttsSrc.transform.SetParent(mgr.transform);
         ttsSrc.playOnAwake = false;
+
+        // TTSManager에 AudioSource 연결
+        var ttsMgrSerialized = new UnityEditor.SerializedObject(ttsManager);
+        ttsMgrSerialized.FindProperty("audioSource").objectReferenceValue = ttsSrc;
+        ttsMgrSerialized.ApplyModifiedProperties();
 
         mgr.AddComponent<SilverCare.Common.PlayerDataManager>();
     }
@@ -138,7 +143,7 @@ public static class SceneBuilder
         go.AddComponent<Baduk.BadukVRBoardSetup>();
         go.AddComponent<Baduk.BadukGameManager>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/BadukVR.unity");
         Debug.Log("[SceneBuilder] BadukVR 씬 생성 완료");
@@ -158,7 +163,7 @@ public static class SceneBuilder
         go.AddComponent<SilverCare.CardMatch.CardMatchGameManager>();
         go.AddComponent<SilverCare.CardMatch.CardController>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/CardMatch.unity");
         Debug.Log("[SceneBuilder] CardMatch 씬 생성 완료");
@@ -178,7 +183,7 @@ public static class SceneBuilder
         go.AddComponent<SilverCare.Quiz.QuizGameManager>();
         go.AddComponent<SilverCare.Quiz.QuizUIManager>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Quiz.unity");
         Debug.Log("[SceneBuilder] Quiz 씬 생성 완료");
@@ -198,7 +203,7 @@ public static class SceneBuilder
         go.AddComponent<SilverCare.SongGuess.SongGuessGameManager>();
         go.AddComponent<SilverCare.SongGuess.SongPlayer>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/SongGuess.unity");
         Debug.Log("[SceneBuilder] SongGuess 씬 생성 완료");
@@ -220,7 +225,7 @@ public static class SceneBuilder
         go.AddComponent<SilverCare.GoStop.GoStopScoreCalculator>();
         go.AddComponent<SilverCare.GoStop.GoStopUIManager>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/GoStop.unity");
         Debug.Log("[SceneBuilder] GoStop 씬 생성 완료");
@@ -240,7 +245,7 @@ public static class SceneBuilder
         go.AddComponent<SilverCare.Golf.GolfGameManager>();
         go.AddComponent<SilverCare.Golf.GolfCourseManager>();
 
-        BuildXROrigin(addSimulator: false);
+        BuildXROrigin(addSimulator: true);
 
         EditorSceneManager.SaveScene(scene, "Assets/Scenes/Golf.unity");
         Debug.Log("[SceneBuilder] Golf 씬 생성 완료");
@@ -293,6 +298,44 @@ public static class SceneBuilder
         leftGO.transform.SetParent(offsetGO.transform, false);
         leftGO.transform.localPosition = new Vector3(-0.2f, 1.3f, 0.3f);
         leftGO.AddComponent<ActionBasedController>();
+
+        // 상하 이동 — PC: R(위) / F(아래)
+        originGO.AddComponent<SilverCare.Common.VerticalMover>();
+
+        // ── Locomotion System (이동 + 회전) ──
+        var locoGO = new GameObject("Locomotion System");
+        locoGO.transform.SetParent(originGO.transform, false);
+        var locoSystem = locoGO.AddComponent<LocomotionSystem>();
+        locoSystem.xrOrigin = xrOrigin;
+
+        // 이동 — VR: 왼쪽 조이스틱 / PC: WASD
+        var moveProvider = locoGO.AddComponent<ActionBasedContinuousMoveProvider>();
+        moveProvider.system = locoSystem;
+        moveProvider.moveSpeed = 2f;
+        moveProvider.forwardSource = camGO.transform;
+        var moveAction = new InputAction("Move", InputActionType.Value,
+            binding: null, interactions: null, processors: null, expectedControlType: "Vector2");
+        moveAction.AddBinding("<XRController>{LeftHand}/thumbstick");
+        moveAction.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/w")
+            .With("Down", "<Keyboard>/s")
+            .With("Left", "<Keyboard>/a")
+            .With("Right", "<Keyboard>/d");
+        moveProvider.leftHandMoveAction = new InputActionProperty(moveAction);
+
+        // 회전 — VR: 오른쪽 조이스틱 / PC: Q·E
+        var turnProvider = locoGO.AddComponent<ActionBasedContinuousTurnProvider>();
+        turnProvider.system = locoSystem;
+        turnProvider.turnSpeed = 60f;
+        var turnAction = new InputAction("Turn", InputActionType.Value,
+            binding: null, interactions: null, processors: null, expectedControlType: "Vector2");
+        turnAction.AddBinding("<XRController>{RightHand}/thumbstick");
+        turnAction.AddCompositeBinding("2DVector")
+            .With("Up", "<Keyboard>/e")
+            .With("Down", "<Keyboard>/q")
+            .With("Left", "<Keyboard>/q")
+            .With("Right", "<Keyboard>/e");
+        turnProvider.leftHandTurnAction = new InputActionProperty(turnAction);
 
         var floor = GameObject.CreatePrimitive(PrimitiveType.Plane);
         floor.name = "Floor";

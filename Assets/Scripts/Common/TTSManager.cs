@@ -27,6 +27,14 @@ namespace SilverCare.Common
             if (Instance != null) { Destroy(gameObject); return; }
             Instance = this;
             DontDestroyOnLoad(gameObject);
+
+            // AudioSource 자동 탐색 (Inspector 미할당 시)
+            if (audioSource == null)
+            {
+                var ttsSrc = transform.Find("TTSSource");
+                if (ttsSrc != null) audioSource = ttsSrc.GetComponent<AudioSource>();
+                if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+            }
         }
 
         /// <summary>텍스트 음성 변환 재생. 이전 발화 중이면 중단 후 새로 시작.</summary>
