@@ -1,0 +1,29 @@
+# Unity
+Library/
+Temp/
+obj/
+Logs/
+UserSettings/
+MemoryCaptures/
+Recordings/
+
+# Build
+Build/
+Builds/
+AssetBundles/
+*.apk
+
+# IDE
+.vs/
+.vscode/
+.idea/
+*.csproj
+*.sln
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Misc
+*.tmp
+*.bak
