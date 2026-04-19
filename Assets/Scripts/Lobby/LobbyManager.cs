@@ -20,10 +20,16 @@ namespace SilverCare.Lobby
         private void LoadPlayerData()
         {
             var profile = PlayerDataManager.Instance?.Profile;
-            if (profile == null) return;
+            
+            if (profile == null)
+            {
+                // 프로필이 없으면 프로필 입력창을 활성화
+                if (profilePanel != null) profilePanel.gameObject.SetActive(true);
+                return;
+            }
 
-            // TODO: 프로필 기반 추천 게임 표시
             gameSelectUI?.RefreshHighScores();
+            gameSelectUI?.ApplyRecommendation(profile.gender, profile.age);
             TTSManager.Instance?.Speak($"어서 오세요, {profile.playerName}님. 오늘은 어떤 게임을 하시겠어요?");
         }
 
