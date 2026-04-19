@@ -7,45 +7,76 @@ namespace SilverCare.CardMatch
 {
     public class CardController : MonoBehaviour
     {
+        [Header("Card Data")]
         [SerializeField] private int cardId;
-        [SerializeField] private Sprite frontSprite;
-        [SerializeField] private Renderer cardRenderer;
 
-        public int  CardId    => cardId;
-        public bool IsFaceUp  { get; private set; }
+        [Header("Card Visuals")]
+        [SerializeField] private GameObject frontFaceObject;
+        [SerializeField] private GameObject backFaceObject;
+        [SerializeField] private MeshRenderer frontRenderer;
+
+        public int CardId => cardId;
+        public bool IsFaceUp { get; private set; }
         public bool IsMatched { get; private set; }
 
         private CardMatchGameManager _manager;
 
-        public void Init(int id, Sprite front, CardMatchGameManager manager)
+        public void Init(int id, Texture frontTexture, CardMatchGameManager manager)
         {
-            cardId       = id;
-            frontSprite  = front;
-            _manager     = manager;
-            IsFaceUp     = false;
-            IsMatched    = false;
+            cardId = id;
+            _manager = manager;
+
+            IsFaceUp = false;
+            IsMatched = false;
+
+            if (frontRenderer != null)
+            {
+                frontRenderer.material.mainTexture = frontTexture;
+            }
+
+            ShowBack();
         }
 
         public void FlipUp()
         {
+            if (IsMatched || IsFaceUp) return;
+
             IsFaceUp = true;
-            // TODO: 박건영 - 뒤집기 애니메이션 (iTween or DOTween)
-            // cardRenderer.material.mainTexture = frontSprite.texture;
+            ShowFront();
         }
 
         public void FlipDown()
         {
+            if (IsMatched) return;
+
             IsFaceUp = false;
-            // TODO: 박건영 - 뒤집기 애니메이션
+            ShowBack();
         }
 
         public void SetMatched()
         {
             IsMatched = true;
-            // TODO: 박건영 - 매칭 이펙트 (빛나기, 사라지기 등)
+            IsFaceUp = true;
+            ShowFront();
+
+            // 나중에 반짝임/사운드/비활성화 연출 추가
         }
 
-        // VR 컨트롤러 또는 마우스 클릭
-        private void OnMouseDown() => _manager?.OnCardFlipped(this);
+        private void ShowFront()
+        {
+            if (frontFaceObject != null) frontFaceObject.SetActive(true);
+            if (backFaceObject != null) backFaceObject.SetActive(false);
+        }
+
+        private void ShowBack()
+        {
+            if (frontFaceObject != null) frontFaceObject.SetActive(false);
+            if (backFaceObject != null) backFaceObject.SetActive(true);
+        }
+
+        private void OnMouseDown()
+        {
+            _manager?.OnCardFlipped(this);
+        }
     }
 }
