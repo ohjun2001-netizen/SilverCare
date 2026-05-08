@@ -66,13 +66,14 @@ public class VRLobby : MonoBehaviour
 
         (string scene, string label)[] games =
         {
-            ("Baduk",      "바둑 사활문제"),
-            ("BadukVR",    "바둑 (VR)"),
-            ("CardMatch",  "카드 맞추기"),
-            ("Quiz",       "퀴즈"),
-            ("SongGuess",  "노래 맞추기"),
-            ("GoStop",     "고스톱"),
-            ("Golf",       "골프"),
+            ("BadukVR",         "바둑 사활문제"),
+            ("BadukReplay",     "바둑 복기 (탑골공원)"),
+            ("BadukPrediction", "다음 수 맞히기"),
+            ("CardMatch",       "카드 맞추기"),
+            ("Quiz",            "퀴즈"),
+            ("SongGuess",       "노래 맞추기"),
+            ("GoStop",          "고스톱"),
+            ("Golf",            "골프"),
         };
 
         float btnW = 360f, btnH = 68f, gapX = 20f, gapY = 14f, startY = 120f;

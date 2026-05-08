@@ -1,0 +1,98 @@
+{
+  "version": "0.4",
+  "total": 1,
+  "kifus": [
+    {
+      "id": "lsd_vs_alphago_g4",
+      "title": "이세돌 vs 알파고 4국",
+      "black_player": "알파고",
+      "white_player": "이세돌",
+      "date": "2016-03-13",
+      "board_size": 19,
+      "view_area": [0, 0, 18, 18],
+      "description": "2016년 알파고와의 5번기 중 4국. 이세돌의 '신의 한 수'로 유명한 대국입니다. (※ 데모 단축본 — 실제 SGF로 교체 권장)",
+      "moves": [
+        { "row": 3,  "col": 15, "color": "black", "comment": "흑(알파고) 우상귀 화점입니다." },
+        { "row": 15, "col": 3,  "color": "white", "comment": "" },
+        { "row": 3,  "col": 3,  "color": "black", "comment": "" },
+        { "row": 15, "col": 15, "color": "white", "comment": "" },
+        { "row": 15, "col": 9,  "color": "black", "comment": "" },
+        { "row": 3,  "col": 9,  "color": "white", "comment": "" },
+        { "row": 16, "col": 11, "color": "black", "comment": "" },
+        { "row": 2,  "col": 11, "color": "white", "comment": "" },
+        { "row": 5,  "col": 16, "color": "black", "comment": "" },
+        { "row": 16, "col": 5,  "color": "white", "comment": "" },
+        { "row": 5,  "col": 2,  "color": "black", "comment": "" },
+        { "row": 13, "col": 16, "color": "white", "comment": "" },
+        { "row": 15, "col": 14, "color": "black", "comment": "" },
+        { "row": 14, "col": 14, "color": "white", "comment": "" },
+        { "row": 14, "col": 15, "color": "black", "comment": "" },
+        { "row": 13, "col": 14, "color": "white", "comment": "" },
+        { "row": 12, "col": 15, "color": "black", "comment": "" },
+        { "row": 13, "col": 13, "color": "white", "comment": "" },
+        { "row": 12, "col": 13, "color": "black", "comment": "" },
+        { "row": 12, "col": 14, "color": "white", "comment": "백이 흑의 모양을 끊습니다." },
+        { "row": 11, "col": 14, "color": "black", "comment": "" },
+        { "row": 11, "col": 13, "color": "white", "comment": "" },
+        { "row": 10, "col": 14, "color": "black", "comment": "" },
+        { "row": 10, "col": 13, "color": "white", "comment": "" },
+        { "row": 9,  "col": 14, "color": "black", "comment": "" },
+        { "row": 9,  "col": 13, "color": "white", "comment": "" },
+        { "row": 8,  "col": 14, "color": "black", "comment": "" },
+        { "row": 8,  "col": 13, "color": "white", "comment": "" },
+        { "row": 7,  "col": 14, "color": "black", "comment": "" },
+        { "row": 7,  "col": 13, "color": "white", "comment": "" },
+        { "row": 6,  "col": 13, "color": "black", "comment": "" },
+        { "row": 6,  "col": 12, "color": "white", "comment": "" },
+        { "row": 5,  "col": 13, "color": "black", "comment": "" },
+        { "row": 5,  "col": 12, "color": "white", "comment": "" },
+        { "row": 7,  "col": 11, "color": "black", "comment": "" },
+        { "row": 6,  "col": 11, "color": "white", "comment": "" },
+        { "row": 8,  "col": 11, "color": "black", "comment": "" },
+        { "row": 8,  "col": 10, "color": "white", "comment": "이세돌의 '신의 한 수' — 알파고의 수읽기를 무너뜨린 결정적 쐐기." },
+        { "row": 9,  "col": 11, "color": "black", "comment": "" },
+        { "row": 9,  "col": 10, "color": "white", "comment": "백 우세를 굳혀가는 흐름입니다." }
+      ],
+      "result": "백(이세돌) 불계승",
+      "winner": "white",
+      "prediction_points": [
+        {
+          "move_index": 4,
+          "candidates": [
+            { "row": 15, "col": 9 },
+            { "row": 3,  "col": 9 },
+            { "row": 9,  "col": 15 },
+            { "row": 9,  "col": 3  }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑은 우하 변으로 큰 자리를 잡았습니다. 4귀를 차지한 뒤 변을 펼치는 정석적 흐름입니다."
+        },
+        {
+          "move_index": 19,
+          "candidates": [
+            { "row": 12, "col": 14 },
+            { "row": 11, "col": 14 },
+            { "row": 12, "col": 16 },
+            { "row": 13, "col": 15 }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백이 흑의 연결을 끊는 자리입니다. 끊음으로써 우변 전투의 주도권을 잡습니다."
+        },
+        {
+          "move_index": 37,
+          "candidates": [
+            { "row": 8, "col": 10 },
+            { "row": 9, "col": 11 },
+            { "row": 7, "col": 10 },
+            { "row": 10, "col": 11 }
+          ],
+          "correct_index": 0,
+          "question": "이세돌의 '신의 한 수'는 어디일까요?",
+          "explanation": "백 78수의 쐐기. 흑 모양의 약점을 찌르며 알파고의 수읽기를 무너뜨린 전설의 한 수입니다."
+        }
+      ]
+    }
+  ]
+}

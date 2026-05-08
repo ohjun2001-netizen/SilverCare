@@ -221,15 +221,33 @@ namespace Baduk
         {
             _matBlack = MakeMat(Color.black);
             _matWhite = MakeMat(new Color(0.93f, 0.93f, 0.93f));
-            _matBoard = MakeMat(new Color(0.85f, 0.70f, 0.50f));
+            _matBoard = MakeUnlitMat(new Color(0.78f, 0.66f, 0.42f));
             _matLine  = MakeMat(new Color(0.20f, 0.12f, 0.04f));
         }
 
-        Material MakeMat(Color color)
+        Material MakeMat(Color color, float glossiness = 0f, Color emission = default)
         {
             var tmp = GameObject.CreatePrimitive(PrimitiveType.Sphere);
             var mat = new Material(tmp.GetComponent<Renderer>().sharedMaterial);
             DestroyImmediate(tmp);
+            mat.color = color;
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+            if (glossiness > 0f && mat.HasProperty("_Glossiness")) mat.SetFloat("_Glossiness", glossiness);
+            if (emission != default)
+            {
+                mat.EnableKeyword("_EMISSION");
+                mat.SetColor("_EmissionColor", emission);
+            }
+            return mat;
+        }
+
+        // 조명 무관하게 정확한 색상 표시 (Unlit)
+        static Material MakeUnlitMat(Color color)
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Unlit")
+                      ?? Shader.Find("Unlit/Color")
+                      ?? Shader.Find("Standard");
+            var mat = new Material(shader);
             mat.color = color;
             if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             return mat;

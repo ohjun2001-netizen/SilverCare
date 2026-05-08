@@ -265,7 +265,7 @@ public static class SceneBuilder
         var camGO = new GameObject("Main Camera");
         camGO.tag = "MainCamera";
         camGO.transform.SetParent(offsetGO.transform, false);
-        camGO.transform.localPosition = new Vector3(0f, 1.6f, 0f);
+        camGO.transform.localPosition = new Vector3(0f, 1.0f, 0f);
         var cam = camGO.AddComponent<Camera>();
         cam.nearClipPlane = 0.01f;
         camGO.AddComponent<AudioListener>();
@@ -376,7 +376,9 @@ public static class SceneBuilder
         {
             new EditorBuildSettingsScene("Assets/Scenes/MainLobby.unity",  true),
             new EditorBuildSettingsScene("Assets/Scenes/Baduk.unity",      true),
-            new EditorBuildSettingsScene("Assets/Scenes/BadukVR.unity",    true),
+            new EditorBuildSettingsScene("Assets/Scenes/BadukVR.unity",       true),
+            new EditorBuildSettingsScene("Assets/Scenes/BadukReplay.unity",     true),
+            new EditorBuildSettingsScene("Assets/Scenes/BadukPrediction.unity", true),
             new EditorBuildSettingsScene("Assets/Scenes/CardMatch.unity",  true),
             new EditorBuildSettingsScene("Assets/Scenes/Quiz.unity",       true),
             new EditorBuildSettingsScene("Assets/Scenes/SongGuess.unity",  true),

@@ -11,13 +11,15 @@ namespace SilverCare.Common
         public static GameSceneManager Instance { get; private set; }
 
         // ── 씬 이름 상수 (빌드 세팅과 반드시 일치) ────────────
-        public const string SCENE_LOBBY      = "MainLobby";
-        public const string SCENE_CARD_MATCH = "CardMatch";
-        public const string SCENE_QUIZ       = "Quiz";
-        public const string SCENE_SONG_GUESS = "SongGuess";
-        public const string SCENE_GO_STOP    = "GoStop";
-        public const string SCENE_BADUK      = "Baduk";
-        public const string SCENE_GOLF       = "Golf";
+        public const string SCENE_LOBBY         = "MainLobby";
+        public const string SCENE_CARD_MATCH    = "CardMatch";
+        public const string SCENE_QUIZ          = "Quiz";
+        public const string SCENE_SONG_GUESS    = "SongGuess";
+        public const string SCENE_GO_STOP       = "GoStop";
+        public const string SCENE_BADUK            = "BadukVR";
+        public const string SCENE_BADUK_REPLAY     = "BadukReplay";
+        public const string SCENE_BADUK_PREDICTION = "BadukPrediction";
+        public const string SCENE_GOLF             = "Golf";
 
         [SerializeField] private GameObject loadingPanel;
         [SerializeField] private float minLoadingTime = 0.5f;

@@ -30,9 +30,14 @@ namespace SilverCare.Common
 
         private const string KEY_PROFILE = "player_profile";
         private const string KEY_RECORDS = "game_records";
+        private const string KEY_COINS   = "player_coins";
+        private const int    DEFAULT_COINS = 1000;
 
         public PlayerProfile Profile { get; private set; }
+        public int Coins { get; private set; }
         private Dictionary<string, GameRecord> _records = new();
+
+        public event System.Action<int> OnCoinsChanged;
 
         void Awake()
         {
@@ -70,6 +75,38 @@ namespace SilverCare.Common
         public GameRecord GetRecord(string gameName)
             => _records.TryGetValue(gameName, out var rec) ? rec : null;
 
+        // ── 코인 (내기 바둑 등) ──────────────────────────────
+        public bool TrySpendCoins(int amount)
+        {
+            if (amount <= 0) return true;
+            if (Coins < amount) return false;
+            Coins -= amount;
+            SaveCoins();
+            OnCoinsChanged?.Invoke(Coins);
+            return true;
+        }
+
+        public void AddCoins(int amount)
+        {
+            if (amount <= 0) return;
+            Coins += amount;
+            SaveCoins();
+            OnCoinsChanged?.Invoke(Coins);
+        }
+
+        public void ResetCoins()
+        {
+            Coins = DEFAULT_COINS;
+            SaveCoins();
+            OnCoinsChanged?.Invoke(Coins);
+        }
+
+        private void SaveCoins()
+        {
+            PlayerPrefs.SetInt(KEY_COINS, Coins);
+            PlayerPrefs.Save();
+        }
+
         // ── 내부 ───────────────────────────────────────────────
         private void LoadAll()
         {
@@ -77,6 +114,8 @@ namespace SilverCare.Common
             Profile = string.IsNullOrEmpty(profileJson)
                 ? new PlayerProfile()
                 : JsonUtility.FromJson<PlayerProfile>(profileJson);
+
+            Coins = PlayerPrefs.GetInt(KEY_COINS, DEFAULT_COINS);
 
             // TODO: GameRecord 목록 로드 (직렬화 방식 확정 후 구현)
         }

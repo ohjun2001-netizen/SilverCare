@@ -33,3 +33,6 @@ venv/
 # Misc
 *.tmp
 *.bak
+
+# Claude Code
+.claude/
