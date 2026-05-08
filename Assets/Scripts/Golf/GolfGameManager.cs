@@ -1,6 +1,6 @@
 // Assets/Scripts/Golf/GolfGameManager.cs
 // 담당: 양석원
-// TODO: 컨트롤러 스윙 감지, 공 물리, 3개 코스, 스코어 UI
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using SilverCare.Common;
@@ -10,64 +10,142 @@ namespace SilverCare.Golf
     public class GolfGameManager : BaseGameManager
     {
         [Header("Golf Settings")]
-        [SerializeField] private BallController ball;
+        [SerializeField] private BallController    ball;
         [SerializeField] private GolfCourseManager courseManager;
-        [SerializeField] private GolfUIManager golfUI;
-        [SerializeField] private int totalCourses = 3;
+        [SerializeField] private GolfUIManager     golfUI;
 
-        private int _currentCourse = 0;
-        private int _strokeCount   = 0;
-        private List<int> _courseStrokes = new();
+        private int _selectedCourse = 0;
+        private int _strokeCount    = 0;
 
         protected override void InitGame()
         {
-            gameTitle = "골프 배팅";
+            gameTitle = "골프";
+            if (courseManager == null)
+                courseManager = GetComponent<GolfCourseManager>()
+                             ?? FindObjectOfType<GolfCourseManager>();
+            if (golfUI == null)
+                golfUI = GetComponent<GolfUIManager>()
+                      ?? FindObjectOfType<GolfUIManager>();
         }
 
         protected override void StartGame()
         {
-            _currentCourse = 0;
-            _courseStrokes.Clear();
-            LoadCourse(_currentCourse);
+            StartCoroutine(ReadyThenSelectCourse());
         }
 
-        protected override void EndGame()
+        protected override void EndGame() { }
+
+        // ── 코스 선택 후 호출 ───────────────────────────────────────
+        void OnCourseSelected(int courseIndex)
         {
-            int total = 0;
-            foreach (int s in _courseStrokes) total += s;
-            _score = Mathf.Max(0, 1000 - total * 50);
-            golfUI?.ShowFinalResult(_courseStrokes, _score);
+            _selectedCourse = courseIndex;
+            _strokeCount    = 0;
+
+            golfUI?.HideCourseSelection();
+            golfUI?.SetBackToSelectCallback(ShowCourseSelection);
+
+            if (ball == null) ball = CreateBall();
+            ball.gameObject.SetActive(true);
+
+            PositionCourseNearPlayer();
+            courseManager?.LoadCourse(courseIndex);
+            golfUI?.ShowCourseInfo(courseIndex + 1, 3);
+            golfUI?.SetSwingUIActive(true);
+
+            if (ball != null && courseManager != null)
+                ball.ResetBall(courseManager.GetTeePosition(courseIndex));
+
+            TTSManager.Instance?.Speak($"{courseIndex + 1}번 홀입니다. 스윙하세요.");
         }
 
-        /// <summary>BallController에서 홀인 감지 시 호출</summary>
+        // ── BallController에서 호출 ─────────────────────────────────
         public void OnHoleIn()
         {
-            _courseStrokes.Add(_strokeCount);
+            _score = Mathf.Max(0, 500 - _strokeCount * 30);
             TTSManager.Instance?.Speak($"홀인! {_strokeCount}타로 성공했습니다.");
             AudioManager.Instance?.PlayGameClear();
+            PlayerDataManager.Instance?.SaveScore(gameTitle, _score);
 
-            _currentCourse++;
-            if (_currentCourse >= totalCourses)
-                OnGameClear();
-            else
-                Invoke(nameof(LoadNextCourse), 2f);
+            golfUI?.ShowResult(_strokeCount, _score,
+                onReselect: ShowCourseSelection,
+                onLobby:    GoToLobby);
         }
 
-        /// <summary>스윙 완료 시 BallController에서 호출</summary>
         public void OnSwingCompleted()
         {
             _strokeCount++;
             golfUI?.UpdateStroke(_strokeCount);
         }
 
-        private void LoadCourse(int index)
+        public void OnBallOutOfBounds()
         {
-            _strokeCount = 0;
-            courseManager?.LoadCourse(index);
-            golfUI?.ShowCourseInfo(index + 1, totalCourses);
-            TTSManager.Instance?.Speak($"{index + 1}번 홀입니다. 스윙하세요.");
+            _strokeCount++;  // 벌타
+            golfUI?.UpdateStroke(_strokeCount);
+            TTSManager.Instance?.Speak("아웃! 원위치로 돌아갑니다.");
+            if (ball != null && courseManager != null)
+                ball.ResetBall(courseManager.GetTeePosition(_selectedCourse));
         }
 
-        private void LoadNextCourse() => LoadCourse(_currentCourse);
+        // ── 내부 ────────────────────────────────────────────────────
+        IEnumerator ReadyThenSelectCourse()
+        {
+            yield return null;
+            yield return null;
+            ShowCourseSelection();
+        }
+
+        void ShowCourseSelection()
+        {
+            // 이전 코스 정리
+            courseManager?.LoadCourse(-1); // -1 = 현재 코스 파괴만
+            if (ball != null) ball.gameObject.SetActive(false);
+
+            golfUI?.ShowCourseSelection(OnCourseSelected, GoToLobby);
+        }
+
+        void PositionCourseNearPlayer()
+        {
+            if (courseManager == null) return;
+            Camera cam = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
+            if (cam == null) return;
+
+            Vector3 fwd = cam.transform.forward;
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude < 0.001f) fwd = Vector3.forward;
+            fwd.Normalize();
+
+            Vector3 origin = new Vector3(cam.transform.position.x, 0f,
+                                         cam.transform.position.z + 0.8f);
+            courseManager.transform.SetPositionAndRotation(
+                origin, Quaternion.LookRotation(fwd, Vector3.up));
+        }
+
+        BallController CreateBall()
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            go.name = "GolfBall";
+            go.transform.localScale = Vector3.one * 0.12f;
+
+            var rb = go.AddComponent<Rigidbody>();
+            rb.mass                   = 1f;
+            rb.drag                   = 0.4f;
+            rb.angularDrag            = 1f;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
+            rb.interpolation          = RigidbodyInterpolation.Interpolate;
+
+            var pm = new PhysicMaterial("BallMat");
+            pm.bounciness        = 0.3f;
+            pm.dynamicFriction   = 0.3f;
+            pm.staticFriction    = 0.3f;
+            pm.frictionCombine   = PhysicMaterialCombine.Average;
+            pm.bounceCombine     = PhysicMaterialCombine.Average;
+            go.GetComponent<SphereCollider>().sharedMaterial = pm;
+
+            var mat = new Material(Shader.Find("Standard"));
+            mat.color = Color.white;
+            go.GetComponent<Renderer>().sharedMaterial = mat;
+
+            return go.AddComponent<BallController>();
+        }
     }
 }

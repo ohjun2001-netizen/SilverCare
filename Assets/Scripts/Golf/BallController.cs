@@ -1,6 +1,5 @@
 // Assets/Scripts/Golf/BallController.cs
 // 담당: 양석원
-// TODO: VR 컨트롤러 스윙 세기/방향 감지, Rigidbody 물리 적용
 using UnityEngine;
 
 namespace SilverCare.Golf
@@ -9,64 +8,180 @@ namespace SilverCare.Golf
     public class BallController : MonoBehaviour
     {
         [Header("Physics")]
-        [SerializeField] private float maxSwingForce = 20f;
-        [SerializeField] private LayerMask holeTriggerLayer;
+        [SerializeField] private float maxSwingForce  = 15f;
+        [SerializeField] private float swingThreshold = 2f;
 
-        [Header("Swing Detection")]
-        [SerializeField] private float swingThreshold = 1.5f;  // 컨트롤러 속도 임계값
+        [Header("Aim")]
+        [SerializeField] private float aimRotateSpeed  = 80f;
+        [SerializeField] private float maxChargeTime   = 1.5f;
+        [SerializeField] private float oobY            = -1f;   // 이 y 아래면 OOB
 
-        private Rigidbody _rb;
+        private Rigidbody       _rb;
         private GolfGameManager _manager;
-        private bool _isMoving = false;
+        private GolfUIManager   _ui;
+        private Transform       _rightController;
+        private Vector3         _prevCtrlPos;
+        private bool            _swingArmed;
+        private bool            _isMoving;
+        private LineRenderer    _aimLine;
+        private float           _aimAngle;
+        private Vector3         _lastTeePos;
+
+        // PC 차지
+        private bool  _isCharging;
+        private float _chargeTime;
 
         void Awake()
         {
-            _rb      = GetComponent<Rigidbody>();
+            _rb = GetComponent<Rigidbody>();
+            BuildAimLine();
+        }
+
+        void Start()
+        {
             _manager = FindObjectOfType<GolfGameManager>();
+            _ui      = FindObjectOfType<GolfUIManager>();
+
+            var ctrlGO = GameObject.Find("RightHand Controller");
+            if (ctrlGO != null)
+            {
+                _rightController = ctrlGO.transform;
+                _prevCtrlPos     = _rightController.position;
+            }
         }
 
         void Update()
         {
-            // 공 정지 감지
-            if (_isMoving && _rb.velocity.magnitude < 0.05f)
+            // ── 공 정지 감지 ──────────────────────────────────────
+            if (_isMoving && _rb.velocity.magnitude < 0.06f)
             {
                 _isMoving = false;
-                // TODO: 양석원 - 스윙 UI 다시 활성화
-                var uiManager = FindObjectOfType<GolfUIManager>();
-                if (uiManager != null)
+                _ui?.SetSwingUIActive(true);
+            }
+
+            // ── 아웃오브바운즈 → 벌타 + 티 리셋 ────────────────────
+            if (transform.position.y < oobY)
+            {
+                _manager?.OnBallOutOfBounds();
+                _ui?.SetSwingUIActive(true);
+                return;
+            }
+
+            // ── 조준선 (정지 중만) ────────────────────────────────
+            _aimLine.enabled = !_isMoving;
+            if (!_isMoving)
+            {
+                if (Input.GetKey(KeyCode.LeftArrow))  _aimAngle -= aimRotateSpeed * Time.deltaTime;
+                if (Input.GetKey(KeyCode.RightArrow)) _aimAngle += aimRotateSpeed * Time.deltaTime;
+
+                Vector3 aimDir = GetAimDirection();
+
+                // 차지량에 따라 조준선 길이·색 변화
+                float chargePct = _isCharging ? Mathf.Clamp01(_chargeTime / maxChargeTime) : 0f;
+                _aimLine.startColor = Color.Lerp(Color.yellow, Color.red, chargePct);
+                _aimLine.endColor   = new Color(1f, 1f - chargePct, 0f, 0f);
+                float lineLen = Mathf.Lerp(1.5f, 5f, chargePct);
+                _aimLine.SetPosition(0, transform.position);
+                _aimLine.SetPosition(1, transform.position + aimDir * lineLen);
+            }
+
+            if (_isMoving) return;
+
+            // ── PC: Space 차지 스윙 ───────────────────────────────
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                _isCharging = true;
+                _chargeTime = 0f;
+            }
+            if (_isCharging && Input.GetKey(KeyCode.Space))
+            {
+                _chargeTime = Mathf.Min(_chargeTime + Time.deltaTime, maxChargeTime);
+            }
+            if (_isCharging && Input.GetKeyUp(KeyCode.Space))
+            {
+                float t     = Mathf.Clamp01(_chargeTime / maxChargeTime);
+                float force = Mathf.Lerp(maxSwingForce * 0.15f, maxSwingForce, t);
+                ApplySwing(GetAimDirection(), force);
+                _isCharging = false;
+                _chargeTime = 0f;
+                return;
+            }
+
+            // ── VR: 퍼팅 감지 — 실제 XR 기기 연결 시에만 동작 ──
+            if (_rightController != null && UnityEngine.XR.XRSettings.isDeviceActive)
+            {
+                Vector3 ctrlPos  = _rightController.position;
+                Vector3 frameVel = (ctrlPos - _prevCtrlPos) / Mathf.Max(Time.deltaTime, 0.001f);
+                _prevCtrlPos = ctrlPos;
+
+                Vector3 horizVel   = new Vector3(frameVel.x, 0f, frameVel.z);
+                float   horizSpeed = horizVel.magnitude;
+
+                if (!_swingArmed && horizSpeed > 0.3f) _swingArmed = true;
+
+                if (_swingArmed && horizSpeed > swingThreshold)
                 {
-                    uiManager.SetSwingUIActive(true);
+                    float force = Mathf.Clamp(horizSpeed * 1.5f, 1f, maxSwingForce);
+                    ApplySwing(horizVel.normalized, force);
+                    _swingArmed = false;
                 }
             }
         }
 
-        /// <summary>VR 컨트롤러 스윙 감지 후 호출 (방향, 세기)</summary>
+        Vector3 GetAimDirection()
+        {
+            Camera cam = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
+            Vector3 fwd = cam != null ? cam.transform.forward : Vector3.forward;
+            fwd.y = 0f;
+            if (fwd.sqrMagnitude < 0.001f) fwd = Vector3.forward;
+            return Quaternion.Euler(0f, _aimAngle, 0f) * fwd.normalized;
+        }
+
         public void ApplySwing(Vector3 direction, float force)
         {
             if (_isMoving) return;
-
-            float clampedForce = Mathf.Clamp(force, 0, maxSwingForce);
-            _rb.AddForce(direction.normalized * clampedForce, ForceMode.Impulse);
-            _isMoving = true;
-
+            _rb.velocity = Vector3.zero;
+            _rb.AddForce(direction.normalized * force, ForceMode.VelocityChange);
+            _isMoving    = true;
+            _swingArmed  = false;
+            _isCharging  = false;
+            _aimLine.enabled = false;
             _manager?.OnSwingCompleted();
         }
 
         void OnTriggerEnter(Collider other)
         {
-            if (((1 << other.gameObject.layer) & holeTriggerLayer) != 0)
+            if (other.GetComponent<GolfHoleTrigger>() != null)
             {
-                _rb.velocity = Vector3.zero;
+                _rb.velocity        = Vector3.zero;
+                _rb.angularVelocity = Vector3.zero;
+                _isMoving = false;
                 _manager?.OnHoleIn();
             }
         }
 
         public void ResetBall(Vector3 position)
         {
-            transform.position = position;
+            _lastTeePos         = position;
+            transform.position  = position;
             _rb.velocity        = Vector3.zero;
             _rb.angularVelocity = Vector3.zero;
-            _isMoving           = false;
+            _isMoving   = false;
+            _swingArmed = false;
+            _isCharging = false;
+            _chargeTime = 0f;
+        }
+
+        void BuildAimLine()
+        {
+            _aimLine = gameObject.AddComponent<LineRenderer>();
+            _aimLine.positionCount = 2;
+            _aimLine.startWidth    = 0.04f;
+            _aimLine.endWidth      = 0.01f;
+            _aimLine.material      = new Material(Shader.Find("Sprites/Default"));
+            _aimLine.startColor    = Color.yellow;
+            _aimLine.endColor      = new Color(1f, 1f, 0f, 0f);
+            _aimLine.useWorldSpace = true;
         }
     }
 }

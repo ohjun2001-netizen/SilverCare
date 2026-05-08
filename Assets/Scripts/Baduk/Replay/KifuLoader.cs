@@ -1,6 +1,6 @@
 // Assets/Scripts/Baduk/Replay/KifuLoader.cs
 // JSON 파일 위치:
-//   Assets/Resources/Data/kifu_sample.json
+//   Assets/Resources/Data/kifu_*.json  (kifu_ 로 시작하는 파일 전부 자동 로드)
 //   Assets/Resources/Data/npc_comments.json
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +11,8 @@ namespace Baduk.Replay
 {
     public class KifuLoader : MonoBehaviour
     {
-        const string KIFU_PATH     = "Data/kifu_sample";
+        const string KIFU_FOLDER   = "Data";
+        const string KIFU_PREFIX   = "kifu_";
         const string COMMENTS_PATH = "Data/npc_comments";
 
         KifuDatabase     _kifuDb;
@@ -28,14 +29,25 @@ namespace Baduk.Replay
 
         void LoadKifuDatabase()
         {
-            var json = Resources.Load<TextAsset>(KIFU_PATH);
-            if (json == null)
+            var assets = Resources.LoadAll<TextAsset>(KIFU_FOLDER)
+                                  .Where(a => a.name.StartsWith(KIFU_PREFIX))
+                                  .ToArray();
+
+            if (assets.Length == 0)
             {
-                Debug.LogError($"[KifuLoader] 기보 JSON 없음: Resources/{KIFU_PATH}");
+                Debug.LogError($"[KifuLoader] kifu_*.json 없음: Resources/{KIFU_FOLDER}/");
+                _kifuDb = new KifuDatabase { kifus = new List<Kifu>() };
                 return;
             }
-            _kifuDb = JsonUtility.FromJson<KifuDatabase>(json.text);
-            Debug.Log($"[KifuLoader] 기보 {_kifuDb.total}개 로드 (ver {_kifuDb.version})");
+
+            var all = new List<Kifu>();
+            foreach (var asset in assets)
+            {
+                var db = JsonUtility.FromJson<KifuDatabase>(asset.text);
+                if (db?.kifus != null) all.AddRange(db.kifus);
+            }
+            _kifuDb = new KifuDatabase { version = "0.4", total = all.Count, kifus = all };
+            Debug.Log($"[KifuLoader] 기보 {all.Count}개 로드 ({assets.Length}개 파일)");
         }
 
         void LoadCommentPool()

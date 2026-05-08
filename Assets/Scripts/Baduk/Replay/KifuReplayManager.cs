@@ -117,10 +117,10 @@ namespace Baduk.Replay
 
         IEnumerator PlayLoop()
         {
-            while (_moveIndex < TotalMoves)
+            while (_isPlaying && _moveIndex < TotalMoves)
             {
                 StepForward();
-                if (_moveIndex >= TotalMoves) break;
+                if (!_isPlaying || _moveIndex >= TotalMoves) break;
                 float wait = baseInterval / Mathf.Max(0.25f, speedMultiplier);
                 yield return new WaitForSeconds(wait);
             }

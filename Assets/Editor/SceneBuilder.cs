@@ -7,6 +7,7 @@ using UnityEditor.SceneManagement;
 using Unity.XR.CoreUtils;
 using UnityEngine.XR.Interaction.Toolkit;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem.XR;
 
 public static class SceneBuilder
@@ -27,6 +28,8 @@ public static class SceneBuilder
         BuildLobbyScene();
         BuildBadukDesktopScene();
         BuildBadukVRScene();
+        BuildBadukReplayScene();
+        BuildBadukPredictionScene();
         BuildCardMatchScene();
         BuildQuizScene();
         BuildSongGuessScene();
@@ -149,6 +152,59 @@ public static class SceneBuilder
         Debug.Log("[SceneBuilder] BadukVR 씬 생성 완료");
     }
 
+    // ── Baduk Replay 씬 ──────────────────────────────────────────
+    static void BuildBadukReplayScene()
+    {
+        var scene = EditorSceneManager.NewScene(
+            NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+#pragma warning disable CS0618
+        var defaultCam = Object.FindObjectOfType<Camera>();
+#pragma warning restore CS0618
+        if (defaultCam != null) Object.DestroyImmediate(defaultCam.gameObject);
+
+        var go = new GameObject("BadukReplayManager");
+        go.AddComponent<Baduk.BadukBoard>();
+        go.AddComponent<Baduk.Replay.KifuLoader>();
+        go.AddComponent<Baduk.Replay.KifuReplayManager>();
+        go.AddComponent<Baduk.Replay.NpcCommentator>();
+        go.AddComponent<Baduk.Replay.NpcAvatarSpawner>();
+        go.AddComponent<Baduk.BadukVRBoardSetup>();
+        go.AddComponent<Baduk.Replay.KifuVRUI>();
+        go.AddComponent<Baduk.Replay.KifuReplayGameManager>();
+
+        BuildXROrigin(addSimulator: true);
+
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/BadukReplay.unity");
+        Debug.Log("[SceneBuilder] BadukReplay 씬 생성 완료");
+    }
+
+    // ── Baduk Prediction 씬 ───────────────────────────────────────
+    static void BuildBadukPredictionScene()
+    {
+        var scene = EditorSceneManager.NewScene(
+            NewSceneSetup.DefaultGameObjects, NewSceneMode.Single);
+
+#pragma warning disable CS0618
+        var defaultCam = Object.FindObjectOfType<Camera>();
+#pragma warning restore CS0618
+        if (defaultCam != null) Object.DestroyImmediate(defaultCam.gameObject);
+
+        var go = new GameObject("BadukPredictionManager");
+        go.AddComponent<Baduk.BadukBoard>();
+        go.AddComponent<Baduk.Replay.KifuLoader>();
+        go.AddComponent<Baduk.Replay.KifuReplayManager>();
+        go.AddComponent<Baduk.Replay.NpcAvatarSpawner>();
+        go.AddComponent<Baduk.Prediction.PredictionVRUI>();
+        go.AddComponent<Baduk.Prediction.PredictionGameManager>();
+
+        BuildManagers();
+        BuildXROrigin(addSimulator: true);
+
+        EditorSceneManager.SaveScene(scene, "Assets/Scenes/BadukPrediction.unity");
+        Debug.Log("[SceneBuilder] BadukPrediction 씬 생성 완료");
+    }
+
     // ── CardMatch 씬 ─────────────────────────────────────────────
     static void BuildCardMatchScene()
     {
@@ -161,7 +217,6 @@ public static class SceneBuilder
 
         var go = new GameObject("CardMatchManager");
         go.AddComponent<SilverCare.CardMatch.CardMatchGameManager>();
-        go.AddComponent<SilverCare.CardMatch.CardController>();
 
         BuildXROrigin(addSimulator: true);
 
@@ -241,9 +296,14 @@ public static class SceneBuilder
         Object.DestroyImmediate(Object.FindObjectOfType<Camera>()?.gameObject);
 #pragma warning restore CS0618
 
-        var go = new GameObject("GolfManager");
-        go.AddComponent<SilverCare.Golf.GolfGameManager>();
-        go.AddComponent<SilverCare.Golf.GolfCourseManager>();
+        // GolfManager: GameManager + CourseManager + UIManager 한 오브젝트에 배치
+        var managerGO = new GameObject("GolfManager");
+        managerGO.AddComponent<SilverCare.Golf.GolfGameManager>();
+        managerGO.AddComponent<SilverCare.Golf.GolfCourseManager>();
+        managerGO.AddComponent<SilverCare.Golf.GolfUIManager>();
+
+        // Managers (DontDestroyOnLoad 싱글턴들)
+        BuildManagers();
 
         BuildXROrigin(addSimulator: true);
 
@@ -254,8 +314,13 @@ public static class SceneBuilder
     // ── XR Origin 생성 ────────────────────────────────────────────
     static void BuildXROrigin(bool addSimulator)
     {
+        // XRInteractionManager — 없으면 XR IT 전체가 동작 안 함
+        if (Object.FindObjectOfType<UnityEngine.XR.Interaction.Toolkit.XRInteractionManager>() == null)
+            new GameObject("XR Interaction Manager")
+                .AddComponent<UnityEngine.XR.Interaction.Toolkit.XRInteractionManager>();
+
         var originGO = new GameObject("XR Origin");
-        originGO.transform.position = new Vector3(0f, 0f, -1.5f);
+        originGO.transform.position = new Vector3(0f, 0f, -2.5f);
         var xrOrigin = originGO.AddComponent<XROrigin>();
 
         var offsetGO = new GameObject("Camera Offset");
@@ -265,10 +330,11 @@ public static class SceneBuilder
         var camGO = new GameObject("Main Camera");
         camGO.tag = "MainCamera";
         camGO.transform.SetParent(offsetGO.transform, false);
-        camGO.transform.localPosition = new Vector3(0f, 1.0f, 0f);
+        camGO.transform.localPosition = new Vector3(0f, 1.6f, 0f);
         var cam = camGO.AddComponent<Camera>();
         cam.nearClipPlane = 0.01f;
         camGO.AddComponent<AudioListener>();
+        camGO.AddComponent<UnityEngine.EventSystems.PhysicsRaycaster>(); // 3D 오브젝트 마우스 클릭
         xrOrigin.Camera = cam;
 
         // TrackedPoseDriver — XR 헤드셋 위치/회전을 카메라에 반영
@@ -283,20 +349,46 @@ public static class SceneBuilder
         var rightGO = new GameObject("RightHand Controller");
         rightGO.transform.SetParent(offsetGO.transform, false);
         rightGO.transform.localPosition = new Vector3(0.2f, 1.3f, 0.3f);
+
+        // 실제 VR 컨트롤러 위치/회전 추적
+        var rightTPD = rightGO.AddComponent<TrackedPoseDriver>();
+        var rightPosAct = new InputAction("RightPos", InputActionType.Value,
+            "<XRController>{RightHand}/devicePosition");
+        var rightRotAct = new InputAction("RightRot", InputActionType.Value,
+            "<XRController>{RightHand}/deviceRotation");
+        rightTPD.positionInput = new UnityEngine.InputSystem.InputActionProperty(rightPosAct);
+        rightTPD.rotationInput = new UnityEngine.InputSystem.InputActionProperty(rightRotAct);
+
         rightGO.AddComponent<ActionBasedController>();
         var ray = rightGO.AddComponent<XRRayInteractor>();
         ray.maxRaycastDistance = 10f;
         ray.enableUIInteraction = true;
+
+        // LineRenderer + LineVisual: XRRayInteractor 먼저 추가된 뒤에 붙여야 ILineRenderable 참조 성공
         var lr = rightGO.AddComponent<LineRenderer>();
         lr.startWidth = 0.005f; lr.endWidth = 0.005f;
         lr.material = new Material(Shader.Find("Sprites/Default"));
         lr.startColor = Color.cyan;
         lr.endColor   = new Color(0f, 1f, 1f, 0.3f);
-        rightGO.AddComponent<XRInteractorLineVisual>().lineLength = 10f;
+        var lineVisual = rightGO.AddComponent<XRInteractorLineVisual>();
+        lineVisual.lineLength = 10f;
+        // lineRenderable 직접 연결 (씬 저장 후 로드 시 GetComponent 타이밍 문제 방지)
+        var lvSO = new UnityEditor.SerializedObject(lineVisual);
+        var lrProp = lvSO.FindProperty("m_LineRenderable");
+        if (lrProp != null) { lrProp.objectReferenceValue = ray; lvSO.ApplyModifiedProperties(); }
 
         var leftGO = new GameObject("LeftHand Controller");
         leftGO.transform.SetParent(offsetGO.transform, false);
         leftGO.transform.localPosition = new Vector3(-0.2f, 1.3f, 0.3f);
+
+        var leftTPD = leftGO.AddComponent<TrackedPoseDriver>();
+        var leftPosAct = new InputAction("LeftPos", InputActionType.Value,
+            "<XRController>{LeftHand}/devicePosition");
+        var leftRotAct = new InputAction("LeftRot", InputActionType.Value,
+            "<XRController>{LeftHand}/deviceRotation");
+        leftTPD.positionInput = new UnityEngine.InputSystem.InputActionProperty(leftPosAct);
+        leftTPD.rotationInput = new UnityEngine.InputSystem.InputActionProperty(leftRotAct);
+
         leftGO.AddComponent<ActionBasedController>();
 
         // 상하 이동 — PC: R(위) / F(아래)
@@ -364,6 +456,18 @@ public static class SceneBuilder
             if (!placed)
                 Debug.LogWarning("[SceneBuilder] XR Device Simulator 프리팹을 찾지 못함. " +
                     "Package Manager → XR Interaction Toolkit → Samples → XR Device Simulator 임포트 필요");
+        }
+
+        // XRLineVisualFixer — XRInteractorLineVisual 참조 누락을 런타임에 자동 복구
+        if (originGO.GetComponent<SilverCare.Common.XRLineVisualFixer>() == null)
+            originGO.AddComponent<SilverCare.Common.XRLineVisualFixer>();
+
+        // EventSystem — IPointerClickHandler (PhysicsRaycaster 기반 3D 클릭) 에 필요
+        if (Object.FindObjectOfType<UnityEngine.EventSystems.EventSystem>() == null)
+        {
+            var esGO = new GameObject("EventSystem");
+            esGO.AddComponent<UnityEngine.EventSystems.EventSystem>();
+            esGO.AddComponent<InputSystemUIInputModule>();
         }
 
         Debug.Log("[SceneBuilder] XR Origin 생성 완료");

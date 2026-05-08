@@ -1,6 +1,6 @@
 {
-  "version": "1.0",
-  "total": 20,
+  "version": "3.3",
+  "total": 15,
   "problems": [
     {
       "id": 1,
@@ -150,6 +150,50 @@
     },
     {
       "id": 5,
+      "title": "두 눈 만들기",
+      "difficulty": 1,
+      "difficulty_name": "초급",
+      "description": "흑 돌들이 둘러싸여 있습니다. 안에 두 눈을 만들어 살리세요.",
+      "hint": "안쪽 빈 곳 중 가운데를 찾으세요.",
+      "tts_hint": "흑돌 안쪽의 빈 공간을 보세요. 가운데에 두면 두 눈이 만들어집니다.",
+      "tts_correct": "정답입니다! 두 눈을 만들어 살았습니다.",
+      "tts_wrong": "틀렸습니다. 안쪽 가운데를 살펴보세요.",
+      "board_size": 19,
+      "view_area": [0, 6, 5, 11],
+      "stones": {
+        "black": [
+          {"row": 1, "col": 7},
+          {"row": 1, "col": 8},
+          {"row": 1, "col": 9},
+          {"row": 2, "col": 7},
+          {"row": 2, "col": 9},
+          {"row": 3, "col": 7},
+          {"row": 3, "col": 8},
+          {"row": 3, "col": 9}
+        ],
+        "white": [
+          {"row": 0, "col": 7},
+          {"row": 0, "col": 8},
+          {"row": 0, "col": 9},
+          {"row": 0, "col": 10},
+          {"row": 1, "col": 6},
+          {"row": 1, "col": 10},
+          {"row": 2, "col": 6},
+          {"row": 2, "col": 10},
+          {"row": 3, "col": 6},
+          {"row": 3, "col": 10},
+          {"row": 4, "col": 7},
+          {"row": 4, "col": 8},
+          {"row": 4, "col": 9}
+        ]
+      },
+      "player": "black",
+      "goal": "survive",
+      "answer": [{"row": 2, "col": 8}],
+      "explanation": "흑이 (2,8)에 두면 안쪽에 두 눈이 생겨 살 수 있습니다."
+    },
+    {
+      "id": 6,
       "title": "빅 - 공생",
       "difficulty": 2,
       "difficulty_name": "중급",
@@ -192,7 +236,7 @@
       "explanation": "흑이 (7,7)에 두면 백과 공생 상태가 완성됩니다."
     },
     {
-      "id": 6,
+      "id": 7,
       "title": "패 만들기",
       "difficulty": 2,
       "difficulty_name": "중급",
@@ -232,7 +276,7 @@
       "explanation": "흑이 (2,9)에 두면 패가 만들어져 살아남을 기회를 얻습니다."
     },
     {
-      "id": 7,
+      "id": 8,
       "title": "환격 (스냅백)",
       "difficulty": 2,
       "difficulty_name": "중급",
@@ -263,7 +307,7 @@
       "explanation": "흑이 (5,15)에 두면 환격이 완성되어 백돌을 잡을 수 있습니다."
     },
     {
-      "id": 8,
+      "id": 9,
       "title": "5궁 급소",
       "difficulty": 2,
       "difficulty_name": "중급",
@@ -306,7 +350,39 @@
       "explanation": "흑이 (13,13) 중심에 두면 백의 두 눈을 모두 방해해 잡을 수 있습니다."
     },
     {
-      "id": 9,
+      "id": 10,
+      "title": "축 (사다리)",
+      "difficulty": 2,
+      "difficulty_name": "중급",
+      "description": "축을 이용해 백돌을 잡으세요. 사다리 모양으로 몰아가세요.",
+      "hint": "백돌이 도망가는 방향의 대각선을 막으세요.",
+      "tts_hint": "축은 사다리 모양으로 상대를 몰아가는 기술입니다. 백이 도망갈 대각선 방향을 막으세요.",
+      "tts_correct": "훌륭합니다! 축으로 백돌을 잡았습니다.",
+      "tts_wrong": "틀렸습니다. 백의 도망 방향을 다시 생각해보세요.",
+      "board_size": 19,
+      "view_area": [4, 4, 11, 11],
+      "stones": {
+        "black": [
+          {"row": 5, "col": 6},
+          {"row": 6, "col": 5},
+          {"row": 6, "col": 7},
+          {"row": 7, "col": 6},
+          {"row": 7, "col": 8},
+          {"row": 8, "col": 7}
+        ],
+        "white": [
+          {"row": 5, "col": 5},
+          {"row": 6, "col": 6},
+          {"row": 7, "col": 7}
+        ]
+      },
+      "player": "black",
+      "goal": "kill",
+      "answer": [{"row": 8, "col": 8}],
+      "explanation": "흑이 (8,8)에 두면 축이 완성되어 백돌을 잡을 수 있습니다."
+    },
+    {
+      "id": 11,
       "title": "꽃 6궁",
       "difficulty": 3,
       "difficulty_name": "고급",
@@ -345,7 +421,7 @@
       "explanation": "흑이 꽃 6궁의 중심 (5,5)에 두는 것이 유일한 정답입니다."
     },
     {
-      "id": 10,
+      "id": 12,
       "title": "복합 사활",
       "difficulty": 3,
       "difficulty_name": "고급",
@@ -401,261 +477,7 @@
       "explanation": "흑이 (14,3)에 두어 첫 눈을 확보하고 (16,3)에 두어 두 번째 눈을 만들면 삽니다."
     },
     {
-      "id": 11,
-      "title": "두 눈 만들기",
-      "difficulty": 1,
-      "difficulty_name": "초급",
-      "description": "흑 돌들이 둘러싸여 있습니다. 안에 두 눈을 만들어 살리세요.",
-      "hint": "안쪽 빈 곳 중 가운데를 찾으세요.",
-      "tts_hint": "흑돌 안쪽의 빈 공간을 보세요. 가운데에 두면 두 눈이 만들어집니다.",
-      "tts_correct": "정답입니다! 두 눈을 만들어 살았습니다.",
-      "tts_wrong": "틀렸습니다. 안쪽 가운데를 살펴보세요.",
-      "board_size": 19,
-      "view_area": [0, 6, 5, 11],
-      "stones": {
-        "black": [
-          {"row": 1, "col": 7},
-          {"row": 1, "col": 8},
-          {"row": 1, "col": 9},
-          {"row": 2, "col": 7},
-          {"row": 2, "col": 9},
-          {"row": 3, "col": 7},
-          {"row": 3, "col": 8},
-          {"row": 3, "col": 9}
-        ],
-        "white": [
-          {"row": 0, "col": 7},
-          {"row": 0, "col": 8},
-          {"row": 0, "col": 9},
-          {"row": 0, "col": 10},
-          {"row": 1, "col": 6},
-          {"row": 1, "col": 10},
-          {"row": 2, "col": 6},
-          {"row": 2, "col": 10},
-          {"row": 3, "col": 6},
-          {"row": 3, "col": 10},
-          {"row": 4, "col": 7},
-          {"row": 4, "col": 8},
-          {"row": 4, "col": 9}
-        ]
-      },
-      "player": "black",
-      "goal": "survive",
-      "answer": [{"row": 2, "col": 8}],
-      "explanation": "흑이 (2,8)에 두면 안쪽에 두 눈이 생겨 살 수 있습니다."
-    },
-    {
-      "id": 12,
-      "title": "끊어서 잡기",
-      "difficulty": 1,
-      "difficulty_name": "초급",
-      "description": "백돌의 연결을 끊어서 일부를 잡으세요.",
-      "hint": "백돌 사이의 약한 연결 고리를 찾으세요.",
-      "tts_hint": "백돌 두 그룹이 한 점으로 연결되어 있습니다. 그 연결을 끊으세요.",
-      "tts_correct": "잘했습니다! 백돌을 끊어서 잡았습니다.",
-      "tts_wrong": "틀렸습니다. 백돌의 연결 부분을 찾아보세요.",
-      "board_size": 19,
-      "view_area": [6, 0, 12, 6],
-      "stones": {
-        "black": [
-          {"row": 7, "col": 1},
-          {"row": 7, "col": 3},
-          {"row": 8, "col": 1},
-          {"row": 9, "col": 2},
-          {"row": 9, "col": 3},
-          {"row": 10, "col": 1},
-          {"row": 10, "col": 3}
-        ],
-        "white": [
-          {"row": 8, "col": 2},
-          {"row": 8, "col": 3},
-          {"row": 9, "col": 1}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 7, "col": 2}],
-      "explanation": "흑이 (7,2)에 두면 백돌의 연결을 끊어 잡을 수 있습니다."
-    },
-    {
       "id": 13,
-      "title": "활로 막기",
-      "difficulty": 1,
-      "difficulty_name": "초급",
-      "description": "백돌의 마지막 탈출로를 막아 잡으세요.",
-      "hint": "백돌이 도망갈 수 있는 마지막 빈 곳을 막으세요.",
-      "tts_hint": "백돌 주변을 보세요. 하나만 막으면 도망갈 곳이 없습니다.",
-      "tts_correct": "정답! 백의 탈출을 막았습니다.",
-      "tts_wrong": "틀렸습니다. 백이 도망갈 수 있는 곳을 찾아보세요.",
-      "board_size": 19,
-      "view_area": [0, 12, 5, 17],
-      "stones": {
-        "black": [
-          {"row": 1, "col": 13},
-          {"row": 1, "col": 15},
-          {"row": 2, "col": 13},
-          {"row": 2, "col": 14},
-          {"row": 3, "col": 14},
-          {"row": 3, "col": 15}
-        ],
-        "white": [
-          {"row": 1, "col": 14},
-          {"row": 2, "col": 15}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 0, "col": 14}],
-      "explanation": "흑이 (0,14)에 두면 백의 마지막 활로를 막아 잡습니다."
-    },
-    {
-      "id": 14,
-      "title": "축 (사다리)",
-      "difficulty": 2,
-      "difficulty_name": "중급",
-      "description": "축을 이용해 백돌을 잡으세요. 사다리 모양으로 몰아가세요.",
-      "hint": "백돌이 도망가는 방향의 대각선을 막으세요.",
-      "tts_hint": "축은 사다리 모양으로 상대를 몰아가는 기술입니다. 백이 도망갈 대각선 방향을 막으세요.",
-      "tts_correct": "훌륭합니다! 축으로 백돌을 잡았습니다.",
-      "tts_wrong": "틀렸습니다. 백의 도망 방향을 다시 생각해보세요.",
-      "board_size": 19,
-      "view_area": [4, 4, 11, 11],
-      "stones": {
-        "black": [
-          {"row": 5, "col": 6},
-          {"row": 6, "col": 5},
-          {"row": 6, "col": 7},
-          {"row": 7, "col": 6},
-          {"row": 7, "col": 8},
-          {"row": 8, "col": 7}
-        ],
-        "white": [
-          {"row": 5, "col": 5},
-          {"row": 6, "col": 6},
-          {"row": 7, "col": 7}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 8, "col": 8}],
-      "explanation": "흑이 (8,8)에 두면 축이 완성되어 백돌을 잡을 수 있습니다."
-    },
-    {
-      "id": 15,
-      "title": "접바둑 급소",
-      "difficulty": 2,
-      "difficulty_name": "중급",
-      "description": "백 집 안의 급소를 찾아 백을 잡으세요.",
-      "hint": "백의 빈 공간 정중앙이 급소입니다.",
-      "tts_hint": "백돌 안쪽의 빈 공간을 살펴보세요. 정중앙에 두면 백이 두 눈을 만들 수 없습니다.",
-      "tts_correct": "정답! 급소를 정확히 찾았습니다.",
-      "tts_wrong": "틀렸습니다. 백 집 안의 중심을 다시 찾아보세요.",
-      "board_size": 19,
-      "view_area": [10, 0, 16, 6],
-      "stones": {
-        "black": [
-          {"row": 11, "col": 1},
-          {"row": 11, "col": 2},
-          {"row": 11, "col": 3},
-          {"row": 12, "col": 0},
-          {"row": 12, "col": 4},
-          {"row": 13, "col": 0},
-          {"row": 13, "col": 4},
-          {"row": 14, "col": 1},
-          {"row": 14, "col": 3}
-        ],
-        "white": [
-          {"row": 12, "col": 1},
-          {"row": 12, "col": 2},
-          {"row": 12, "col": 3},
-          {"row": 13, "col": 1},
-          {"row": 13, "col": 3},
-          {"row": 14, "col": 2}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 13, "col": 2}],
-      "explanation": "흑이 (13,2)에 두면 백이 두 눈을 만들 수 없어 잡힙니다."
-    },
-    {
-      "id": 16,
-      "title": "귀곡사",
-      "difficulty": 2,
-      "difficulty_name": "중급",
-      "description": "귀에서 백의 대마를 잡으세요. 귀의 특수성을 이용하세요.",
-      "hint": "귀에서는 바깥쪽에 두는 것이 급소입니다.",
-      "tts_hint": "귀는 바깥에서 조이면 상대가 두 눈을 만들 수 없습니다. 바깥쪽 급소를 찾으세요.",
-      "tts_correct": "대단합니다! 귀곡사를 완성했습니다.",
-      "tts_wrong": "틀렸습니다. 귀의 바깥쪽을 살펴보세요.",
-      "board_size": 19,
-      "view_area": [13, 13, 18, 18],
-      "stones": {
-        "black": [
-          {"row": 14, "col": 14},
-          {"row": 14, "col": 15},
-          {"row": 14, "col": 16},
-          {"row": 15, "col": 13},
-          {"row": 15, "col": 17},
-          {"row": 16, "col": 13},
-          {"row": 16, "col": 17},
-          {"row": 17, "col": 14},
-          {"row": 17, "col": 15},
-          {"row": 17, "col": 16}
-        ],
-        "white": [
-          {"row": 15, "col": 14},
-          {"row": 15, "col": 16},
-          {"row": 16, "col": 14},
-          {"row": 16, "col": 15},
-          {"row": 16, "col": 16}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 15, "col": 15}],
-      "explanation": "흑이 (15,15)에 두면 백이 두 눈을 만들 수 없어 귀곡사로 잡힙니다."
-    },
-    {
-      "id": 17,
-      "title": "옥집 만들기",
-      "difficulty": 2,
-      "difficulty_name": "중급",
-      "description": "백의 눈 모양을 옥집(가짜 눈)으로 만들어 잡으세요.",
-      "hint": "눈처럼 보이지만 실제로는 눈이 아닌 모양을 만드세요.",
-      "tts_hint": "백이 눈을 만들려는 자리에 두면 옥집이 됩니다. 눈이 될 뻔한 자리를 찾으세요.",
-      "tts_correct": "정답! 옥집을 만들어 백을 잡았습니다.",
-      "tts_wrong": "틀렸습니다. 백의 눈 자리를 다시 살펴보세요.",
-      "board_size": 19,
-      "view_area": [0, 0, 5, 6],
-      "stones": {
-        "black": [
-          {"row": 1, "col": 1},
-          {"row": 1, "col": 3},
-          {"row": 2, "col": 0},
-          {"row": 2, "col": 4},
-          {"row": 3, "col": 0},
-          {"row": 3, "col": 4},
-          {"row": 4, "col": 1},
-          {"row": 4, "col": 2},
-          {"row": 4, "col": 3}
-        ],
-        "white": [
-          {"row": 1, "col": 2},
-          {"row": 2, "col": 1},
-          {"row": 2, "col": 2},
-          {"row": 2, "col": 3},
-          {"row": 3, "col": 1},
-          {"row": 3, "col": 3}
-        ]
-      },
-      "player": "black",
-      "goal": "kill",
-      "answer": [{"row": 3, "col": 2}],
-      "explanation": "흑이 (3,2)에 두면 백의 눈이 옥집이 되어 잡힙니다."
-    },
-    {
-      "id": 18,
       "title": "수상전",
       "difficulty": 3,
       "difficulty_name": "고급",
@@ -693,7 +515,7 @@
       "explanation": "흑이 (8,8)과 (9,8)에 순서대로 두면 백의 활로를 먼저 메워 수상전에서 이깁니다."
     },
     {
-      "id": 19,
+      "id": 14,
       "title": "이단 머리 찌르기",
       "difficulty": 3,
       "difficulty_name": "고급",
@@ -734,7 +556,7 @@
       "explanation": "흑이 (4,15)로 아래를 찌르고 (1,15)로 위를 찌르면 백 두 그룹 모두 잡힙니다."
     },
     {
-      "id": 20,
+      "id": 15,
       "title": "대마 살리기",
       "difficulty": 3,
       "difficulty_name": "고급",
@@ -782,5 +604,6 @@
       ],
       "explanation": "흑이 (7,7)로 연결을 강화하고 (8,8)로 두 번째 눈을 만들면 대마가 삽니다."
     }
-  ]
+  ],
+  "notes": "초급 5, 중급 5, 고급 5. Git 원본 baduk_problems.json에서 검증된 문제만 선별."
 }

@@ -7,13 +7,13 @@ using UnityEngine;
 using Baduk.Data;
 using Baduk.Replay;
 using SilverCare.Common;
+using Unity.XR.CoreUtils;
 
 namespace Baduk.Prediction
 {
     public class PredictionGameManager : MonoBehaviour
     {
         [SerializeField] string lobbySceneName = "MainLobby";
-        [SerializeField] int rewardPerCorrect = 50;
         [SerializeField] float resumeDelayAfterAnswer = 2.0f;
 
         // 컴포넌트 (자동 탐색)
@@ -25,12 +25,17 @@ namespace Baduk.Prediction
         // 상태
         Kifu              _currentKifu;
         PredictionPoint   _activePoint;
-        HashSet<int>      _consumedPoints = new();   // 이미 발동된 move_index 들
+        HashSet<int>      _consumedPoints = new();
         int               _correctCount;
         int               _totalAsked;
-        int               _coinsEarned;
+        bool              _manuallyPaused;
 
-        // 씬 시작 시점 카메라 상태 — 매번 동일한 기준으로 보드/룸 배치
+        // 씬 시작 시점 XR Origin 상태 — 그만 보기 시 원위치 복원용
+        Vector3    _originXRPos;
+        Quaternion _originXRRot;
+        bool       _originSaved;
+
+        // PC 폴백용 카메라 상태
         Vector3    _originCamPos;
         Quaternion _originCamRot;
         bool       _originCamSaved;
@@ -49,39 +54,39 @@ namespace Baduk.Prediction
 
         void Start()
         {
-            // 시나리오 시작 시점 카메라 상태 캡쳐
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originSaved = true;
+            }
             Camera cam0 = Camera.main;
             if (cam0 != null)
             {
-                _originCamPos = cam0.transform.position;
-                _originCamRot = cam0.transform.rotation;
+                _originCamPos   = cam0.transform.position;
+                _originCamRot   = cam0.transform.rotation;
                 _originCamSaved = true;
             }
 
-            _ui.OnKifuSelected      = HandleKifuSelected;
-            _ui.OnPlayPause         = () => _replay.TogglePlayPause();
-            _ui.OnSpeedChanged      = (s) => _replay.SetSpeed(s);
-            _ui.OnPredictionSubmit  = HandlePredictionSubmitted;
-            _ui.OnRestart           = HandleRestart;
-            _ui.OnBack              = HandleBack;
+            _ui.OnKifuSelected     = HandleKifuSelected;
+            _ui.OnPlayPause        = () => {
+                if (_replay.IsPlaying) _manuallyPaused = true;
+                else                   _manuallyPaused = false;
+                _replay.TogglePlayPause();
+            };
+            _ui.OnSpeedChanged     = (s) => _replay.SetSpeed(s);
+            _ui.OnPredictionSubmit = HandlePredictionSubmitted;
+            _ui.OnRestart          = HandleRestart;
+            _ui.OnBack             = HandleBack;
+            _ui.OnBackToSelect     = HandleBackToSelect;
 
             _replay.OnMoveAdvanced         = HandleMoveAdvanced;
             _replay.OnPlaybackStateChanged = () => _ui.UpdatePlayPauseLabel(_replay.IsPlaying);
             _replay.OnReplayEnded          = HandleReplayEnded;
 
-            if (PlayerDataManager.Instance != null)
-                PlayerDataManager.Instance.OnCoinsChanged += OnCoinsChanged;
-
             ShowKifuSelect();
         }
-
-        void OnDestroy()
-        {
-            if (PlayerDataManager.Instance != null)
-                PlayerDataManager.Instance.OnCoinsChanged -= OnCoinsChanged;
-        }
-
-        void OnCoinsChanged(int coins) => _ui.UpdateCoins(coins);
 
         // ── 화면 흐름 ────────────────────────────────────
 
@@ -91,24 +96,38 @@ namespace Baduk.Prediction
             _activePoint = null;
             _consumedPoints.Clear();
             _correctCount = 0;
-            _totalAsked = 0;
-            _coinsEarned = 0;
-            _ui.ShowKifuSelect(_loader.AllKifus, GetCoins());
+            _totalAsked   = 0;
+            _ui.ShowKifuSelect(_loader.AllKifus);
         }
 
         void HandleKifuSelected(Kifu kifu)
         {
-            _currentKifu = kifu;
+            _currentKifu    = kifu;
             _consumedPoints.Clear();
-            _correctCount = 0;
-            _totalAsked = 0;
-            _coinsEarned = 0;
+            _correctCount   = 0;
+            _totalAsked     = 0;
+            _manuallyPaused = false;
 
             _replay.LoadKifu(kifu, _loader.Comments);
-            // BadukBoard.SetupBoard 안에서 transform이 원점으로 리셋되므로 사용자 앞에 다시 배치
             SetupBoardAndRoom();
-            _ui.ShowReplay(kifu, GetCoins());
+            _ui.ShowReplay(kifu);
             _replay.Play();
+        }
+
+        void RestoreOrigin()
+        {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null && _originSaved)
+            {
+                xrOrigin.transform.position = _originXRPos;
+                xrOrigin.transform.rotation = _originXRRot;
+            }
+            Camera cam = Camera.main;
+            if (cam != null && _originCamSaved)
+            {
+                cam.transform.position = _originCamPos;
+                cam.transform.rotation = _originCamRot;
+            }
         }
 
         void SetupBoardAndRoom()
@@ -116,13 +135,7 @@ namespace Baduk.Prediction
             var board = GetComponent<BadukBoard>();
             if (board == null) return;
 
-            // 매번 카메라를 씬 시작 시점 상태로 리셋 → 보드 배치가 결정론적
             Camera cam = Camera.main;
-            if (cam != null && _originCamSaved)
-            {
-                cam.transform.position = _originCamPos;
-                cam.transform.rotation = _originCamRot;
-            }
 
             float cx = (board.C1 - board.C0) * BadukBoard.CELL / 2f;
             float cy = (board.R1 - board.R0) * BadukBoard.CELL / 2f;
@@ -149,7 +162,6 @@ namespace Baduk.Prediction
             BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY,
                                        board.transform.rotation);
 
-            // 보드 위치 확정 후 아바타 재배치 (LoadKifu의 첫 spawn은 보드가 원점일 때라 위치 어긋남)
             _avatars?.Spawn(board.transform);
         }
 
@@ -157,7 +169,6 @@ namespace Baduk.Prediction
         {
             _ui.UpdateProgress(cur, total);
 
-            // cur = 다음에 둘 수의 인덱스. 이 인덱스를 가진 prediction_point 가 있으면 발동.
             var pp = FindPredictionPoint(cur);
             if (pp != null && !_consumedPoints.Contains(cur))
             {
@@ -182,14 +193,9 @@ namespace Baduk.Prediction
             if (_activePoint == null) return;
 
             bool correct = chosenCandidateIndex == _activePoint.correct_index;
-            if (correct)
-            {
-                _correctCount++;
-                _coinsEarned += rewardPerCorrect;
-                PlayerDataManager.Instance?.AddCoins(rewardPerCorrect);
-            }
+            if (correct) _correctCount++;
 
-            _ui.ShowPredictionResult(correct, _activePoint, chosenCandidateIndex, rewardPerCorrect);
+            _ui.ShowPredictionResult(correct, _activePoint, chosenCandidateIndex);
             StartCoroutine(ResumeAfterAnswer());
         }
 
@@ -198,38 +204,41 @@ namespace Baduk.Prediction
             yield return new WaitForSeconds(resumeDelayAfterAnswer);
             _ui.HidePredictionOverlay();
             _activePoint = null;
-            if (_currentKifu != null && _replay.MoveIndex < _replay.TotalMoves)
+            if (_currentKifu != null && _replay.MoveIndex < _replay.TotalMoves && !_manuallyPaused)
                 _replay.Play();
         }
 
         void HandleReplayEnded()
         {
-            _ui.ShowResult(_correctCount, _totalAsked, _coinsEarned, GetCoins());
+            _ui.ShowResult(_correctCount, _totalAsked);
         }
 
         void HandleRestart()
         {
             if (_currentKifu == null) { ShowKifuSelect(); return; }
-            HandleKifuSelected(_currentKifu);  // 같은 기보 재시작
+            HandleKifuSelected(_currentKifu);
+        }
+
+        void HandleBackToSelect()
+        {
+            _replay.Pause();
+            BadukRoomEnvironment.Cleanup();
+            _avatars?.Despawn();
+            var board = GetComponent<BadukBoard>();
+            if (board != null)
+            {
+                board.RemoveAllPlayerStones();
+                board.transform.position = new Vector3(0f, -100f, 0f);
+            }
+            RestoreOrigin();
+            ShowKifuSelect();
         }
 
         void HandleBack()
         {
             _replay.Pause();
-            if (_currentKifu == null) { LoadLobby(); return; }
-
-            // select 패널 매번 동일 위치에 표시되도록 카메라 리셋
-            Camera cam = Camera.main;
-            if (cam != null && _originCamSaved)
-            {
-                cam.transform.position = _originCamPos;
-                cam.transform.rotation = _originCamRot;
-            }
-            ShowKifuSelect();
+            LoadLobby();
         }
-
-        // ── 헬퍼 ─────────────────────────────────────────
-        static int GetCoins() => PlayerDataManager.Instance?.Coins ?? 0;
 
         void LoadLobby()
         {

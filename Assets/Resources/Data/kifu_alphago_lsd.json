@@ -1,0 +1,7221 @@
+{
+  "version": "0.4",
+  "total": 5,
+  "kifus": [
+    {
+      "id": "alphago_lsd_g1",
+      "title": "알파고 vs 이세돌 1국",
+      "black_player": "Lee Sedol",
+      "white_player": "AlphaGo",
+      "date": "2016-03-09",
+      "board_size": 19,
+      "view_area": [
+        0,
+        0,
+        18,
+        18
+      ],
+      "description": "2016년 3월, 구글 딥마인드의 알파고와 이세돌 9단의 세기의 5번기 1국. 알파고가 백을 잡아 불계승했습니다.",
+      "moves": [
+        {
+          "row": 3,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        }
+      ],
+      "result": "알파고(백) 불계승",
+      "winner": "white",
+      "prediction_points": [
+        {
+          "move_index": 25,
+          "candidates": [
+            {
+              "row": 6,
+              "col": 11
+            },
+            {
+              "row": 9,
+              "col": 7
+            },
+            {
+              "row": 14,
+              "col": 2
+            },
+            {
+              "row": 8,
+              "col": 2
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 26번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 50,
+          "candidates": [
+            {
+              "row": 12,
+              "col": 11
+            },
+            {
+              "row": 14,
+              "col": 2
+            },
+            {
+              "row": 5,
+              "col": 15
+            },
+            {
+              "row": 8,
+              "col": 6
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 51번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 75,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 12
+            },
+            {
+              "row": 5,
+              "col": 15
+            },
+            {
+              "row": 17,
+              "col": 17
+            },
+            {
+              "row": 5,
+              "col": 14
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 76번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 100,
+          "candidates": [
+            {
+              "row": 3,
+              "col": 13
+            },
+            {
+              "row": 17,
+              "col": 17
+            },
+            {
+              "row": 10,
+              "col": 4
+            },
+            {
+              "row": 8,
+              "col": 11
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 101번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 125,
+          "candidates": [
+            {
+              "row": 13,
+              "col": 15
+            },
+            {
+              "row": 10,
+              "col": 4
+            },
+            {
+              "row": 15,
+              "col": 3
+            },
+            {
+              "row": 8,
+              "col": 7
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 126번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 150,
+          "candidates": [
+            {
+              "row": 7,
+              "col": 7
+            },
+            {
+              "row": 15,
+              "col": 3
+            },
+            {
+              "row": 6,
+              "col": 10
+            },
+            {
+              "row": 13,
+              "col": 4
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 151번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 175,
+          "candidates": [
+            {
+              "row": 9,
+              "col": 5
+            },
+            {
+              "row": 6,
+              "col": 10
+            },
+            {
+              "row": 2,
+              "col": 13
+            },
+            {
+              "row": 4,
+              "col": 16
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 176번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        }
+      ]
+    },
+    {
+      "id": "alphago_lsd_g2",
+      "title": "이세돌 vs 알파고 2국",
+      "black_player": "AlphaGo",
+      "white_player": "Lee Sedol",
+      "date": "2016-03-10",
+      "board_size": 19,
+      "view_area": [
+        0,
+        0,
+        18,
+        18
+      ],
+      "description": "5번기 2국. 알파고가 두 번째 승리를 거두며 전 세계를 놀라게 했습니다.",
+      "moves": [
+        {
+          "row": 3,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        }
+      ],
+      "result": "알파고(백) 불계승",
+      "winner": "black",
+      "prediction_points": [
+        {
+          "move_index": 25,
+          "candidates": [
+            {
+              "row": 15,
+              "col": 4
+            },
+            {
+              "row": 13,
+              "col": 7
+            },
+            {
+              "row": 4,
+              "col": 5
+            },
+            {
+              "row": 0,
+              "col": 13
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 26번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 50,
+          "candidates": [
+            {
+              "row": 12,
+              "col": 4
+            },
+            {
+              "row": 3,
+              "col": 6
+            },
+            {
+              "row": 17,
+              "col": 12
+            },
+            {
+              "row": 14,
+              "col": 12
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 51번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 75,
+          "candidates": [
+            {
+              "row": 13,
+              "col": 8
+            },
+            {
+              "row": 9,
+              "col": 2
+            },
+            {
+              "row": 4,
+              "col": 3
+            },
+            {
+              "row": 15,
+              "col": 14
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 76번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 100,
+          "candidates": [
+            {
+              "row": 8,
+              "col": 8
+            },
+            {
+              "row": 1,
+              "col": 15
+            },
+            {
+              "row": 1,
+              "col": 12
+            },
+            {
+              "row": 6,
+              "col": 2
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 101번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 125,
+          "candidates": [
+            {
+              "row": 17,
+              "col": 11
+            },
+            {
+              "row": 8,
+              "col": 12
+            },
+            {
+              "row": 0,
+              "col": 12
+            },
+            {
+              "row": 11,
+              "col": 5
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 126번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 150,
+          "candidates": [
+            {
+              "row": 5,
+              "col": 13
+            },
+            {
+              "row": 4,
+              "col": 0
+            },
+            {
+              "row": 16,
+              "col": 5
+            },
+            {
+              "row": 2,
+              "col": 6
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 151번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 175,
+          "candidates": [
+            {
+              "row": 18,
+              "col": 12
+            },
+            {
+              "row": 16,
+              "col": 13
+            },
+            {
+              "row": 3,
+              "col": 13
+            },
+            {
+              "row": 12,
+              "col": 8
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 176번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 200,
+          "candidates": [
+            {
+              "row": 1,
+              "col": 11
+            },
+            {
+              "row": 5,
+              "col": 16
+            },
+            {
+              "row": 11,
+              "col": 2
+            },
+            {
+              "row": 2,
+              "col": 16
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 201번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        }
+      ]
+    },
+    {
+      "id": "alphago_lsd_g3",
+      "title": "알파고 vs 이세돌 3국",
+      "black_player": "Lee Sedol",
+      "white_player": "AlphaGo",
+      "date": "2016-03-12",
+      "board_size": 19,
+      "view_area": [
+        0,
+        0,
+        18,
+        18
+      ],
+      "description": "5번기 3국. 알파고의 연승, 이세돌은 기로에 섭니다.",
+      "moves": [
+        {
+          "row": 3,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        }
+      ],
+      "result": "알파고(백) 불계승",
+      "winner": "white",
+      "prediction_points": [
+        {
+          "move_index": 25,
+          "candidates": [
+            {
+              "row": 3,
+              "col": 7
+            },
+            {
+              "row": 10,
+              "col": 1
+            },
+            {
+              "row": 13,
+              "col": 14
+            },
+            {
+              "row": 14,
+              "col": 6
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 26번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 50,
+          "candidates": [
+            {
+              "row": 7,
+              "col": 4
+            },
+            {
+              "row": 14,
+              "col": 14
+            },
+            {
+              "row": 3,
+              "col": 0
+            },
+            {
+              "row": 7,
+              "col": 14
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 51번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 75,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 4
+            },
+            {
+              "row": 0,
+              "col": 1
+            },
+            {
+              "row": 14,
+              "col": 8
+            },
+            {
+              "row": 5,
+              "col": 3
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 76번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 100,
+          "candidates": [
+            {
+              "row": 3,
+              "col": 17
+            },
+            {
+              "row": 17,
+              "col": 10
+            },
+            {
+              "row": 17,
+              "col": 4
+            },
+            {
+              "row": 10,
+              "col": 3
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 101번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 125,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 10
+            },
+            {
+              "row": 7,
+              "col": 16
+            },
+            {
+              "row": 5,
+              "col": 16
+            },
+            {
+              "row": 9,
+              "col": 6
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 126번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 150,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 3
+            },
+            {
+              "row": 12,
+              "col": 16
+            },
+            {
+              "row": 6,
+              "col": 3
+            },
+            {
+              "row": 15,
+              "col": 16
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 151번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        }
+      ]
+    },
+    {
+      "id": "alphago_lsd_g4",
+      "title": "이세돌 vs 알파고 4국 — 신의 한 수",
+      "black_player": "AlphaGo",
+      "white_player": "Lee Sedol",
+      "date": "2016-03-13",
+      "board_size": 19,
+      "view_area": [
+        0,
+        0,
+        18,
+        18
+      ],
+      "description": "5번기 4국. 이세돌 9단의 역사적인 \"신의 한 수\"(78수)로 유일한 인간의 승리를 거뒀습니다.",
+      "moves": [
+        {
+          "row": 3,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        }
+      ],
+      "result": "이세돌(백) 불계승",
+      "winner": "white",
+      "prediction_points": [
+        {
+          "move_index": 25,
+          "candidates": [
+            {
+              "row": 15,
+              "col": 5
+            },
+            {
+              "row": 9,
+              "col": 12
+            },
+            {
+              "row": 10,
+              "col": 14
+            },
+            {
+              "row": 5,
+              "col": 18
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 26번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 50,
+          "candidates": [
+            {
+              "row": 8,
+              "col": 13
+            },
+            {
+              "row": 10,
+              "col": 15
+            },
+            {
+              "row": 11,
+              "col": 5
+            },
+            {
+              "row": 18,
+              "col": 16
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 51번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 75,
+          "candidates": [
+            {
+              "row": 3,
+              "col": 5
+            },
+            {
+              "row": 12,
+              "col": 6
+            },
+            {
+              "row": 6,
+              "col": 17
+            },
+            {
+              "row": 6,
+              "col": 2
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 76번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 77,
+          "candidates": [
+            {
+              "row": 8,
+              "col": 10
+            },
+            {
+              "row": 7,
+              "col": 10
+            },
+            {
+              "row": 9,
+              "col": 10
+            },
+            {
+              "row": 8,
+              "col": 9
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수는? 이세돌의 '신의 한 수'를 맞혀보세요!",
+          "explanation": "백 78수 — 이세돌의 '신의 한 수'. 알파고의 수읽기를 무너뜨린 전설의 쐐기입니다."
+        },
+        {
+          "move_index": 100,
+          "candidates": [
+            {
+              "row": 10,
+              "col": 18
+            },
+            {
+              "row": 13,
+              "col": 3
+            },
+            {
+              "row": 7,
+              "col": 0
+            },
+            {
+              "row": 3,
+              "col": 12
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 101번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 125,
+          "candidates": [
+            {
+              "row": 5,
+              "col": 8
+            },
+            {
+              "row": 8,
+              "col": 0
+            },
+            {
+              "row": 16,
+              "col": 14
+            },
+            {
+              "row": 5,
+              "col": 13
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 126번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 150,
+          "candidates": [
+            {
+              "row": 10,
+              "col": 1
+            },
+            {
+              "row": 16,
+              "col": 13
+            },
+            {
+              "row": 8,
+              "col": 5
+            },
+            {
+              "row": 9,
+              "col": 10
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 151번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        }
+      ]
+    },
+    {
+      "id": "alphago_lsd_g5",
+      "title": "알파고 vs 이세돌 5국",
+      "black_player": "Lee Sedol",
+      "white_player": "AlphaGo",
+      "date": "2016-03-15",
+      "board_size": 19,
+      "view_area": [
+        0,
+        0,
+        18,
+        18
+      ],
+      "description": "5번기 최종국. 알파고가 흑을 잡아 최종 4승 1패로 대국을 마무리했습니다.",
+      "moves": [
+        {
+          "row": 3,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 16,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 8,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 17,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 13,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 1,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 6,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 2,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 1,
+          "col": 2,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 9,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 7,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 8,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 9,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 14,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 18,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 12,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 0,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 8,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 7,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 16,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 12,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 14,
+          "col": 11,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 18,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 5,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 7,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 0,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 5,
+          "col": 14,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 3,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 15,
+          "col": 0,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 4,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 4,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 4,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 10,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 3,
+          "col": 15,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 15,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 6,
+          "col": 13,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 18,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 13,
+          "col": 17,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 5,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 11,
+          "col": 10,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 6,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 12,
+          "col": 1,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 11,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 2,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 3,
+          "color": "white",
+          "comment": ""
+        },
+        {
+          "row": 10,
+          "col": 16,
+          "color": "black",
+          "comment": ""
+        },
+        {
+          "row": 9,
+          "col": 17,
+          "color": "white",
+          "comment": ""
+        }
+      ],
+      "result": "알파고(흑) 불계승",
+      "winner": "white",
+      "prediction_points": [
+        {
+          "move_index": 25,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 6
+            },
+            {
+              "row": 3,
+              "col": 9
+            },
+            {
+              "row": 17,
+              "col": 6
+            },
+            {
+              "row": 7,
+              "col": 14
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 26번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 50,
+          "candidates": [
+            {
+              "row": 11,
+              "col": 17
+            },
+            {
+              "row": 16,
+              "col": 3
+            },
+            {
+              "row": 12,
+              "col": 8
+            },
+            {
+              "row": 16,
+              "col": 17
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 51번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 75,
+          "candidates": [
+            {
+              "row": 6,
+              "col": 7
+            },
+            {
+              "row": 16,
+              "col": 11
+            },
+            {
+              "row": 12,
+              "col": 3
+            },
+            {
+              "row": 15,
+              "col": 0
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 76번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 100,
+          "candidates": [
+            {
+              "row": 8,
+              "col": 8
+            },
+            {
+              "row": 9,
+              "col": 0
+            },
+            {
+              "row": 10,
+              "col": 12
+            },
+            {
+              "row": 14,
+              "col": 16
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 101번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 125,
+          "candidates": [
+            {
+              "row": 16,
+              "col": 9
+            },
+            {
+              "row": 8,
+              "col": 13
+            },
+            {
+              "row": 11,
+              "col": 7
+            },
+            {
+              "row": 8,
+              "col": 3
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 126번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 150,
+          "candidates": [
+            {
+              "row": 10,
+              "col": 11
+            },
+            {
+              "row": 3,
+              "col": 0
+            },
+            {
+              "row": 4,
+              "col": 8
+            },
+            {
+              "row": 14,
+              "col": 13
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 151번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 175,
+          "candidates": [
+            {
+              "row": 9,
+              "col": 5
+            },
+            {
+              "row": 13,
+              "col": 9
+            },
+            {
+              "row": 6,
+              "col": 13
+            },
+            {
+              "row": 3,
+              "col": 9
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 176번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 200,
+          "candidates": [
+            {
+              "row": 5,
+              "col": 17
+            },
+            {
+              "row": 12,
+              "col": 0
+            },
+            {
+              "row": 5,
+              "col": 16
+            },
+            {
+              "row": 16,
+              "col": 3
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 201번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 225,
+          "candidates": [
+            {
+              "row": 4,
+              "col": 11
+            },
+            {
+              "row": 3,
+              "col": 3
+            },
+            {
+              "row": 7,
+              "col": 1
+            },
+            {
+              "row": 16,
+              "col": 11
+            }
+          ],
+          "correct_index": 0,
+          "question": "백의 다음 수, 어디일까요?",
+          "explanation": "백의 226번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        },
+        {
+          "move_index": 250,
+          "candidates": [
+            {
+              "row": 14,
+              "col": 11
+            },
+            {
+              "row": 5,
+              "col": 2
+            },
+            {
+              "row": 3,
+              "col": 14
+            },
+            {
+              "row": 9,
+              "col": 0
+            }
+          ],
+          "correct_index": 0,
+          "question": "흑의 다음 수, 어디일까요?",
+          "explanation": "흑의 251번째 수입니다. 바둑판 전체 흐름을 읽어보세요."
+        }
+      ]
+    }
+  ]
+}

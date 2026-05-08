@@ -8,7 +8,7 @@ namespace Baduk
         const string ROOT = "BadukRoom";
 
         public static void Spawn(Vector3 boardCenter, float halfW, float halfD,
-                                 float tableY, Quaternion roomRot)
+                                 float tableY, Quaternion roomRot, bool adjustCamera = true)
         {
             var old = GameObject.Find(ROOT);
             if (old != null) Object.Destroy(old);
@@ -38,8 +38,17 @@ namespace Baduk
             // 뒷벽·옆벽
             SpawnWalls(root, boardCenter, roomRot);
 
-            // 카메라: 보드를 ~50° 아래로 내려다보는 위치
-            AdjustCamera(boardCenter, halfD, tableY, fwd);
+            if (adjustCamera)
+                AdjustCamera(boardCenter, halfD, tableY, fwd);
+        }
+
+        public static void Cleanup()
+        {
+            var room = GameObject.Find(ROOT);
+            if (room != null) Object.Destroy(room);
+            var table = GameObject.Find("BadukTable");
+            if (table != null) Object.Destroy(table);
+            RenderSettings.ambientLight = new Color(0.2f, 0.2f, 0.2f);
         }
 
         // ── 카메라 ───────────────────────────────────────────

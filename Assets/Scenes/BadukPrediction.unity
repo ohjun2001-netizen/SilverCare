@@ -374,12 +374,12 @@ MonoBehaviour:
       m_Name: Position
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 5ec5006b-fd85-4e91-bafd-68ed78e0e43f
+      m_Id: d5fbad65-dfd7-45ea-a3a7-6ed3c43b5023
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: a3fc9d80-0845-4626-8cf2-6eb74c548dd6
+        m_Id: b72d09ee-c9c7-492d-b658-754ba0c06c90
         m_Path: <XRHMD>/centerEyePosition
         m_Interactions: 
         m_Processors: 
@@ -394,12 +394,12 @@ MonoBehaviour:
       m_Name: Rotation
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 6e330820-d4c4-43cc-84cb-b88b1d350301
+      m_Id: 07ae3236-d351-453f-b6d1-4301a9d8a06c
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: b5bf505b-db92-4042-9731-b17d108e0301
+        m_Id: 6b3651f5-a2e0-4b05-9763-2ea43ed404da
         m_Path: <XRHMD>/centerEyeRotation
         m_Interactions: 
         m_Processors: 
@@ -414,7 +414,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: Integer
-      m_Id: eade2ea9-54ab-4cf9-99e6-698cbad1f301
+      m_Id: 863598c1-1756-4fd5-8007-456a4c13590b
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -424,7 +424,7 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 24c5fcf3-9746-43bb-9902-61e58be3b3b7
+    m_Id: 73d83746-da91-474f-88f5-a00a6d8e2195
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -433,7 +433,7 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: eef320ef-3b39-4f00-9413-f4d8ebe1d552
+    m_Id: 3127f123-6aeb-423b-937f-8341e8aaae67
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -573,7 +573,7 @@ MonoBehaviour:
       m_Name: Position
       m_Type: 0
       m_ExpectedControlType: Vector3
-      m_Id: 5d44013b-b544-4bae-b15a-371226c853d6
+      m_Id: 4d2d5254-9464-441d-a774-64112cc3385f
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -585,7 +585,7 @@ MonoBehaviour:
       m_Name: Rotation
       m_Type: 0
       m_ExpectedControlType: Quaternion
-      m_Id: 166cc8e1-fadf-4d17-84ff-49e7fd0925a5
+      m_Id: 25555e4c-e36b-40d0-9df6-35ce927d3af6
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -597,7 +597,7 @@ MonoBehaviour:
       m_Name: Is Tracked
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 9f3e644d-db6b-4c52-9b71-de0169ce6085
+      m_Id: c49bed0f-7754-439a-947d-c44336ab87c2
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -609,7 +609,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: Integer
-      m_Id: af039fb0-5439-45d3-8f81-c93673eae27b
+      m_Id: 1e23cf45-1c30-4acf-a107-84d1e192c2a1
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -621,7 +621,7 @@ MonoBehaviour:
       m_Name: Select
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: cd8e8c02-27b2-40f0-aeb7-e99d87c97378
+      m_Id: cc707253-403b-402c-8f29-238c599651a4
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -633,7 +633,7 @@ MonoBehaviour:
       m_Name: Select Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: 571605fa-a987-4f8c-888a-5b9afd619dea
+      m_Id: 85267842-5cc8-4c92-bcab-482e459cd2b4
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -645,7 +645,7 @@ MonoBehaviour:
       m_Name: Activate
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 815e3ace-ec6d-4a35-be5e-49963b82ca66
+      m_Id: 88dbddc4-bcb3-496f-9b2d-c907f2d88b2d
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -657,7 +657,7 @@ MonoBehaviour:
       m_Name: Activate Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: 3a0bd7da-92ec-4685-aaef-b15c875a529c
+      m_Id: 853d5bef-de27-407a-b855-2da1cf122a8e
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -669,7 +669,7 @@ MonoBehaviour:
       m_Name: UI Press
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: a8000963-1af7-41d7-b647-4941744ee014
+      m_Id: 3c3bef76-7793-4e29-a522-996b023f9d14
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -681,7 +681,7 @@ MonoBehaviour:
       m_Name: UI Press Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: 6119c7c8-ee79-479b-ae20-856063ea3892
+      m_Id: d5cfc3b9-c5ea-492e-95a7-462a564dd4f0
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -693,7 +693,7 @@ MonoBehaviour:
       m_Name: UI Scroll
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: f8c0d9e1-e167-4651-b8cc-47150066f17e
+      m_Id: ccbb479c-02b4-4893-8dac-0713dc9f8c89
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -705,7 +705,7 @@ MonoBehaviour:
       m_Name: Haptic Device
       m_Type: 2
       m_ExpectedControlType: 
-      m_Id: e1335e7a-6286-4068-89e8-4eb70720f81f
+      m_Id: 6817596c-4369-4e5e-bce3-5352e837db29
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -717,7 +717,7 @@ MonoBehaviour:
       m_Name: Rotate Anchor
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: fb2e8df1-73a0-4772-abe8-bb62a2ae895b
+      m_Id: 7260b484-7eea-40c0-99ff-3a93303237e1
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -729,7 +729,7 @@ MonoBehaviour:
       m_Name: Directional Anchor Rotation
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: a24d64ef-bb8f-46b1-b09b-5836b40eaec8
+      m_Id: d4898007-7871-4c47-8e07-556669d3abc5
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -741,7 +741,7 @@ MonoBehaviour:
       m_Name: Translate Anchor
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: f8761fe0-0340-4f73-adcf-11bb2d0c3344
+      m_Id: f7dfd33a-b876-40ce-8958-24c8f5490c90
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -753,7 +753,7 @@ MonoBehaviour:
       m_Name: Scale Toggle
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 7fa9f772-f34e-41d1-ac02-a3a0ca8fc82a
+      m_Id: 1349e6bc-9eae-46a1-92b9-14e2d8317de4
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -765,7 +765,7 @@ MonoBehaviour:
       m_Name: Scale Delta
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 971535de-e2ed-4952-bd15-a8b52a7e2a2b
+      m_Id: b4972589-3323-4d1a-be54-cf303e04d831
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -793,12 +793,12 @@ MonoBehaviour:
       m_Name: LeftPos
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 1bf9b82e-514f-4c9c-a3df-09072e4b759c
+      m_Id: bae4cb61-8b38-42e6-92d3-61f51bfba4e7
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: e48b244a-6d77-444a-bec5-23553d8a8148
+        m_Id: 31c48a28-0352-42e9-a5da-fda39e08d0c3
         m_Path: <XRController>{LeftHand}/devicePosition
         m_Interactions: 
         m_Processors: 
@@ -813,12 +813,12 @@ MonoBehaviour:
       m_Name: LeftRot
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: 2e0686ff-d8ff-4816-8909-c04566b7bdae
+      m_Id: ed0f0921-f352-403e-9d66-6f58a63fc283
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: b5206d80-ccab-4ca5-a98c-f06494e9ca27
+        m_Id: 63758c33-114e-4d93-b07f-a48046675de0
         m_Path: <XRController>{LeftHand}/deviceRotation
         m_Interactions: 
         m_Processors: 
@@ -833,7 +833,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: Integer
-      m_Id: 28c02a3a-56f0-44bd-b5c2-415ecc4b9582
+      m_Id: 2679d32d-23e7-4eda-8e36-e4cbbfc5e5d1
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -843,7 +843,7 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 34f9a5b8-62ca-48d5-8616-761a80084a69
+    m_Id: 86940e3b-203a-4c54-8050-201a9698eeb9
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -852,11 +852,130 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 6e3101b9-cee3-4211-9354-101e99eeabde
+    m_Id: 6eb48792-2871-4070-9cca-9e1c9389ecbb
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
     m_Flags: 0
+--- !u!1 &270951429
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 270951436}
+  - component: {fileID: 270951435}
+  - component: {fileID: 270951434}
+  - component: {fileID: 270951433}
+  - component: {fileID: 270951432}
+  - component: {fileID: 270951431}
+  - component: {fileID: 270951430}
+  m_Layer: 0
+  m_Name: BadukPredictionManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &270951430
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d3d340b20e2d614aa22cea1d94b9674, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  lobbySceneName: MainLobby
+  resumeDelayAfterAnswer: 2
+--- !u!114 &270951431
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae100d3522710a4faa1f60a9f9b8b8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &270951432
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f84a65e2941ac87469ab9539a2c5f5d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  npcPrefab: {fileID: 0}
+  avatarScale: 0.7
+  distanceFromBoard: 0.6
+  feetYOffsetFromBoard: -1.1
+  placeholderBodyColor: {r: 0.35, g: 0.3, b: 0.4, a: 1}
+  placeholderHeadColor: {r: 0.95, g: 0.85, b: 0.75, a: 1}
+--- !u!114 &270951433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 20a575f0cb4c401488071a089211ac63, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseInterval: 2
+  speedMultiplier: 1
+--- !u!114 &270951434
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2911c4ab655e25c4787bc865d3dc2d04, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &270951435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f4e5708e91ec3741ab1ef65e5132739, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!4 &270951436
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 270951429}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &487410281
 GameObject:
   m_ObjectHideFlags: 0
@@ -963,6 +1082,134 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &741041044
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 741041045}
+  - component: {fileID: 741041046}
+  m_Layer: 0
+  m_Name: BGMSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &741041045
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741041044}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2028510012}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &741041046
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 741041044}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &1011817090
 GameObject:
   m_ObjectHideFlags: 0
@@ -974,19 +1221,315 @@ GameObject:
   - component: {fileID: 1011817092}
   - component: {fileID: 1011817091}
   m_Layer: 0
+  m_Name: TTSSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!82 &1011817091
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011817090}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1011817092
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1011817090}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2028510012}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!21 &1254709796
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Ints: []
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
+--- !u!1 &1402430687
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1402430688}
+  - component: {fileID: 1402430689}
+  m_Layer: 0
+  m_Name: SFXSource
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1402430688
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402430687}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2028510012}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &1402430689
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1402430687}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!1 &1417275273
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1417275275}
+  - component: {fileID: 1417275274}
+  m_Layer: 0
   m_Name: Directional Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!108 &1011817091
+--- !u!108 &1417275274
 Light:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1011817090}
+  m_GameObject: {fileID: 1417275273}
   m_Enabled: 1
   serializedVersion: 10
   m_Type: 1
@@ -1042,13 +1585,13 @@ Light:
   m_UseViewFrustumForShadowCasterCull: 1
   m_ShadowRadius: 0
   m_ShadowAngle: 0
---- !u!4 &1011817092
+--- !u!4 &1417275275
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1011817090}
+  m_GameObject: {fileID: 1417275273}
   serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
@@ -1057,46 +1600,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!21 &1254709796
-Material:
-  serializedVersion: 8
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_Parent: {fileID: 0}
-  m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
-  m_InvalidKeywords: []
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_LockedProperties: 
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Ints: []
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &1512743631
 GameObject:
   m_ObjectHideFlags: 0
@@ -1554,7 +2057,7 @@ MonoBehaviour:
       m_Name: Position
       m_Type: 0
       m_ExpectedControlType: Vector3
-      m_Id: c63dc5ee-5175-498f-932b-c5a648fc00fb
+      m_Id: 1672091d-bb9f-4b65-bc24-3d58bf438d7f
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1566,7 +2069,7 @@ MonoBehaviour:
       m_Name: Rotation
       m_Type: 0
       m_ExpectedControlType: Quaternion
-      m_Id: 956c78ae-b88d-480a-a1d5-a17ab3ec0ed8
+      m_Id: 7fbe6b77-97ea-4134-a190-8273304a2558
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1578,7 +2081,7 @@ MonoBehaviour:
       m_Name: Is Tracked
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 2d2a7012-0429-4a3e-abf4-021eae3e9075
+      m_Id: 7ec06044-4144-43a3-b56c-d1ee27a1627a
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1590,7 +2093,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: Integer
-      m_Id: a0435945-099e-4696-9e41-8e7ed9c84b26
+      m_Id: 91a882d0-562c-4072-8fbd-b6411f15cd80
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1602,7 +2105,7 @@ MonoBehaviour:
       m_Name: Select
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 2ee0fa61-6484-454f-a198-441b6531ac3e
+      m_Id: 4c2d2c5a-47f9-4ecb-ade6-980bd4489a55
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1614,7 +2117,7 @@ MonoBehaviour:
       m_Name: Select Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: dd9c13f7-81b3-4d51-a237-f414dd9faa68
+      m_Id: 5f4115fd-8441-4625-869f-a8c8b6c14308
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1626,7 +2129,7 @@ MonoBehaviour:
       m_Name: Activate
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 5db3c82c-3f4e-4882-b9cd-9e8c87d7ffe2
+      m_Id: 020243db-b8fe-45ee-8a4f-dde8b2027c8d
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1638,7 +2141,7 @@ MonoBehaviour:
       m_Name: Activate Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: bfdeb92c-1378-46b0-b859-3449914dd52e
+      m_Id: 71b8a5cf-af37-4eac-94f9-477b86d58c91
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1650,7 +2153,7 @@ MonoBehaviour:
       m_Name: UI Press
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: 20db542e-7d73-4f59-b5e4-de03a72afeaf
+      m_Id: 1ea8905b-8a8b-4d2c-b932-2eebfbcd076c
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1662,7 +2165,7 @@ MonoBehaviour:
       m_Name: UI Press Value
       m_Type: 0
       m_ExpectedControlType: Axis
-      m_Id: a4d5d3f1-0485-416d-aa9d-035605e70310
+      m_Id: 54720a85-449e-448a-8e0a-597abd83837c
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1674,7 +2177,7 @@ MonoBehaviour:
       m_Name: UI Scroll
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 9b1106af-e1b7-4caf-94e1-2a77ffb60c33
+      m_Id: c4f333ea-f41f-440b-b5da-9c1dd79b5814
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1686,7 +2189,7 @@ MonoBehaviour:
       m_Name: Haptic Device
       m_Type: 2
       m_ExpectedControlType: 
-      m_Id: c6df4a83-58ca-4ad4-a518-114b16965465
+      m_Id: 333dc137-158f-43d5-8719-d2cf76832eee
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1698,7 +2201,7 @@ MonoBehaviour:
       m_Name: Rotate Anchor
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 739da12c-b222-424e-a5cb-ed27fcb91a3b
+      m_Id: 8b3bf7f8-5c07-44b9-81f6-9f93151e069d
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1710,7 +2213,7 @@ MonoBehaviour:
       m_Name: Directional Anchor Rotation
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 5559389a-6a0a-4652-876a-8b9c936eb223
+      m_Id: 3d3d70c9-7afb-462b-a170-e1898975ac37
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1722,7 +2225,7 @@ MonoBehaviour:
       m_Name: Translate Anchor
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 02e80a59-4fbd-434f-bd89-08ea4e133755
+      m_Id: 9978221e-fa51-408a-875a-cffa9d1959b1
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1734,7 +2237,7 @@ MonoBehaviour:
       m_Name: Scale Toggle
       m_Type: 1
       m_ExpectedControlType: 
-      m_Id: e5410da7-9d59-4500-a861-55a04d3164fd
+      m_Id: 81048752-9065-4d26-ab1d-0b7a2fa365fc
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1746,7 +2249,7 @@ MonoBehaviour:
       m_Name: Scale Delta
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: b0279315-660b-46f0-8d38-5464cf33189f
+      m_Id: 95c0ea4c-c5c6-4638-92c2-8871debd4fe6
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1774,12 +2277,12 @@ MonoBehaviour:
       m_Name: RightPos
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: d297ea65-99dd-4d43-b707-6241433c5cd2
+      m_Id: a0c098db-9505-4a64-8ffd-5f3d2c15c166
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: e84bb7d7-2c8e-4d59-b6fc-e47d678a8091
+        m_Id: b31e7800-0691-41be-bf5a-b1120bb74dce
         m_Path: <XRController>{RightHand}/devicePosition
         m_Interactions: 
         m_Processors: 
@@ -1794,12 +2297,12 @@ MonoBehaviour:
       m_Name: RightRot
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: ae966755-7bd5-43e9-8678-9a141e9f9704
+      m_Id: f3b770be-859c-4712-b300-ef5d52d06de8
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 5bd4e747-1c05-4cb2-a92b-4f7bca5005e4
+        m_Id: e1126cf5-69f1-41c8-a5d9-3f77e87d4808
         m_Path: <XRController>{RightHand}/deviceRotation
         m_Interactions: 
         m_Processors: 
@@ -1814,7 +2317,7 @@ MonoBehaviour:
       m_Name: Tracking State
       m_Type: 0
       m_ExpectedControlType: Integer
-      m_Id: a41c1090-c2f4-4ca7-82b8-88b6dc5c8f6c
+      m_Id: 9008d8ab-5e13-4188-97c2-aaeae767467a
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -1824,7 +2327,7 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 16d02d02-68da-449a-bbcd-64054f09a8c5
+    m_Id: d01f7c9e-a2b8-48e9-81be-4042cf692d61
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -1833,7 +2336,7 @@ MonoBehaviour:
     m_Name: 
     m_Type: 0
     m_ExpectedControlType: 
-    m_Id: 0bd97f8d-11ec-4193-9b92-bd18a20e5291
+    m_Id: 26d62a3c-5e50-44a7-822f-e42170b68165
     m_Processors: 
     m_Interactions: 
     m_SingletonActionBindings: []
@@ -2063,12 +2566,12 @@ MonoBehaviour:
       m_Name: Turn
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 567052e6-4fa9-40c4-b86c-8185e6eb3a0a
+      m_Id: 9d66bc4e-5ae0-45f0-ae08-2213c6744676
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 81d3195f-44b7-4991-859d-b94683194146
+        m_Id: 94a67e1f-83b5-4c9d-a2f3-81668fcadd49
         m_Path: <XRController>{RightHand}/thumbstick
         m_Interactions: 
         m_Processors: 
@@ -2076,7 +2579,7 @@ MonoBehaviour:
         m_Action: Turn
         m_Flags: 0
       - m_Name: 2DVector
-        m_Id: 4f076b56-987b-4041-b067-258498e52826
+        m_Id: 49462040-2d69-49a5-9cdd-0d1eed070c22
         m_Path: 2DVector
         m_Interactions: 
         m_Processors: 
@@ -2084,7 +2587,7 @@ MonoBehaviour:
         m_Action: Turn
         m_Flags: 4
       - m_Name: Up
-        m_Id: 20356278-4e79-4033-bb2e-1a577efc242c
+        m_Id: 2b2ba91a-13ba-46f6-a445-12eb6263c3c0
         m_Path: <Keyboard>/e
         m_Interactions: 
         m_Processors: 
@@ -2092,7 +2595,7 @@ MonoBehaviour:
         m_Action: Turn
         m_Flags: 8
       - m_Name: Down
-        m_Id: ac2d7b78-e5a4-4651-aefc-7525c569a9ad
+        m_Id: 037aebff-8093-4746-955a-80c7e894658d
         m_Path: <Keyboard>/q
         m_Interactions: 
         m_Processors: 
@@ -2100,7 +2603,7 @@ MonoBehaviour:
         m_Action: Turn
         m_Flags: 8
       - m_Name: Left
-        m_Id: e011c671-5d56-4be5-b8b0-d87a5d453bcf
+        m_Id: 49b53c62-cdfc-48dc-bc63-c28642abc1af
         m_Path: <Keyboard>/q
         m_Interactions: 
         m_Processors: 
@@ -2108,7 +2611,7 @@ MonoBehaviour:
         m_Action: Turn
         m_Flags: 8
       - m_Name: Right
-        m_Id: 2a9875a9-3dde-4432-83ec-fd5e43d46257
+        m_Id: bcf403e8-b57d-45ea-8498-ea61e71b220c
         m_Path: <Keyboard>/e
         m_Interactions: 
         m_Processors: 
@@ -2123,7 +2626,7 @@ MonoBehaviour:
       m_Name: Right Hand Turn
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: ff16ae98-50eb-4379-a012-d89e0e6bc597
+      m_Id: 1b7200a3-1dea-423c-a8ae-2e101e9cbec8
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -2154,12 +2657,12 @@ MonoBehaviour:
       m_Name: Move
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: e5f6b40c-532e-43e4-8ae5-2eff37cd7d3e
+      m_Id: fb4d51fc-424d-4c76-93f7-1a512f9a9a97
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 03651da1-be6e-44a2-95c8-956efb4f35c7
+        m_Id: e9347531-64dc-403a-9f1a-097f24a066e5
         m_Path: <XRController>{LeftHand}/thumbstick
         m_Interactions: 
         m_Processors: 
@@ -2167,7 +2670,7 @@ MonoBehaviour:
         m_Action: Move
         m_Flags: 0
       - m_Name: 2DVector
-        m_Id: 549aba2d-8d11-4475-ac92-b39954a95091
+        m_Id: 61c159d1-fc13-4c5b-8502-14bbd151e865
         m_Path: 2DVector
         m_Interactions: 
         m_Processors: 
@@ -2175,7 +2678,7 @@ MonoBehaviour:
         m_Action: Move
         m_Flags: 4
       - m_Name: Up
-        m_Id: 82412be3-23f3-4df0-a697-054cebf09cfb
+        m_Id: 01e5ea57-cf0d-42dc-9b2f-7b59acb10fe8
         m_Path: <Keyboard>/w
         m_Interactions: 
         m_Processors: 
@@ -2183,7 +2686,7 @@ MonoBehaviour:
         m_Action: Move
         m_Flags: 8
       - m_Name: Down
-        m_Id: a82ab048-8cda-40dc-a689-a3216907c37d
+        m_Id: 40d2516a-fc56-4d13-bba9-fa38ce7a08ef
         m_Path: <Keyboard>/s
         m_Interactions: 
         m_Processors: 
@@ -2191,7 +2694,7 @@ MonoBehaviour:
         m_Action: Move
         m_Flags: 8
       - m_Name: Left
-        m_Id: c348a2a1-25cf-4436-8e2f-a0776ed0107b
+        m_Id: ea06596f-f0a6-4633-99cc-5263beebeb17
         m_Path: <Keyboard>/a
         m_Interactions: 
         m_Processors: 
@@ -2199,7 +2702,7 @@ MonoBehaviour:
         m_Action: Move
         m_Flags: 8
       - m_Name: Right
-        m_Id: 4dfa7517-aa32-4b94-a9c8-86fcbea0372a
+        m_Id: 31d2a1a8-9346-47a4-9cd2-545fa68e1331
         m_Path: <Keyboard>/d
         m_Interactions: 
         m_Processors: 
@@ -2214,7 +2717,7 @@ MonoBehaviour:
       m_Name: Right Hand Move
       m_Type: 0
       m_ExpectedControlType: Vector2
-      m_Id: 72702e82-6eb7-4a75-a318-6b9565190ea7
+      m_Id: 8762438e-14b3-4dd7-990f-ede88727dfc3
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
@@ -2242,10 +2745,13 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
+  - component: {fileID: 2028510012}
+  - component: {fileID: 2028510011}
+  - component: {fileID: 2028510010}
   - component: {fileID: 2028510009}
   - component: {fileID: 2028510008}
   m_Layer: 0
-  m_Name: CardMatchManager
+  m_Name: Managers
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2260,19 +2766,60 @@ MonoBehaviour:
   m_GameObject: {fileID: 2028510007}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d8018d4eaf6e2464c8a7a340fc05edae, type: 3}
+  m_Script: {fileID: 11500000, guid: a3fbf8cdf6a59ae43ab4686f9d1028fc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameTitle: "\uAC8C\uC784"
-  lobbySceneName: MainLobby
-  cardFrontTextures: []
-  pairCount: 4
-  columnCount: 4
-  spacingX: 0.85
-  spacingY: 1
-  spawnDist: 1.8
-  heightOffset: -0.2
---- !u!4 &2028510009
+--- !u!114 &2028510009
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028510007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fda15213715873441b3c26c68881a040, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  bgmSource: {fileID: 0}
+  sfxSource: {fileID: 0}
+  lobbyBGM: {fileID: 0}
+  gameBGM: {fileID: 0}
+  correctSFX: {fileID: 0}
+  wrongSFX: {fileID: 0}
+  buttonClickSFX: {fileID: 0}
+  gameStartSFX: {fileID: 0}
+  gameClearSFX: {fileID: 0}
+--- !u!114 &2028510010
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028510007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b76970a0636d734998f7afae5e1c4eb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serverUrl: http://localhost:8000
+  ttsEndpoint: /tts/speak
+  audioSource: {fileID: 1011817091}
+--- !u!114 &2028510011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2028510007}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e2acd799dd36e9848aefedbed3d99632, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  loadingPanel: {fileID: 0}
+  minLoadingTime: 0.5
+--- !u!4 &2028510012
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -2284,7 +2831,10 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 741041045}
+  - {fileID: 1402430688}
+  - {fileID: 1011817092}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2029057655
@@ -2371,8 +2921,9 @@ Transform:
 SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
-  - {fileID: 1011817092}
-  - {fileID: 2028510009}
+  - {fileID: 1417275275}
+  - {fileID: 270951436}
+  - {fileID: 2028510012}
   - {fileID: 2029057657}
   - {fileID: 57827394}
   - {fileID: 487410285}

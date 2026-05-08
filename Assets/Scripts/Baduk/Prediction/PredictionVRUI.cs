@@ -14,13 +14,13 @@ namespace Baduk.Prediction
         public System.Action<Kifu>  OnKifuSelected;
         public System.Action        OnPlayPause;
         public System.Action<float> OnSpeedChanged;
-        public System.Action<int>   OnPredictionSubmit;   // chosen candidate index
+        public System.Action<int>   OnPredictionSubmit;
         public System.Action        OnRestart;
         public System.Action        OnBack;
+        public System.Action        OnBackToSelect;
 
         Canvas _canvas;
         GameObject _selectPanel, _replayPanel, _predictPanel, _resultPanel;
-        Text _coinsText;
 
         // 재생 패널
         Text _titleText, _playersText, _progressText, _commentText;
@@ -38,18 +38,16 @@ namespace Baduk.Prediction
 
         // ── 외부 호출 ────────────────────────────────────
 
-        public void ShowKifuSelect(List<Kifu> kifus, int currentCoins)
+        public void ShowKifuSelect(List<Kifu> kifus)
         {
             EnsureBuilt(); PlaceCanvas();
-            UpdateCoins(currentCoins);
             ShowOnly(_selectPanel);
             BuildKifuButtons(kifus);
         }
 
-        public void ShowReplay(Kifu kifu, int currentCoins)
+        public void ShowReplay(Kifu kifu)
         {
             EnsureBuilt(); PlaceCanvas();
-            UpdateCoins(currentCoins);
             ShowOnly(_replayPanel);
             _titleText.text   = kifu.title ?? "기보";
             _playersText.text = $"흑: {kifu.black_player ?? "?"}    백: {kifu.white_player ?? "?"}";
@@ -71,21 +69,20 @@ namespace Baduk.Prediction
             BuildCandidateButtons(point);
         }
 
-        public void ShowPredictionResult(bool correct, PredictionPoint point, int chosenIndex, int reward)
+        public void ShowPredictionResult(bool correct, PredictionPoint point, int chosenIndex)
         {
             if (correct)
             {
-                _predictResultLabel.text = $"정답!  +{reward} 코인";
+                _predictResultLabel.text  = "정답!";
                 _predictResultLabel.color = new Color(0.3f, 1f, 0.4f);
             }
             else
             {
-                _predictResultLabel.text = "아쉽네요";
+                _predictResultLabel.text  = "아쉽네요";
                 _predictResultLabel.color = new Color(1f, 0.5f, 0.5f);
             }
             _predictExplain.text = point?.explanation ?? "";
 
-            // 정답 버튼은 초록, 사용자가 고른 오답 버튼은 빨강
             for (int i = 0; i < _candidateButtons.Count; i++)
             {
                 var img = _candidateButtons[i].GetComponent<Image>();
@@ -102,17 +99,16 @@ namespace Baduk.Prediction
             if (_predictPanel != null) _predictPanel.SetActive(false);
         }
 
-        public void ShowResult(int correct, int total, int coinsEarned, int currentCoins)
+        public void ShowResult(int correct, int total)
         {
             EnsureBuilt(); PlaceCanvas();
-            UpdateCoins(currentCoins);
             ShowOnly(_resultPanel);
             _resultHeadline.text = total == 0
                 ? "관전 완료!"
                 : $"{correct} / {total} 적중";
-            _resultDetail.text = coinsEarned > 0
-                ? $"획득 코인: +{coinsEarned}"
-                : "획득 코인 없음 — 다시 도전해 보세요";
+            _resultDetail.text = correct == total && total > 0
+                ? "모두 맞혔습니다!"
+                : "다시 도전해 보세요";
         }
 
         public void UpdateProgress(int cur, int total)
@@ -125,11 +121,6 @@ namespace Baduk.Prediction
             if (_btnPlayPause == null) return;
             var t = _btnPlayPause.GetComponentInChildren<Text>();
             if (t != null) t.text = isPlaying ? "⏸ 일시정지" : "▶ 재생";
-        }
-
-        public void UpdateCoins(int coins)
-        {
-            if (_coinsText != null) _coinsText.text = $"코인: {coins}";
         }
 
         // ── 빌드 ─────────────────────────────────────────
@@ -160,7 +151,6 @@ namespace Baduk.Prediction
             if (flatFwd == Vector3.zero) flatFwd = Vector3.forward;
 
             var rt = _canvas.GetComponent<RectTransform>();
-            // 수평 forward, 카메라 높이 유지 — 씬 카메라가 낮아도 음수 Y(지하)로 떨어지지 않음
             rt.position = cam.transform.position + flatFwd * 2.0f;
             rt.rotation = Quaternion.LookRotation(flatFwd, Vector3.up);
         }
@@ -177,9 +167,6 @@ namespace Baduk.Prediction
             rt.sizeDelta  = new Vector2(800, 540);
             rt.localScale = Vector3.one * 0.002f;
 
-            _coinsText = CreateText(rt, "Coins", "코인: 0", 22, FontStyle.Bold,
-                new Vector2(280, 240), new Vector2(220, 36), new Color(1f, 0.85f, 0.3f));
-
             _selectPanel  = BuildSelectPanel(rt);
             _replayPanel  = BuildReplayPanel(rt);
             _predictPanel = BuildPredictionOverlay(rt);
@@ -195,7 +182,6 @@ namespace Baduk.Prediction
             _replayPanel.SetActive(panel == _replayPanel);
             _resultPanel.SetActive(panel == _resultPanel);
             _predictPanel.SetActive(false);
-            _coinsText.gameObject.SetActive(true);
         }
 
         // ── 기보 선택 ────────────────────────────────────
@@ -232,13 +218,17 @@ namespace Baduk.Prediction
                     Vector2.zero, new Vector2(640, 40), new Color(1f, 0.6f, 0.6f));
                 return;
             }
-            for (int i = 0; i < kifus.Count && i < 4; i++)
+            int n = Mathf.Min(kifus.Count, 8);
+            float spacing = 56f;
+            float startY = (n - 1) * spacing / 2f;
+            listTr.sizeDelta = new Vector2(700, n * spacing + 16);
+            for (int i = 0; i < n; i++)
             {
                 var k = kifus[i];
                 int predCount = k.prediction_points?.Count ?? 0;
-                string label = predCount > 0 ? $"{k.title}  (예측 {predCount})" : k.title;
-                var btn = CreateButton(listTr, label, 26,
-                    new Vector2(0, 90 - i * 70), new Vector2(640, 60));
+                string label = predCount > 0 ? $"{k.title}  ({predCount})" : k.title;
+                var btn = CreateButton(listTr, label, 22,
+                    new Vector2(0, startY - i * spacing), new Vector2(640, 52));
                 btn.onClick.AddListener(() => OnKifuSelected?.Invoke(k));
             }
         }
@@ -283,7 +273,7 @@ namespace Baduk.Prediction
             s05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
             s1.onClick.AddListener (() => OnSpeedChanged?.Invoke(1f));
             s2.onClick.AddListener (() => OnSpeedChanged?.Invoke(2f));
-            back.onClick.AddListener(() => OnBack?.Invoke());
+            back.onClick.AddListener(() => OnBackToSelect?.Invoke());
 
             return p;
         }
@@ -338,9 +328,7 @@ namespace Baduk.Prediction
             }
         }
 
-        // 좌표 표시: 시니어 친화적인 한국어 표기 (행/열, 1-based)
-        static string FormatCoord(int row, int col)
-            => $"{row + 1}행 {col + 1}열";
+        static string FormatCoord(int row, int col) => $"{row + 1}행 {col + 1}열";
 
         // ── 결과 패널 ────────────────────────────────────
         GameObject BuildResultPanel(RectTransform parent)
@@ -352,7 +340,7 @@ namespace Baduk.Prediction
             _resultHeadline = CreateText(prt, "Result", "", 52, FontStyle.Bold,
                 new Vector2(0, 80), new Vector2(700, 80), Color.white);
             _resultDetail   = CreateText(prt, "Detail", "", 28, FontStyle.Bold,
-                new Vector2(0, -10), new Vector2(700, 50), new Color(1f, 0.85f, 0.3f));
+                new Vector2(0, -10), new Vector2(700, 50), new Color(0.85f, 0.85f, 0.85f));
 
             var again = CreateButton(prt, "한판 더!", 24, new Vector2(-130, -150), new Vector2(220, 60));
             var lobby = CreateButton(prt, "로비로",   24, new Vector2( 130, -150), new Vector2(220, 60));

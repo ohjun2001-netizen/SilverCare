@@ -87,38 +87,39 @@ namespace Baduk
 
         static void SetupSittingBoard(Transform boardObj, float cx, float cy)
         {
+            string sn = SceneManager.GetActiveScene().name;
             Camera cam = Camera.main;
             Vector3 camPos = cam != null ? cam.transform.position : new Vector3(0, 1.0f, 0);
-
             Vector3 flatForward = cam != null
                 ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
                 : Vector3.forward;
             if (flatForward == Vector3.zero) flatForward = Vector3.forward;
 
-            // 실제 바둑판 폭 기준 스케일 (최대 0.45m — 실제 바둑판 42cm 참고)
             float boardWorldMax = Mathf.Max(cx * 2f, cy * 2f);
-            float maxSize = 0.45f;
-            float scale = boardWorldMax > 0f ? Mathf.Min(1f, maxSize / boardWorldMax) : 1f;
-            boardObj.localScale = Vector3.one * scale;
 
-            // 수평으로 눕히기: yaw만 → 보드가 XZ 평면에 수평으로 눕고
-            // near row(높은 인덱스)가 플레이어 쪽을 향함
-            boardObj.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
-
-            // 착석 시 테이블 면 높이 (눈높이 -0.35m ≈ 0.65m)
-            float tableY = camPos.y - 0.35f;
-
-            // 보드 중심을 앞 0.55m (팔이 자연스럽게 닿는 거리)
-            Vector3 boardCenter = camPos + flatForward * 0.55f;
-            boardCenter.y = tableY;
-            boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
-
-            // 리플레이/예측 씬: 전통 바둑방 환경 생성 / 그 외: 기본 테이블만
-            string sn = SceneManager.GetActiveScene().name;
             if (sn == "BadukReplay" || sn == "BadukPrediction")
+            {
+                // 수평 배치 (기보 관전 — 테이블 위)
+                float scale = boardWorldMax > 0f ? Mathf.Min(1f, 0.45f / boardWorldMax) : 1f;
+                boardObj.localScale = Vector3.one * scale;
+                boardObj.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+                float tableY = camPos.y - 0.35f;
+                Vector3 boardCenter = camPos + flatForward * 0.55f;
+                boardCenter.y = tableY;
+                boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
                 BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, boardObj.rotation);
+            }
             else
-                SpawnTable(boardCenter, cx * scale, cy * scale, tableY);
+            {
+                // 수직 배치 (사활 — 정면에 세우기)
+                float scale = boardWorldMax > 0f ? Mathf.Min(1f, 0.55f / boardWorldMax) : 1f;
+                boardObj.localScale = Vector3.one * scale;
+                // local +Z → world up, local +X → world right, local +Y → 플레이어 방향
+                boardObj.rotation = Quaternion.LookRotation(Vector3.up, -flatForward);
+                Vector3 boardCenter = camPos + flatForward * 1.5f;
+                boardCenter.y = camPos.y;
+                boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
+            }
         }
 
         static void SpawnTable(Vector3 center, float halfW, float halfD, float tableY)
@@ -166,31 +167,36 @@ namespace Baduk
 
         static void SetupSittingBoard(Transform boardObj, float cx, float cy)
         {
+            string sn = SceneManager.GetActiveScene().name;
             Camera cam = Camera.main;
             Vector3 camPos = cam != null ? cam.transform.position : new Vector3(0, 1.0f, 0);
-
             Vector3 flatForward = cam != null
                 ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
                 : Vector3.forward;
             if (flatForward == Vector3.zero) flatForward = Vector3.forward;
 
             float boardWorldMax = Mathf.Max(cx * 2f, cy * 2f);
-            float maxSize = 0.45f;
-            float scale = boardWorldMax > 0f ? Mathf.Min(1f, maxSize / boardWorldMax) : 1f;
-            boardObj.localScale = Vector3.one * scale;
 
-            boardObj.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
-
-            float tableY = camPos.y - 0.35f;
-            Vector3 boardCenter = camPos + flatForward * 0.55f;
-            boardCenter.y = tableY;
-            boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
-
-            string sn = SceneManager.GetActiveScene().name;
             if (sn == "BadukReplay" || sn == "BadukPrediction")
+            {
+                float scale = boardWorldMax > 0f ? Mathf.Min(1f, 0.45f / boardWorldMax) : 1f;
+                boardObj.localScale = Vector3.one * scale;
+                boardObj.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+                float tableY = camPos.y - 0.35f;
+                Vector3 boardCenter = camPos + flatForward * 0.55f;
+                boardCenter.y = tableY;
+                boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
                 BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, boardObj.rotation);
+            }
             else
-                SpawnTable(boardCenter, cx * scale, cy * scale, tableY);
+            {
+                float scale = boardWorldMax > 0f ? Mathf.Min(1f, 0.55f / boardWorldMax) : 1f;
+                boardObj.localScale = Vector3.one * scale;
+                boardObj.rotation = Quaternion.LookRotation(Vector3.up, -flatForward);
+                Vector3 boardCenter = camPos + flatForward * 1.5f;
+                boardCenter.y = camPos.y;
+                boardObj.position = boardCenter - boardObj.rotation * (new Vector3(cx, 0f, -cy) * scale);
+            }
         }
 
         static void SpawnTable(Vector3 center, float halfW, float halfD, float tableY)
