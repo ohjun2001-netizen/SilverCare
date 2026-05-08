@@ -32,6 +32,11 @@ namespace SilverCare.Golf
             {
                 _isMoving = false;
                 // TODO: 양석원 - 스윙 UI 다시 활성화
+                var uiManager = FindObjectOfType<GolfUIManager>();
+                if (uiManager != null)
+                {
+                    uiManager.SetSwingUIActive(true);
+                }
             }
         }
 
