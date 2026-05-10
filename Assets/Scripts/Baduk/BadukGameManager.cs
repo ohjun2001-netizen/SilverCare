@@ -65,7 +65,7 @@ namespace Baduk
             _ui.OnPrev   = PrevProblem;
             _ui.OnHint   = ShowHint;
             _ui.OnRetry  = () => LoadFilteredProblem(_filteredIdx);
-            _ui.OnBack   = () => _ui.ShowDifficultySelect();  // 나가기 → 난이도 선택
+            _ui.OnBack   = () => { _board.ClearBoard(); _ui.ShowDifficultySelect(); };  // 나가기 → 보드 정리 후 난이도 선택
             _ui.OnDifficultySelected = OnDifficultySelected;
 
             // 힌트 시스템 콜백

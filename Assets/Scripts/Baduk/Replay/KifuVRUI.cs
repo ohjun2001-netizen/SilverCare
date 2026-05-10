@@ -172,11 +172,15 @@ namespace Baduk.Replay
                 return;
             }
 
-            for (int i = 0; i < kifus.Count && i < 4; i++)
+            int n = Mathf.Min(kifus.Count, 5);
+            float spacing = 62f;
+            float startY = (n - 1) * spacing / 2f;
+            listTr.sizeDelta = new Vector2(700, n * spacing + 16);
+            for (int i = 0; i < n; i++)
             {
                 var k = kifus[i];
                 var btn = CreateButton(listTr, k.title, 26,
-                    new Vector2(0, 90 - i * 70), new Vector2(640, 60));
+                    new Vector2(0, startY - i * spacing), new Vector2(640, 60));
                 btn.onClick.AddListener(() => OnKifuSelected?.Invoke(k));
             }
         }

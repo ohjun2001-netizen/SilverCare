@@ -218,7 +218,7 @@ namespace Baduk.Prediction
                     Vector2.zero, new Vector2(640, 40), new Color(1f, 0.6f, 0.6f));
                 return;
             }
-            int n = Mathf.Min(kifus.Count, 8);
+            int n = Mathf.Min(kifus.Count, 5);
             float spacing = 56f;
             float startY = (n - 1) * spacing / 2f;
             listTr.sizeDelta = new Vector2(700, n * spacing + 16);

@@ -206,7 +206,7 @@ namespace Baduk
             return s;
         }
 
-        void ClearBoard()
+        public void ClearBoard()
         {
             HideHintMarker();
             foreach (var o in _objects) if (o) Destroy(o);
