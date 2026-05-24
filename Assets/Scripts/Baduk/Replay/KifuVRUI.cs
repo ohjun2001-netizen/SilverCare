@@ -1,16 +1,15 @@
 // Assets/Scripts/Baduk/Replay/KifuVRUI.cs
-// World Space Canvas 기반 복기 UI (BadukVRUI 패턴)
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Baduk.Data;
+using SilverCare.Common;
 
 namespace Baduk.Replay
 {
     public class KifuVRUI : MonoBehaviour
     {
-        // ── 외부 콜백 ────────────────────────────────────
         public System.Action<Kifu> OnKifuSelected;
         public System.Action OnPlayPause;
         public System.Action OnNext;
@@ -19,25 +18,32 @@ namespace Baduk.Replay
         public System.Action OnBack;
         public System.Action<float> OnSpeedChanged;
 
-        [Header("UI 위치")]
-        [SerializeField] Vector3 panelOffset = new Vector3(0f, 1.8f, 0f);
+        [Header("UI Position")]
+        [SerializeField] Vector3 panelOffset = new(0f, 1.65f, 0f);
 
-        Canvas     _canvas;
+        readonly Color _panel = new(0.96f, 0.94f, 0.88f, 0.98f);
+        readonly Color _ink = new(0.10f, 0.13f, 0.16f);
+        readonly Color _muted = new(0.36f, 0.40f, 0.44f);
+        readonly Color _accent = new(0.21f, 0.36f, 0.57f);
+
+        Canvas _canvas;
         GameObject _selectPanel;
         GameObject _replayPanel;
+        RectTransform _kifuListRoot;
 
-        Text _titleText, _playersText, _progressText, _commentText;
-        Button _btnPlayPause, _btnNext, _btnPrev, _btnRestart, _btnBack;
-        Button _btnSpeed05, _btnSpeed1, _btnSpeed2;
+        Text _titleText;
+        Text _playersText;
+        Text _progressText;
+        Text _commentText;
+        Button _btnPlayPause;
 
         bool _built;
-
-        // ── 외부 호출 메서드 ─────────────────────────────
+        bool _placementLocked;
 
         public void ShowKifuSelect(List<Kifu> kifus)
         {
             EnsureBuilt();
-            PlaceCanvasInFrontOfCamera();
+            EnsureCanvasPlacement();
             BuildKifuSelectButtons(kifus);
             _selectPanel.SetActive(true);
             _replayPanel.SetActive(false);
@@ -46,13 +52,13 @@ namespace Baduk.Replay
         public void ShowReplay(Kifu kifu)
         {
             EnsureBuilt();
-            PlaceCanvasInFrontOfCamera();
+            EnsureCanvasPlacement();
             _selectPanel.SetActive(false);
             _replayPanel.SetActive(true);
 
-            _titleText.text   = kifu.title ?? "기보";
-            _playersText.text = $"흑: {kifu.black_player ?? "?"}    백: {kifu.white_player ?? "?"}";
-            _commentText.text = "";
+            _titleText.text = string.IsNullOrWhiteSpace(kifu.title) ? "바둑 복기" : kifu.title;
+            _playersText.text = $"흑: {Safe(kifu.black_player)}    백: {Safe(kifu.white_player)}";
+            _commentText.text = "재생 버튼을 누르면 수순이 시작됩니다.";
             UpdateProgress(0, kifu.moves?.Count ?? 0);
             UpdatePlayPauseLabel(false);
         }
@@ -65,16 +71,15 @@ namespace Baduk.Replay
         public void UpdatePlayPauseLabel(bool isPlaying)
         {
             if (_btnPlayPause == null) return;
-            var t = _btnPlayPause.GetComponentInChildren<Text>();
-            if (t != null) t.text = isPlaying ? "⏸ 일시정지" : "▶ 재생";
+            var text = _btnPlayPause.GetComponentInChildren<Text>();
+            if (text != null) text.text = isPlaying ? "잠시 멈춤" : "재생";
         }
 
         public void ShowComment(string text)
         {
-            if (_commentText != null) _commentText.text = text;
+            if (_commentText != null)
+                _commentText.text = string.IsNullOrWhiteSpace(text) ? "해설 문구가 없습니다." : text;
         }
-
-        // ── 빌드 ─────────────────────────────────────────
 
         void EnsureBuilt()
         {
@@ -82,6 +87,13 @@ namespace Baduk.Replay
             EnsureEventSystem();
             BuildUI();
             _built = true;
+        }
+
+        void EnsureCanvasPlacement()
+        {
+            if (_placementLocked) return;
+            PlaceCanvasInFrontOfCamera();
+            _placementLocked = true;
         }
 
         static void EnsureEventSystem()
@@ -94,19 +106,20 @@ namespace Baduk.Replay
 
         void PlaceCanvasInFrontOfCamera()
         {
-            Camera cam = Camera.main;
+            var cam = Camera.main;
             if (cam == null || _canvas == null) return;
+
             _canvas.worldCamera = cam;
-
-            Vector3 camPos = cam.transform.position;
-            Vector3 flatFwd = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
-            if (flatFwd == Vector3.zero) flatFwd = Vector3.forward;
-
-            // 수평 forward 방향, 카메라 높이 그대로(상하 오프셋 X) — 씬 카메라 높이가 낮아도
-            // 음수 Y로 떨어지지 않음. 보드 시점에선 상단 시야, 정면 시점에선 눈높이.
             var rt = _canvas.GetComponent<RectTransform>();
-            rt.position = camPos + flatFwd * 2.0f;
-            rt.rotation = Quaternion.LookRotation(flatFwd, Vector3.up);
+            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (flatForward.sqrMagnitude < 0.001f)
+                flatForward = Vector3.forward;
+
+            Vector3 position = cam.transform.position + flatForward * 1.75f;
+            position.y = cam.transform.position.y + 0.02f;
+
+            rt.position = position;
+            rt.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
         }
 
         void BuildUI()
@@ -114,42 +127,42 @@ namespace Baduk.Replay
             var canvasGO = new GameObject("KifuVRCanvas");
             _canvas = canvasGO.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.WorldSpace;
-            canvasGO.AddComponent<CanvasScaler>();
-            canvasGO.AddComponent<GraphicRaycaster>();
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.dynamicPixelsPerUnit = 4f;
+            scaler.referencePixelsPerUnit = 140f;
+            XRUIUtility.ConfigureWorldCanvas(canvasGO, _canvas);
 
             var rt = _canvas.GetComponent<RectTransform>();
-            rt.sizeDelta  = new Vector2(800, 500);
-            rt.localScale = Vector3.one * 0.002f;
-            rt.position   = panelOffset;
-            rt.rotation   = Quaternion.Euler(15, 180, 0);
+            rt.sizeDelta = new Vector2(920, 560);
+            rt.localScale = Vector3.one * 0.0018f;
+            rt.position = panelOffset;
+            rt.rotation = Quaternion.Euler(15, 180, 0);
 
             _selectPanel = BuildSelectPanel(rt);
             _replayPanel = BuildReplayPanel(rt);
             _replayPanel.SetActive(false);
         }
 
-        // ── 기보 선택 패널 ───────────────────────────────
         GameObject BuildSelectPanel(RectTransform parent)
         {
-            var panel = CreatePanel(parent, "SelectPanel", new Color(0.1f, 0.1f, 0.18f, 0.95f));
+            var panel = CreatePanel(parent, "SelectPanel", _panel);
+            Stretch(panel);
             var prt = panel.GetComponent<RectTransform>();
-            prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one;
-            prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
 
-            CreateText(prt, "Title", "기보 복기", 40, FontStyle.Bold,
-                new Vector2(0, 215), new Vector2(700, 60), Color.white);
-            CreateText(prt, "Sub", "감상할 기보를 고르세요", 24, FontStyle.Normal,
-                new Vector2(0, 165), new Vector2(700, 40), new Color(0.85f, 0.85f, 0.85f));
+            CreatePanel(prt, "Accent", _accent, new Vector2(0, 240), new Vector2(840, 6));
+            CreateText(prt, "Title", "바둑 복기", 42, FontStyle.Bold,
+                new Vector2(0, 190), new Vector2(820, 60), _accent);
+            CreateText(prt, "Sub", "보고 싶은 기보를 선택하세요.", 24, FontStyle.Normal,
+                new Vector2(0, 142), new Vector2(820, 42), _muted);
 
-            // 기보 목록 영역 (BuildKifuSelectButtons에서 채움)
-            var listGO = new GameObject("KifuList", typeof(RectTransform));
-            listGO.transform.SetParent(prt, false);
-            var lrt = listGO.GetComponent<RectTransform>();
-            lrt.anchoredPosition = new Vector2(0, -10);
-            lrt.sizeDelta        = new Vector2(700, 240);
+            var list = new GameObject("KifuList", typeof(RectTransform));
+            list.transform.SetParent(prt, false);
+            _kifuListRoot = list.GetComponent<RectTransform>();
+            _kifuListRoot.anchoredPosition = new Vector2(0, -25);
+            _kifuListRoot.sizeDelta = new Vector2(760, 280);
 
-            var backBtn = CreateButton(prt, "로비로 돌아가기", 26,
-                new Vector2(0, -215), new Vector2(380, 60));
+            var backBtn = CreateButton(prt, "로비로 돌아가기", 24,
+                new Vector2(0, -220), new Vector2(420, 64), new Color(0.34f, 0.38f, 0.40f));
             backBtn.onClick.AddListener(() => OnBack?.Invoke());
 
             return panel;
@@ -157,142 +170,155 @@ namespace Baduk.Replay
 
         void BuildKifuSelectButtons(List<Kifu> kifus)
         {
-            // SelectPanel/KifuList 찾기
-            var listTr = _selectPanel.transform.Find("KifuList") as RectTransform;
-            if (listTr == null) return;
+            if (_kifuListRoot == null) return;
 
-            // 기존 버튼 제거
-            for (int i = listTr.childCount - 1; i >= 0; i--)
-                Destroy(listTr.GetChild(i).gameObject);
+            for (int i = _kifuListRoot.childCount - 1; i >= 0; i--)
+                Destroy(_kifuListRoot.GetChild(i).gameObject);
 
             if (kifus == null || kifus.Count == 0)
             {
-                CreateText(listTr, "Empty", "사용 가능한 기보가 없습니다.", 24, FontStyle.Normal,
-                    Vector2.zero, new Vector2(640, 40), new Color(1f, 0.6f, 0.6f));
+                CreateText(_kifuListRoot, "Empty", "사용 가능한 기보가 없습니다.", 26, FontStyle.Bold,
+                    Vector2.zero, new Vector2(720, 60), new Color(0.78f, 0.20f, 0.16f));
                 return;
             }
 
-            int n = Mathf.Min(kifus.Count, 5);
-            float spacing = 62f;
-            float startY = (n - 1) * spacing / 2f;
-            listTr.sizeDelta = new Vector2(700, n * spacing + 16);
-            for (int i = 0; i < n; i++)
+            int count = Mathf.Min(kifus.Count, 4);
+            float spacing = 72f;
+            float startY = (count - 1) * spacing * 0.5f;
+
+            for (int i = 0; i < count; i++)
             {
-                var k = kifus[i];
-                var btn = CreateButton(listTr, k.title, 26,
-                    new Vector2(0, startY - i * spacing), new Vector2(640, 60));
-                btn.onClick.AddListener(() => OnKifuSelected?.Invoke(k));
+                var kifu = kifus[i];
+                string label = string.IsNullOrWhiteSpace(kifu.title) ? $"기보 {i + 1}" : kifu.title;
+                var btn = CreateButton(_kifuListRoot, label, 24,
+                    new Vector2(0, startY - i * spacing), new Vector2(720, 62), _accent);
+                btn.onClick.AddListener(() => OnKifuSelected?.Invoke(kifu));
             }
         }
 
-        // ── 복기 패널 ────────────────────────────────────
         GameObject BuildReplayPanel(RectTransform parent)
         {
-            var panel = CreatePanel(parent, "ReplayPanel", new Color(0, 0, 0, 0f));
+            var panel = CreatePanel(parent, "ReplayPanel", new Color(0, 0, 0, 0));
+            Stretch(panel);
             var prt = panel.GetComponent<RectTransform>();
-            prt.anchorMin = Vector2.zero; prt.anchorMax = Vector2.one;
-            prt.offsetMin = Vector2.zero; prt.offsetMax = Vector2.zero;
 
-            // 상단 바
-            var topBar = CreatePanel(prt, "TopBar", new Color(0, 0, 0, 0.82f));
-            var tbrt = topBar.GetComponent<RectTransform>();
-            tbrt.anchorMin = new Vector2(0, 1); tbrt.anchorMax = Vector2.one;
-            tbrt.pivot = new Vector2(0.5f, 1);
-            tbrt.offsetMin = new Vector2(0, -120); tbrt.offsetMax = Vector2.zero;
+            var top = CreatePanel(prt, "TopPanel", _panel);
+            var topRt = top.GetComponent<RectTransform>();
+            topRt.anchorMin = new Vector2(0, 1);
+            topRt.anchorMax = Vector2.one;
+            topRt.pivot = new Vector2(0.5f, 1);
+            topRt.offsetMin = new Vector2(0, -142);
+            topRt.offsetMax = Vector2.zero;
 
-            _titleText   = CreateText(tbrt, "Title", "", 26, FontStyle.Bold,
-                new Vector2(0, 15), new Vector2(750, 45), Color.white);
-            _playersText = CreateText(tbrt, "Players", "", 20, FontStyle.Normal,
-                new Vector2(0, -28), new Vector2(750, 32), new Color(0.85f, 0.85f, 0.85f));
-            _progressText = CreateText(tbrt, "Progress", "", 18, FontStyle.Normal,
-                new Vector2(320, -55), new Vector2(150, 28), new Color(0.7f, 0.7f, 0.7f));
+            _titleText = CreateText(topRt, "Title", "", 31, FontStyle.Bold,
+                new Vector2(-60, 38), new Vector2(700, 44), _accent);
+            _progressText = CreateText(topRt, "Progress", "", 22, FontStyle.Bold,
+                new Vector2(365, 38), new Vector2(130, 36), _muted);
+            _playersText = CreateText(topRt, "Players", "", 22, FontStyle.Normal,
+                new Vector2(0, -28), new Vector2(840, 50), _ink);
 
-            // 하단 바
-            var botBar = CreatePanel(prt, "BotBar", new Color(0, 0, 0, 0.82f));
-            var bbrt = botBar.GetComponent<RectTransform>();
-            bbrt.anchorMin = Vector2.zero; bbrt.anchorMax = new Vector2(1, 0);
-            bbrt.pivot = new Vector2(0.5f, 0);
-            bbrt.offsetMin = Vector2.zero; bbrt.offsetMax = new Vector2(0, 180);
+            var bottom = CreatePanel(prt, "BottomPanel", _panel);
+            var botRt = bottom.GetComponent<RectTransform>();
+            botRt.anchorMin = Vector2.zero;
+            botRt.anchorMax = new Vector2(1, 0);
+            botRt.pivot = new Vector2(0.5f, 0);
+            botRt.offsetMin = Vector2.zero;
+            botRt.offsetMax = new Vector2(0, 195);
 
-            // NPC 자막
-            _commentText = CreateText(bbrt, "Comment", "", 22, FontStyle.Italic,
-                new Vector2(0, 130), new Vector2(750, 36), new Color(1f, 0.95f, 0.6f));
+            _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,
+                new Vector2(0, 67), new Vector2(840, 56), new Color(0.58f, 0.38f, 0.05f));
 
-            // 컨트롤 버튼 행 1: 이전/재생/다음/다시
-            float btnY = 70f, btnW = 130f, gap = 10f;
-            float totalW1 = btnW * 4 + gap * 3;
-            float startX1 = -totalW1 / 2f;
+            var prev = CreateButton(botRt, "이전", 21, new Vector2(-345, -12), new Vector2(120, 54), new Color(0.30f, 0.36f, 0.42f));
+            _btnPlayPause = CreateButton(botRt, "재생", 21, new Vector2(-215, -12), new Vector2(120, 54), _accent);
+            var next = CreateButton(botRt, "다음", 21, new Vector2(-85, -12), new Vector2(120, 54), _accent);
+            var restart = CreateButton(botRt, "처음부터", 20, new Vector2(55, -12), new Vector2(140, 54), new Color(0.35f, 0.52f, 0.28f));
+            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(205, -12), new Vector2(120, 54), new Color(0.48f, 0.35f, 0.16f));
+            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(335, -12), new Vector2(120, 54), new Color(0.48f, 0.35f, 0.16f));
+            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(205, -74), new Vector2(120, 48), new Color(0.48f, 0.35f, 0.16f));
+            var back = CreateButton(botRt, "목록", 18, new Vector2(335, -74), new Vector2(120, 48), new Color(0.34f, 0.38f, 0.40f));
 
-            _btnPrev      = CreateButton(bbrt, "◀ 이전",     22, new Vector2(startX1,                     btnY), new Vector2(btnW, 50));
-            _btnPlayPause = CreateButton(bbrt, "▶ 재생",     22, new Vector2(startX1 + (btnW + gap),       btnY), new Vector2(btnW, 50));
-            _btnNext      = CreateButton(bbrt, "다음 ▶",     22, new Vector2(startX1 + (btnW + gap) * 2,   btnY), new Vector2(btnW, 50));
-            _btnRestart   = CreateButton(bbrt, "↺ 처음부터", 20, new Vector2(startX1 + (btnW + gap) * 3,   btnY), new Vector2(btnW, 50));
-
-            _btnPrev.onClick.AddListener(()      => OnPrev?.Invoke());
+            prev.onClick.AddListener(() => OnPrev?.Invoke());
             _btnPlayPause.onClick.AddListener(() => OnPlayPause?.Invoke());
-            _btnNext.onClick.AddListener(()      => OnNext?.Invoke());
-            _btnRestart.onClick.AddListener(()   => OnRestart?.Invoke());
-
-            // 컨트롤 버튼 행 2: 속도 + 나가기
-            float btn2Y = 10f, btn2W = 110f;
-            _btnSpeed05 = CreateButton(bbrt, "0.5x", 20, new Vector2(-260, btn2Y), new Vector2(btn2W, 45));
-            _btnSpeed1  = CreateButton(bbrt, "1x",   20, new Vector2(-130, btn2Y), new Vector2(btn2W, 45));
-            _btnSpeed2  = CreateButton(bbrt, "2x",   20, new Vector2(   0, btn2Y), new Vector2(btn2W, 45));
-            _btnBack    = CreateButton(bbrt, "나가기", 20, new Vector2( 200, btn2Y), new Vector2(btn2W * 1.4f, 45));
-
-            _btnSpeed05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
-            _btnSpeed1.onClick.AddListener(()  => OnSpeedChanged?.Invoke(1f));
-            _btnSpeed2.onClick.AddListener(()  => OnSpeedChanged?.Invoke(2f));
-            _btnBack.onClick.AddListener(()    => OnBack?.Invoke());
+            next.onClick.AddListener(() => OnNext?.Invoke());
+            restart.onClick.AddListener(() => OnRestart?.Invoke());
+            speed05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
+            speed1.onClick.AddListener(() => OnSpeedChanged?.Invoke(1f));
+            speed2.onClick.AddListener(() => OnSpeedChanged?.Invoke(2f));
+            back.onClick.AddListener(() => OnBack?.Invoke());
 
             return panel;
         }
 
-        // ── 헬퍼 (BadukVRUI와 동일 패턴) ──────────────────
-        GameObject CreatePanel(RectTransform parent, string name, Color bg)
+        static string Safe(string value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+
+        GameObject CreatePanel(RectTransform parent, string name, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = bg;
+            go.GetComponent<Image>().color = color;
             return go;
         }
 
-        Text CreateText(RectTransform parent, string name, string text,
-            int fontSize, FontStyle style, Vector2 pos, Vector2 size, Color color)
+        GameObject CreatePanel(RectTransform parent, string name, Color color, Vector2 pos, Vector2 size)
         {
-            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
-            go.transform.SetParent(parent, false);
+            var go = CreatePanel(parent, name, color);
             var rt = go.GetComponent<RectTransform>();
             rt.anchoredPosition = pos;
             rt.sizeDelta = size;
-            var t = go.GetComponent<Text>();
-            t.text = text; t.fontSize = fontSize; t.fontStyle = style; t.color = color;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
-            t.alignment = TextAnchor.MiddleCenter;
-            t.horizontalOverflow = HorizontalWrapMode.Wrap;
-            t.verticalOverflow   = VerticalWrapMode.Truncate;
-            return t;
+            return go;
         }
 
-        Button CreateButton(Transform parent, string label, int fontSize, Vector2 pos, Vector2 size)
+        Text CreateText(RectTransform parent, string name, string text, int fontSize,
+            FontStyle style, Vector2 pos, Vector2 size, Color color)
+        {
+            var go = new GameObject(name, typeof(RectTransform), typeof(Text));
+            go.transform.SetParent(parent, false);
+
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            var label = go.GetComponent<Text>();
+            label.text = text;
+            label.fontSize = fontSize;
+            label.fontStyle = style;
+            label.color = color;
+            label.font = Font.CreateDynamicFontFromOSFont("Malgun Gothic", fontSize);
+            label.alignment = TextAnchor.MiddleCenter;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Overflow;
+            return label;
+        }
+
+        Button CreateButton(RectTransform parent, string label, int fontSize, Vector2 pos, Vector2 size, Color color)
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
+
             var rt = go.GetComponent<RectTransform>();
-            rt.anchoredPosition = pos; rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.35f);
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+            go.GetComponent<Image>().color = color;
 
-            var textGO = new GameObject("Text", typeof(RectTransform), typeof(Text));
-            textGO.transform.SetParent(go.transform, false);
-            var trt = textGO.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
+            CreateText(rt, "Text", label, fontSize, FontStyle.Bold, Vector2.zero, size, Color.white);
 
-            var t = textGO.GetComponent<Text>();
-            t.text = label; t.fontSize = fontSize; t.fontStyle = FontStyle.Bold; t.color = Color.white;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
-            t.alignment = TextAnchor.MiddleCenter;
-            return go.GetComponent<Button>();
+            var btn = go.GetComponent<Button>();
+            var colors = btn.colors;
+            colors.normalColor = color;
+            colors.highlightedColor = Color.Lerp(color, Color.white, 0.16f);
+            colors.pressedColor = Color.Lerp(color, Color.black, 0.20f);
+            colors.selectedColor = colors.highlightedColor;
+            btn.colors = colors;
+            return btn;
+        }
+
+        static void Stretch(GameObject go)
+        {
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
         }
     }
 }

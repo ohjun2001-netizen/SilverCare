@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using Baduk.Data;
+using SilverCare.Common;
 
 namespace Baduk.Prediction
 {
@@ -35,19 +36,20 @@ namespace Baduk.Prediction
         Text _resultHeadline, _resultDetail;
 
         bool _built;
+        bool _placementLocked;
 
         // ── 외부 호출 ────────────────────────────────────
 
         public void ShowKifuSelect(List<Kifu> kifus)
         {
-            EnsureBuilt(); PlaceCanvas();
+            EnsureBuilt(); EnsureCanvasPlacement();
             ShowOnly(_selectPanel);
             BuildKifuButtons(kifus);
         }
 
         public void ShowReplay(Kifu kifu)
         {
-            EnsureBuilt(); PlaceCanvas();
+            EnsureBuilt(); EnsureCanvasPlacement();
             ShowOnly(_replayPanel);
             _titleText.text   = kifu.title ?? "기보";
             _playersText.text = $"흑: {kifu.black_player ?? "?"}    백: {kifu.white_player ?? "?"}";
@@ -101,7 +103,7 @@ namespace Baduk.Prediction
 
         public void ShowResult(int correct, int total)
         {
-            EnsureBuilt(); PlaceCanvas();
+            EnsureBuilt(); EnsureCanvasPlacement();
             ShowOnly(_resultPanel);
             _resultHeadline.text = total == 0
                 ? "관전 완료!"
@@ -133,6 +135,13 @@ namespace Baduk.Prediction
             _built = true;
         }
 
+        void EnsureCanvasPlacement()
+        {
+            if (_placementLocked) return;
+            PlaceCanvas();
+            _placementLocked = true;
+        }
+
         static void EnsureEventSystem()
         {
             if (FindObjectOfType<EventSystem>() != null) return;
@@ -146,13 +155,16 @@ namespace Baduk.Prediction
             Camera cam = Camera.main;
             if (cam == null || _canvas == null) return;
             _canvas.worldCamera = cam;
-
-            Vector3 flatFwd = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
-            if (flatFwd == Vector3.zero) flatFwd = Vector3.forward;
-
             var rt = _canvas.GetComponent<RectTransform>();
-            rt.position = cam.transform.position + flatFwd * 2.0f;
-            rt.rotation = Quaternion.LookRotation(flatFwd, Vector3.up);
+            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (flatForward.sqrMagnitude < 0.001f)
+                flatForward = Vector3.forward;
+
+            Vector3 position = cam.transform.position + flatForward * 1.75f;
+            position.y = cam.transform.position.y + 0.02f;
+
+            rt.position = position;
+            rt.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
         }
 
         void BuildUI()
@@ -161,7 +173,7 @@ namespace Baduk.Prediction
             _canvas = canvasGO.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.WorldSpace;
             canvasGO.AddComponent<CanvasScaler>();
-            canvasGO.AddComponent<GraphicRaycaster>();
+            XRUIUtility.ConfigureWorldCanvas(canvasGO, _canvas);
 
             var rt = _canvas.GetComponent<RectTransform>();
             rt.sizeDelta  = new Vector2(800, 540);

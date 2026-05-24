@@ -10,640 +10,726 @@ namespace SilverCare.GoStop
 {
     public class GoStopGameManager : BaseGameManager
     {
-        // ── 카드 크기·간격 상수 ──────────────────────────────
-        const float CW = 0.38f, CH = 0.54f;   // 카드 가로·세로
-        const float SX = 0.42f, SY = 0.62f;   // 그리드 간격
-        const float DIST = 2.5f;               // 카메라 ~ 카드 거리
+        const float CardW = 0.38f;
+        const float CardH = 0.54f;
+        const float GapX = 0.42f;
+        const float GapY = 0.62f;
+        const float TableDistance = 2.5f;
 
-        // ── 12월 색상 팔레트 ─────────────────────────────────
-        static readonly Color[] MonthColors =
-        {
-            new(0.15f,0.50f,0.15f), new(0.85f,0.55f,0.70f), new(0.90f,0.75f,0.80f),
-            new(0.55f,0.25f,0.75f), new(0.30f,0.45f,0.80f), new(0.85f,0.25f,0.65f),
-            new(0.80f,0.15f,0.15f), new(0.85f,0.50f,0.10f), new(0.60f,0.75f,0.20f),
-            new(0.60f,0.10f,0.10f), new(0.30f,0.30f,0.35f), new(0.10f,0.25f,0.60f),
-        };
+        readonly List<HwatooCard> _playerHand = new();
+        readonly List<HwatooCard> _cpuHand = new();
+        readonly List<HwatooCard> _floorCards = new();
+        readonly List<HwatooCard> _deckRemaining = new();
+        readonly List<HwatooCard> _playerCaptured = new();
+        readonly List<HwatooCard> _cpuCaptured = new();
+        readonly HashSet<int> _playerShakenMonths = new();
+        readonly HashSet<int> _cpuShakenMonths = new();
+        readonly Dictionary<HwatooCard, GameObject> _cardViews = new();
+        readonly Dictionary<int, Texture2D> _textureCache = new();
 
-        // ── 게임 데이터 ──────────────────────────────────────
-        GoStopDeck            _deck;
+        GoStopDeck _deck;
         GoStopScoreCalculator _scorer;
 
-        List<HwatooCard> _playerHand     = new();
-        List<HwatooCard> _cpuHand        = new();
-        List<HwatooCard> _floorCards     = new();
-        List<HwatooCard> _deckRemaining  = new();
-        List<HwatooCard> _playerCaptured = new();
-        List<HwatooCard> _cpuCaptured    = new();
-        int  _goCount;
+        Transform _cardRoot;
+        Transform _playerCapturedRoot;
+        Transform _cpuCapturedRoot;
+        Canvas _gameCanvas;
+        Canvas _goStopCanvas;
+        Text _statusText;
+        Text _scoreText;
+        Text _deckText;
+
+        Vector3 _tableCenter;
+        Vector3 _right;
+        Vector3 _up;
+        Quaternion _cardRotation;
+
+        int _goCount;
+        int _cpuGoCount;
+        int _playerBombCount;
+        int _cpuBombCount;
         bool _waitingForCard;
         bool _isProcessing;
 
-        // ── 3D 뷰 ────────────────────────────────────────────
-        Transform _cardRoot;
-        readonly Dictionary<HwatooCard, GameObject> _views = new();
-        readonly Dictionary<HwatooCard, Texture2D>  _texCache = new();
-
-        // ── UI ───────────────────────────────────────────────
-        Canvas _gameCanvas;
-        Canvas _goStopCanvas;
-        Text   _scoreText, _statusText;
-
-        // ── 카메라 기준 벡터 (SpawnCards 후 유지) ────────────
-        Vector3    _fwd, _right, _spawnCenter;
-        Quaternion _cardRot;
-
-        // ── BaseGameManager ───────────────────────────────────
-
-        protected override void InitGame() { gameTitle = "고스톱"; }
+        protected override void InitGame()
+        {
+            gameTitle = "고스톱";
+        }
 
         protected override void StartGame()
         {
-            _deck   = GetComponent<GoStopDeck>()   ?? gameObject.AddComponent<GoStopDeck>();
+            _deck = GetComponent<GoStopDeck>() ?? gameObject.AddComponent<GoStopDeck>();
             _scorer = GetComponent<GoStopScoreCalculator>() ?? gameObject.AddComponent<GoStopScoreCalculator>();
             _deck.Initialize();
 
-            SetupSpawnVectors();
+            SetupTable();
             DealCards();
             BuildGameUI();
-            RefreshAllCardViews();
-            SetStatus("패를 골라 내어 보세요");
+            RefreshAllViews();
+
             _waitingForCard = true;
+            SetStatus("내 차례입니다. 낼 패를 선택하세요.");
         }
 
-        protected override void EndGame() { /* ShowFinalResult handles it */ }
-
-        // ── 입력 ─────────────────────────────────────────────
+        protected override void EndGame()
+        {
+            PlayerDataManager.Instance?.SaveScore(gameTitle, _score);
+        }
 
         void Update()
         {
-            if (!_isPlaying || _isProcessing || !_waitingForCard) return;
-            if (!Input.GetMouseButtonDown(0)) return;
+            if (!_isPlaying || !_waitingForCard || _isProcessing) return;
+            if (!XRPointerInput.TryGetSelectionHit(100f, out var hit)) return;
 
-            Camera cam = Camera.main;
-            if (cam == null) return;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (!Physics.Raycast(ray, out RaycastHit hit, 20f)) return;
-
-            var view = hit.collider.GetComponent<HandCardMarker>();
-            if (view != null) OnPlayerPickCard(view.Card);
+            var marker = hit.collider.GetComponentInParent<HandCardMarker>();
+            if (marker != null && marker.Card != null && _playerHand.Contains(marker.Card))
+            {
+                StartCoroutine(PlayerTurn(marker.Card));
+            }
         }
 
-        // ── 패 배분 ──────────────────────────────────────────
+        void SetupTable()
+        {
+            var cam = Camera.main;
+            if (cam == null)
+            {
+                var go = new GameObject("Main Camera");
+                cam = go.AddComponent<Camera>();
+                cam.tag = "MainCamera";
+                go.transform.position = new Vector3(0, 1.6f, -4f);
+                go.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
+            }
+
+            XRUIUtility.GetSceneViewAnchor(cam, out Vector3 anchorPosition, out Vector3 anchorForward);
+            _tableCenter = anchorPosition + anchorForward * TableDistance;
+            _right = Vector3.Cross(Vector3.up, anchorForward).normalized;
+            _up = Vector3.up;
+            _cardRotation = Quaternion.LookRotation(anchorForward, Vector3.up);
+
+            ClearCardViews();
+            _cardRoot = new GameObject("GoStop Cards").transform;
+        }
 
         void DealCards()
         {
-            // Initialize()는 StartGame()에서 이미 호출됨
+            _playerHand.Clear();
+            _cpuHand.Clear();
+            _floorCards.Clear();
+            _deckRemaining.Clear();
+            _playerCaptured.Clear();
+            _cpuCaptured.Clear();
+            _playerShakenMonths.Clear();
+            _cpuShakenMonths.Clear();
+
+            _goCount = 0;
+            _cpuGoCount = 0;
+            _playerBombCount = 0;
+            _cpuBombCount = 0;
+
             _deck.Shuffle();
 
-            _playerHand.Clear(); _cpuHand.Clear();
-            _floorCards.Clear(); _deckRemaining.Clear();
-            _playerCaptured.Clear(); _cpuCaptured.Clear();
-            _goCount = 0;
-
-            // 플레이어 10장, CPU 10장, 바닥 8장, 나머지 덱
-            for (int i = 0; i < 10; i++) _playerHand.Add(_deck.Draw());
-            for (int i = 0; i < 10; i++) _cpuHand.Add(_deck.Draw());
-            for (int i = 0; i < 8;  i++) _floorCards.Add(_deck.Draw());
-            while (_deck.RemainingCount > 0) _deckRemaining.Add(_deck.Draw());
-        }
-
-        // ── 플레이어 턴 ──────────────────────────────────────
-
-        void OnPlayerPickCard(HwatooCard card)
-        {
-            _waitingForCard = false;
-            _isProcessing   = true;
-            StartCoroutine(PlayerTurnCo(card));
-        }
-
-        IEnumerator PlayerTurnCo(HwatooCard card)
-        {
-            // 1) 패 내기
-            SetStatus("패를 냅니다...");
-            yield return PlayCardCo(card, _playerHand, _playerCaptured);
-
-            // 2) 덱에서 1장 뒤집기
-            yield return DrawCo(_playerCaptured);
-
-            // 3) 점수 확인 → 고/스톱 여부
-            int score = _scorer.Calculate(_playerCaptured, _goCount);
-            if (score >= 3)
+            for (int i = 0; i < 10; i++)
             {
-                ShowGoStopPanel(score);
-                yield break;  // 버튼 클릭 후 OnGoStopDecision() 재개
+                _playerHand.Add(_deck.Draw());
+                _cpuHand.Add(_deck.Draw());
             }
 
-            // 4) CPU 턴
-            yield return CPUTurnCo();
-
-            // 5) 패 소진 → 게임 종료
-            if (_playerHand.Count == 0)
+            for (int i = 0; i < 8; i++)
             {
-                yield return new WaitForSeconds(0.3f);
-                OnGameClear();
+                _floorCards.Add(_deck.Draw());
+            }
+
+            HwatooCard card;
+            while ((card = _deck.Draw()) != null)
+            {
+                _deckRemaining.Add(card);
+            }
+        }
+
+        IEnumerator PlayerTurn(HwatooCard selected)
+        {
+            _waitingForCard = false;
+            _isProcessing = true;
+
+            var report = PlayTurn(selected, _playerHand, _playerCaptured, _cpuCaptured, true);
+            RefreshAllViews();
+            SetStatus(report);
+            yield return new WaitForSeconds(0.75f);
+
+            var score = CurrentPlayerScore(false);
+            if (score.finalScore >= 3)
+            {
+                ShowGoStopPanel(score.finalScore);
+                _isProcessing = false;
                 yield break;
             }
 
-            SetStatus("패를 골라 내어 보세요");
-            _waitingForCard = true;
-            _isProcessing   = false;
+            yield return CpuTurn();
+            if (!_isPlaying) yield break;
+
+            if (IsRoundOver())
+            {
+                ShowFinalResult();
+            }
+            else
+            {
+                _waitingForCard = true;
+                _isProcessing = false;
+                SetStatus("내 차례입니다. 낼 패를 선택하세요.");
+            }
         }
 
-        // ── CPU 턴 ───────────────────────────────────────────
-
-        IEnumerator CPUTurnCo()
+        IEnumerator CpuTurn()
         {
-            SetStatus("상대 차례...");
-            yield return new WaitForSeconds(1.2f);
-
-            if (_cpuHand.Count == 0) yield break;
-
-            // 매칭 가능한 패 우선, 없으면 첫 번째 패
-            HwatooCard toPlay = _cpuHand.FirstOrDefault(c => _floorCards.Any(f => f.month == c.month))
-                             ?? _cpuHand[0];
-
-            yield return PlayCardCo(toPlay, _cpuHand, _cpuCaptured);
-            yield return DrawCo(_cpuCaptured);
-        }
-
-        // ── 카드 내기 (공용) ──────────────────────────────────
-        // 바닥에서 같은 월 찾아 처리, 없으면 바닥에 추가
-
-        IEnumerator PlayCardCo(HwatooCard card, List<HwatooCard> hand, List<HwatooCard> captured)
-        {
-            hand.Remove(card);
-            RemoveView(card);
-
-            var matches = _floorCards.Where(f => f.month == card.month).ToList();
+            _isProcessing = true;
             yield return new WaitForSeconds(0.5f);
 
-            if (matches.Count == 0)
+            var selected = PickCpuCard();
+            if (selected == null)
             {
-                _floorCards.Add(card);
-            }
-            else
-            {
-                captured.Add(card);
-                foreach (var m in matches)
-                {
-                    _floorCards.Remove(m);
-                    RemoveView(m);
-                    captured.Add(m);
-                }
-                AudioManager.Instance?.PlayCorrect();
+                ShowFinalResult();
+                yield break;
             }
 
-            RefreshAllCardViews();
-            RefreshScore();
-        }
+            var report = PlayTurn(selected, _cpuHand, _cpuCaptured, _playerCaptured, false);
+            RefreshAllViews();
+            SetStatus("상대: " + report);
+            yield return new WaitForSeconds(0.75f);
 
-        // ── 덱에서 1장 뒤집기 (공용) ─────────────────────────
-
-        IEnumerator DrawCo(List<HwatooCard> captured)
-        {
-            if (_deckRemaining.Count == 0) yield break;
-
-            var drawn = _deckRemaining[0];
-            _deckRemaining.RemoveAt(0);
-            yield return new WaitForSeconds(0.5f);
-
-            var matches = _floorCards.Where(f => f.month == drawn.month).ToList();
-
-            if (matches.Count == 0)
+            var cpuScore = CurrentCpuScore(false);
+            if (cpuScore.finalScore >= 3)
             {
-                _floorCards.Add(drawn);
-            }
-            else
-            {
-                captured.Add(drawn);
-                foreach (var m in matches)
-                {
-                    _floorCards.Remove(m);
-                    RemoveView(m);
-                    captured.Add(m);
-                }
-                AudioManager.Instance?.PlayCorrect();
-            }
-
-            RefreshAllCardViews();
-            RefreshScore();
-        }
-
-        // ── 고/스톱 결정 ──────────────────────────────────────
-
-        void ShowGoStopPanel(int score)
-        {
-            if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
-
-            var go = new GameObject("GoStopPanel");
-            _goStopCanvas = go.AddComponent<Canvas>();
-            _goStopCanvas.renderMode = RenderMode.WorldSpace;
-            go.AddComponent<CanvasScaler>();
-            go.AddComponent<GraphicRaycaster>();
-
-            var rt = _goStopCanvas.GetComponent<RectTransform>();
-            rt.sizeDelta  = new Vector2(500, 220);
-            rt.localScale = Vector3.one * 0.003f;
-            rt.position   = _spawnCenter + _fwd * 0.1f + Vector3.up * 0.6f;
-            rt.rotation   = Quaternion.LookRotation(_fwd, Vector3.up);
-
-            var bg = go.AddComponent<Image>();
-            bg.color = new Color(0.05f, 0.08f, 0.15f, 0.95f);
-
-            MakeUIText(go.transform, "msg",
-                $"현재 점수: {score}점\n고 하시겠습니까?", 28,
-                new Vector2(0, 50), new Vector2(480, 90));
-
-            MakeDiffButton(go.transform, "고!", 30,
-                new Vector2(-110, -50), new Vector2(180, 70),
-                new Color(0.15f, 0.55f, 0.25f), () => OnGoStopDecision(true));
-
-            MakeDiffButton(go.transform, "스톱!", 30,
-                new Vector2(110, -50), new Vector2(180, 70),
-                new Color(0.65f, 0.15f, 0.15f), () => OnGoStopDecision(false));
-        }
-
-        public void OnGoStopDecision(bool isGo)
-        {
-            if (_goStopCanvas != null) { Destroy(_goStopCanvas.gameObject); _goStopCanvas = null; }
-
-            if (isGo)
-            {
-                _goCount++;
-                TTSManager.Instance?.Speak("고!");
-                StartCoroutine(AfterGoCo());
-            }
-            else
-            {
-                TTSManager.Instance?.Speak("스톱!");
+                _cpuGoCount = 0;
                 ShowFinalResult();
             }
         }
 
-        IEnumerator AfterGoCo()
+        HwatooCard PickCpuCard()
         {
-            yield return CPUTurnCo();
+            var bomb = FindBombMonth(_cpuHand);
+            if (bomb > 0) return _cpuHand.First(c => c.month == bomb);
 
-            if (_playerHand.Count == 0) { ShowFinalResult(); yield break; }
-
-            SetStatus("패를 골라 내어 보세요");
-            _waitingForCard = true;
-            _isProcessing   = false;
+            return _cpuHand.FirstOrDefault(c => _floorCards.Any(f => f.month == c.month))
+                ?? _cpuHand.FirstOrDefault();
         }
 
-        // ── 결과 표시 ────────────────────────────────────────
+        string PlayTurn(
+            HwatooCard selected,
+            List<HwatooCard> hand,
+            List<HwatooCard> captured,
+            List<HwatooCard> opponentCaptured,
+            bool isPlayer)
+        {
+            AutoShake(hand, isPlayer);
+
+            int month = selected.month;
+            int bombMonth = FindBombMonthForCard(selected, hand);
+            if (bombMonth > 0)
+            {
+                var bombCards = hand.Where(c => c.month == bombMonth).Take(3).ToList();
+                var floorCard = _floorCards.First(c => c.month == bombMonth);
+                foreach (var c in bombCards) hand.Remove(c);
+                _floorCards.Remove(floorCard);
+                captured.AddRange(bombCards);
+                captured.Add(floorCard);
+
+                if (isPlayer) _playerBombCount++;
+                else _cpuBombCount++;
+
+                StealOnePi(opponentCaptured, captured);
+                CheckSweep(opponentCaptured, captured);
+                return $"{bombMonth}월 폭탄, 4장을 먹었습니다.";
+            }
+
+            hand.Remove(selected);
+            var firstMatches = _floorCards.Where(c => c.month == month).ToList();
+            var drawn = DrawFromDeck();
+            var gained = 0;
+            var messages = new List<string> { $"{month}월 패를 냈습니다" };
+
+            if (firstMatches.Count == 0)
+            {
+                _floorCards.Add(selected);
+
+                if (drawn != null && drawn.month == selected.month)
+                {
+                    _floorCards.Remove(selected);
+                    captured.Add(selected);
+                    captured.Add(drawn);
+                    gained += 2;
+                    StealOnePi(opponentCaptured, captured);
+                    messages.Add("쪽");
+                }
+                else
+                {
+                    gained += ResolveDrawnCard(drawn, captured, opponentCaptured);
+                }
+            }
+            else if (firstMatches.Count == 1)
+            {
+                if (drawn != null && drawn.month == selected.month)
+                {
+                    _floorCards.Add(selected);
+                    _floorCards.Add(drawn);
+                    messages.Add("뻑");
+                }
+                else
+                {
+                    _floorCards.Remove(firstMatches[0]);
+                    captured.Add(selected);
+                    captured.Add(firstMatches[0]);
+                    gained += 2;
+                    gained += ResolveDrawnCard(drawn, captured, opponentCaptured);
+                }
+            }
+            else if (firstMatches.Count == 2)
+            {
+                if (drawn != null && drawn.month == selected.month)
+                {
+                    foreach (var c in firstMatches) _floorCards.Remove(c);
+                    captured.Add(selected);
+                    captured.Add(drawn);
+                    captured.AddRange(firstMatches);
+                    gained += 4;
+                    StealOnePi(opponentCaptured, captured);
+                    messages.Add("따닥");
+                }
+                else
+                {
+                    var picked = firstMatches[0];
+                    _floorCards.Remove(picked);
+                    captured.Add(selected);
+                    captured.Add(picked);
+                    gained += 2;
+                    messages.Add("같은 월 바닥패 1장을 자동 선택");
+                    gained += ResolveDrawnCard(drawn, captured, opponentCaptured);
+                }
+            }
+            else
+            {
+                foreach (var c in firstMatches) _floorCards.Remove(c);
+                captured.Add(selected);
+                captured.AddRange(firstMatches);
+                gained += firstMatches.Count + 1;
+                StealOnePi(opponentCaptured, captured);
+                messages.Add("묶인 패를 모두 가져옴");
+                gained += ResolveDrawnCard(drawn, captured, opponentCaptured);
+            }
+
+            if (gained > 0) CheckSweep(opponentCaptured, captured);
+            return string.Join(", ", messages);
+        }
+
+        int ResolveDrawnCard(HwatooCard drawn, List<HwatooCard> captured, List<HwatooCard> opponentCaptured)
+        {
+            if (drawn == null) return 0;
+
+            var matches = _floorCards.Where(c => c.month == drawn.month).ToList();
+            if (matches.Count == 0)
+            {
+                _floorCards.Add(drawn);
+                return 0;
+            }
+
+            if (matches.Count == 1 || matches.Count == 2)
+            {
+                var picked = matches[0];
+                _floorCards.Remove(picked);
+                captured.Add(drawn);
+                captured.Add(picked);
+                return 2;
+            }
+
+            foreach (var c in matches) _floorCards.Remove(c);
+            captured.Add(drawn);
+            captured.AddRange(matches);
+            StealOnePi(opponentCaptured, captured);
+            return matches.Count + 1;
+        }
+
+        HwatooCard DrawFromDeck()
+        {
+            if (_deckRemaining.Count == 0) return null;
+            var card = _deckRemaining[0];
+            _deckRemaining.RemoveAt(0);
+            return card;
+        }
+
+        void AutoShake(List<HwatooCard> hand, bool isPlayer)
+        {
+            var shaken = isPlayer ? _playerShakenMonths : _cpuShakenMonths;
+            foreach (var group in hand.GroupBy(c => c.month))
+            {
+                if (group.Count() >= 3 && shaken.Add(group.Key))
+                {
+                    SetStatus((isPlayer ? "나" : "상대") + $" {group.Key}월 흔들기");
+                }
+            }
+        }
+
+        int FindBombMonth(List<HwatooCard> hand)
+        {
+            foreach (var group in hand.GroupBy(c => c.month))
+            {
+                if (group.Count() >= 3 && _floorCards.Count(c => c.month == group.Key) == 1)
+                    return group.Key;
+            }
+            return 0;
+        }
+
+        int FindBombMonthForCard(HwatooCard selected, List<HwatooCard> hand)
+        {
+            return hand.Count(c => c.month == selected.month) >= 3
+                && _floorCards.Count(c => c.month == selected.month) == 1
+                ? selected.month
+                : 0;
+        }
+
+        void StealOnePi(List<HwatooCard> from, List<HwatooCard> to)
+        {
+            var pi = from.FirstOrDefault(c => c.cardType == CardType.Pi && !c.isDoublePi)
+                ?? from.FirstOrDefault(c => c.cardType == CardType.Pi);
+            if (pi == null) return;
+
+            from.Remove(pi);
+            to.Add(pi);
+        }
+
+        void CheckSweep(List<HwatooCard> opponentCaptured, List<HwatooCard> captured)
+        {
+            if (_floorCards.Count == 0)
+            {
+                StealOnePi(opponentCaptured, captured);
+            }
+        }
+
+        GoStopScoreResult CurrentPlayerScore(bool final)
+            => _scorer.CalculateDetailed(
+                _playerCaptured,
+                _cpuCaptured,
+                _goCount,
+                _playerShakenMonths.Count,
+                _playerBombCount,
+                _cpuGoCount,
+                final);
+
+        GoStopScoreResult CurrentCpuScore(bool final)
+            => _scorer.CalculateDetailed(
+                _cpuCaptured,
+                _playerCaptured,
+                _cpuGoCount,
+                _cpuShakenMonths.Count,
+                _cpuBombCount,
+                _goCount,
+                final);
+
+        bool IsRoundOver()
+        {
+            return _playerHand.Count == 0 || _cpuHand.Count == 0 || _deckRemaining.Count == 0;
+        }
+
+        void ShowGoStopPanel(int score)
+        {
+            _waitingForCard = false;
+            SetStatus($"{score}점입니다. 고 또는 스톱을 선택하세요.");
+
+            if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
+
+            _goStopCanvas = CreateCanvas("고스톱 선택 Canvas");
+            MakePanel(_goStopCanvas.transform, new Vector2(0, 0), new Vector2(520, 260), new Color(0, 0, 0, 0.85f));
+            MakeText(_goStopCanvas.transform, "ChoiceText", $"{score}점\n고 / 스톱 선택", 34, new Vector2(0, 60), new Vector2(480, 110));
+            MakeButton(_goStopCanvas.transform, "고", new Vector2(-120, -55), new Vector2(170, 70), new Color(0.1f, 0.5f, 0.2f), OnGo);
+            MakeButton(_goStopCanvas.transform, "스톱", new Vector2(120, -55), new Vector2(170, 70), new Color(0.65f, 0.15f, 0.12f), ShowFinalResult);
+        }
+
+        void OnGo()
+        {
+            if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
+            _goStopCanvas = null;
+            _goCount++;
+            RefreshScoreText();
+            StartCoroutine(ContinueAfterGo());
+        }
+
+        IEnumerator ContinueAfterGo()
+        {
+            SetStatus($"{_goCount}고입니다. 상대 차례입니다.");
+            yield return CpuTurn();
+            if (!_isPlaying) yield break;
+
+            if (IsRoundOver())
+            {
+                ShowFinalResult();
+                yield break;
+            }
+
+            _waitingForCard = true;
+            _isProcessing = false;
+            SetStatus("내 차례입니다. 낼 패를 선택하세요.");
+        }
 
         void ShowFinalResult()
         {
+            if (!_isPlaying) return;
             _isPlaying = false;
-            int pScore = _scorer.Calculate(_playerCaptured, _goCount);
-            int cScore = _scorer.Calculate(_cpuCaptured, 0);
-            _score = pScore;
+            _waitingForCard = false;
+            _isProcessing = false;
 
-            string breakdown = _scorer.ScoreBreakdown(_playerCaptured, _goCount);
-            string result = pScore > cScore ? "승리!" : pScore == cScore ? "무승부" : "패배";
+            if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
+            _goStopCanvas = null;
 
-            if (_scoreText  != null) _scoreText.gameObject.SetActive(false);
-            if (_statusText != null) _statusText.gameObject.SetActive(false);
+            var player = CurrentPlayerScore(true);
+            var cpu = CurrentCpuScore(true);
+            bool playerWins = player.finalScore >= cpu.finalScore;
+            _score = playerWins ? player.finalScore : 0;
+            EndGame();
 
-            var rt = _gameCanvas.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(820, 240);
+            if (_gameCanvas != null) Destroy(_gameCanvas.gameObject);
+            _gameCanvas = CreateCanvas("GoStop Result Canvas");
+            MakePanel(_gameCanvas.transform, Vector2.zero, new Vector2(760, 460), new Color(0, 0, 0, 0.88f));
 
-            MakeUIText(_gameCanvas.transform, "result",
-                $"게임 {result}\n{breakdown}\n상대 점수: {cScore}점", 26,
-                new Vector2(0, 60), new Vector2(800, 110)).color = new Color(1f, 0.9f, 0.3f);
+            string title = playerWins ? "승리" : "패배";
+            string body =
+                $"{title}\n\n" +
+                $"나: {player.finalScore}점 ({player.multiplierLabel})\n" +
+                $"상대: {cpu.finalScore}점 ({cpu.multiplierLabel})\n\n" +
+                $"고 {_goCount}, 흔들기 {_playerShakenMonths.Count}, 폭탄 {_playerBombCount}";
 
-            MakeDiffButton(_gameCanvas.transform, "다시 하기", 26,
-                new Vector2(-200, -60), new Vector2(240, 60),
-                new Color(0.22f, 0.22f, 0.38f), HandleRestart);
-            MakeDiffButton(_gameCanvas.transform, "로비로", 26,
-                new Vector2(60, -60), new Vector2(240, 60),
-                new Color(0.22f, 0.22f, 0.38f), HandleGoLobby);
+            MakeText(_gameCanvas.transform, "ResultText", body, 30, new Vector2(0, 45), new Vector2(700, 300));
+            MakeButton(_gameCanvas.transform, "로비", new Vector2(0, -160), new Vector2(220, 70), new Color(0.18f, 0.36f, 0.65f), GoToLobbySafe);
         }
 
-        void HandleRestart()
+        void RefreshAllViews()
         {
-            if (_cardRoot     != null) { Destroy(_cardRoot.gameObject);     _cardRoot     = null; }
-            if (_gameCanvas   != null) { Destroy(_gameCanvas.gameObject);   _gameCanvas   = null; }
-            if (_goStopCanvas != null) { Destroy(_goStopCanvas.gameObject); _goStopCanvas = null; }
-            _views.Clear(); _texCache.Clear();
-            _isProcessing = false; _waitingForCard = false;
-            StartGame();
+            RefreshCardViews();
+            RefreshScoreText();
         }
 
-        void HandleGoLobby()
+        void RefreshCardViews()
         {
-            if (GameSceneManager.Instance != null)
-                GameSceneManager.Instance.LoadScene(lobbySceneName);
-            else
-                UnityEngine.SceneManagement.SceneManager.LoadScene(lobbySceneName);
+            foreach (var view in _cardViews.Values)
+            {
+                if (view != null) Destroy(view);
+            }
+            _cardViews.Clear();
+
+            if (_playerCapturedRoot != null) Destroy(_playerCapturedRoot.gameObject);
+            if (_cpuCapturedRoot != null) Destroy(_cpuCapturedRoot.gameObject);
+            _playerCapturedRoot = new GameObject("Player Captured").transform;
+            _cpuCapturedRoot = new GameObject("CPU Captured").transform;
+            _playerCapturedRoot.SetParent(_cardRoot, false);
+            _cpuCapturedRoot.SetParent(_cardRoot, false);
+
+            RenderRow(_playerHand, _tableCenter - _up * 1.25f, true, true);
+            RenderRow(_cpuHand, _tableCenter + _up * 1.25f, false, false);
+            RenderGrid(_floorCards, _tableCenter, true);
+            RenderCaptured(_playerCaptured, _tableCenter - _up * 0.72f, _playerCapturedRoot);
+            RenderCaptured(_cpuCaptured, _tableCenter + _up * 0.72f, _cpuCapturedRoot);
         }
 
-        // ── 3D 카드 뷰 생성/갱신 ────────────────────────────
-
-        void SetupSpawnVectors()
+        void RenderRow(List<HwatooCard> cards, Vector3 center, bool faceUp, bool interactive)
         {
-            Camera cam = Camera.main ?? FindObjectOfType<Camera>();
-            Vector3 camPos = cam != null ? cam.transform.position : Vector3.up * 1.6f;
-            _fwd   = cam != null
-                ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
-                : Vector3.forward;
-            if (_fwd.sqrMagnitude < 0.01f) _fwd = Vector3.forward;
-            _right      = Vector3.Cross(Vector3.up, _fwd).normalized;
-            _cardRot    = Quaternion.LookRotation(-_fwd, Vector3.up);
-            _spawnCenter = camPos + _fwd * DIST;
-            _spawnCenter.y = camPos.y;
-        }
-
-        void RefreshAllCardViews()
-        {
-            // 뷰가 없는 카드에 새 뷰 생성, 위치 재계산
-            if (_cardRoot == null) _cardRoot = new GameObject("GoStopCards").transform;
-
-            // 플레이어 패 (하단, 앞면, 클릭 가능)
-            PlaceRow(_playerHand, _spawnCenter + Vector3.up * -1.0f, true);
-
-            // 바닥 패 (중앙, 앞면)
-            PlaceGrid(_floorCards, _spawnCenter + Vector3.up * 0.15f);
-
-            // CPU 패 (상단, 뒷면)
-            PlaceRow(_cpuHand, _spawnCenter + Vector3.up * 1.3f, false);
-        }
-
-        void PlaceRow(List<HwatooCard> cards, Vector3 rowCenter, bool faceUp)
-        {
-            if (cards.Count == 0) return;
-            float totalW = (cards.Count - 1) * SX;
+            float start = -(cards.Count - 1) * GapX * 0.5f;
             for (int i = 0; i < cards.Count; i++)
             {
-                float x  = i * SX - totalW / 2f;
-                Vector3 pos = rowCenter + _right * x;
-                EnsureView(cards[i], pos, faceUp, isHandCard: faceUp);
+                var pos = center + _right * (start + i * GapX);
+                CreateCardView(cards[i], pos, faceUp, interactive);
             }
         }
 
-        void PlaceGrid(List<HwatooCard> cards, Vector3 gridCenter)
+        void RenderGrid(List<HwatooCard> cards, Vector3 center, bool faceUp)
         {
-            if (cards.Count == 0) return;
-            int cols   = Mathf.Min(cards.Count, 5);
-            int rows   = Mathf.CeilToInt((float)cards.Count / cols);
-            float totW = (cols - 1) * SX;
-            float totH = (rows - 1) * SY;
-
+            int columns = Mathf.Min(8, Mathf.Max(1, cards.Count));
             for (int i = 0; i < cards.Count; i++)
             {
-                int col = i % cols, row = i / cols;
-                float x = col * SX - totW / 2f;
-                float y = row * SY - totH / 2f;
-                Vector3 pos = gridCenter + _right * x + Vector3.up * y;
-                EnsureView(cards[i], pos, faceUp: true, isHandCard: false);
+                int row = i / columns;
+                int col = i % columns;
+                float x = (col - (columns - 1) * 0.5f) * GapX;
+                float y = (0.5f - row) * GapY;
+                CreateCardView(cards[i], center + _right * x + _up * y, faceUp, false);
             }
         }
 
-        void EnsureView(HwatooCard card, Vector3 pos, bool faceUp, bool isHandCard)
+        void RenderCaptured(List<HwatooCard> cards, Vector3 center, Transform parent)
         {
-            if (_views.TryGetValue(card, out var go))
+            var ordered = cards.OrderBy(c => c.cardType).ThenBy(c => c.month).ThenBy(c => c.index).ToList();
+            int columns = 16;
+            for (int i = 0; i < ordered.Count; i++)
             {
-                go.transform.position = pos;
-                return;
+                int row = i / columns;
+                int col = i % columns;
+                float x = (col - (columns - 1) * 0.5f) * (GapX * 0.55f);
+                float y = -row * (GapY * 0.45f);
+                var view = CreateCardView(ordered[i], center + _right * x + _up * y, true, false, 0.58f);
+                view.transform.SetParent(parent, true);
             }
+        }
 
-            var root = new GameObject($"GSCard_{card.cardName}");
-            root.transform.SetPositionAndRotation(pos, _cardRot);
-            root.transform.SetParent(_cardRoot);
+        GameObject CreateCardView(HwatooCard card, Vector3 position, bool faceUp, bool interactive, float scale = 1f)
+        {
+            var go = GameObject.CreatePrimitive(PrimitiveType.Quad);
+            go.name = faceUp ? $"card_{card.index:D2}_{card.cardName}" : "card_back";
+            go.transform.SetParent(_cardRoot, true);
+            go.transform.position = position;
+            go.transform.rotation = _cardRotation;
+            go.transform.localScale = new Vector3(CardW * scale, CardH * scale, 1f);
 
-            var face = GameObject.CreatePrimitive(PrimitiveType.Quad);
-            face.transform.SetParent(root.transform, false);
-            face.transform.localScale    = new Vector3(-CW, CH, 1f);
-            face.transform.localPosition = new Vector3(0, 0, 0.01f);
-            Destroy(face.GetComponent<MeshCollider>());
-
+            var mat = new Material(Shader.Find("Sprites/Default"));
             if (faceUp)
             {
-                var mat = new Material(Shader.Find("Sprites/Default"));
-                mat.mainTexture = GetCardTex(card);
-                mat.color       = Color.white;
-                face.GetComponent<Renderer>().material = mat;
+                mat.mainTexture = GetCardTexture(card.index);
+                mat.color = Color.white;
             }
             else
             {
-                face.GetComponent<Renderer>().material = MakeColorMat(new Color(0.18f, 0.38f, 0.72f));
+                mat.color = new Color(0.08f, 0.18f, 0.42f);
             }
+            go.GetComponent<MeshRenderer>().material = mat;
 
-            if (isHandCard)
+            if (interactive)
             {
-                root.AddComponent<BoxCollider>().size = new Vector3(CW + 0.04f, CH + 0.04f, 0.05f);
-                root.AddComponent<HandCardMarker>().Card = card;
+                var marker = go.AddComponent<HandCardMarker>();
+                marker.Card = card;
             }
 
-            _views[card] = root;
+            _cardViews[card] = go;
+            return go;
         }
 
-        void RemoveView(HwatooCard card)
+        Texture2D GetCardTexture(int index)
         {
-            if (_views.TryGetValue(card, out var go))
-            {
-                Destroy(go);
-                _views.Remove(card);
-            }
+            if (_textureCache.TryGetValue(index, out var cached)) return cached;
+
+            var sprite = Resources.Load<Sprite>($"GoStop/card_{index:D2}");
+            var texture = sprite != null ? sprite.texture : Texture2D.whiteTexture;
+            _textureCache[index] = texture;
+            return texture;
         }
-
-        // ── 텍스처 로드: Resources/GoStop/card_XX 우선, 없으면 폴백 ─
-
-        Texture2D GetCardTex(HwatooCard card)
-        {
-            if (_texCache.TryGetValue(card, out var tex)) return tex;
-
-            // Resources/GoStop/card_00 ~ card_47 PNG 로드 시도
-            string resPath = $"GoStop/card_{card.index:D2}";
-            var sprite = Resources.Load<Sprite>(resPath);
-            if (sprite != null)
-            {
-                tex = sprite.texture;
-                _texCache[card] = tex;
-                return tex;
-            }
-
-            // 폴백: 월별 색상 + 번호 텍스처
-            var t = new Texture2D(128, 128, TextureFormat.RGBA32, false);
-            Color bg = MonthColors[card.month - 1];
-            var px = new Color[128 * 128];
-            for (int i = 0; i < px.Length; i++) px[i] = bg;
-            t.SetPixels(px);
-
-            DrawRect(t, 3, 3, 122, 122, Color.white);
-            DrawRect(t, 6, 6, 116, 116, bg);
-            DrawNumber(t, card.month, 20, 65, Color.white);
-
-            string sym = card.cardType switch
-            {
-                CardType.Gwang => "光",
-                CardType.Yul   => "10",
-                CardType.Tti   => "띠",
-                _              => "피",
-            };
-            DrawLabel(t, sym, 68, 10, new Color(1f, 1f, 0.6f));
-
-            t.Apply();
-            _texCache[card] = t;
-            return t;
-        }
-
-        // ── UI 구성 ──────────────────────────────────────────
 
         void BuildGameUI()
         {
             if (_gameCanvas != null) Destroy(_gameCanvas.gameObject);
+            _gameCanvas = CreateCanvas("고스톱 UI Canvas");
 
-            var go = new GameObject("GoStopUI");
-            _gameCanvas = go.AddComponent<Canvas>();
-            _gameCanvas.renderMode = RenderMode.WorldSpace;
-            go.AddComponent<CanvasScaler>();
-            go.AddComponent<GraphicRaycaster>();
-
-            var rt = _gameCanvas.GetComponent<RectTransform>();
-            rt.sizeDelta  = new Vector2(820, 110);
-            rt.localScale = Vector3.one * 0.003f;
-            rt.position   = _spawnCenter + Vector3.up * 2.2f;
-            rt.rotation   = Quaternion.LookRotation(_fwd, Vector3.up);
-
-            var bg = go.AddComponent<Image>();
-            bg.color = new Color(0f, 0f, 0f, 0.75f);
-
-            _scoreText  = MakeUIText(go.transform, "Score",
-                "광:0 열끗:0 띠:0 피:0  → 0점", 24,
-                new Vector2(-75, 24), new Vector2(580, 38));
-            _statusText = MakeUIText(go.transform, "Status", "", 20,
-                new Vector2(-75, -22), new Vector2(580, 34));
-            _statusText.color = new Color(0.9f, 0.9f, 0.65f);
-
-            MakeDiffButton(go.transform, "나가기", 20,
-                new Vector2(340, 0), new Vector2(100, 90),
-                new Color(0.55f, 0.12f, 0.12f), HandleGoLobby);
+            _statusText = MakeText(_gameCanvas.transform, "Status", "고스톱", 28, new Vector2(0, 250), new Vector2(900, 60));
+            _scoreText = MakeText(_gameCanvas.transform, "Score", "", 20, new Vector2(-405, 145), new Vector2(340, 150));
+            _deckText = MakeText(_gameCanvas.transform, "Deck", "", 22, new Vector2(405, 165), new Vector2(320, 110));
+            MakeButton(_gameCanvas.transform, "로비", new Vector2(505, -275), new Vector2(140, 50), new Color(0.16f, 0.28f, 0.45f), GoToLobbySafe);
         }
 
-        void RefreshScore()
+        Canvas CreateCanvas(string name)
         {
-            if (_scoreText == null) return;
-            int g = _playerCaptured.Count(c => c.cardType == CardType.Gwang);
-            int y = _playerCaptured.Count(c => c.cardType == CardType.Yul);
-            int ti = _playerCaptured.Count(c => c.cardType == CardType.Tti);
-            int p = _playerCaptured.Count(c => c.cardType == CardType.Pi);
-            int score = _scorer.Calculate(_playerCaptured, _goCount);
-            _scoreText.text = $"광:{g} 열끗:{y} 띠:{ti} 피:{p}  → {score}점  (덱:{_deckRemaining.Count}장)";
-            _score = score;
+            var go = new GameObject(name, typeof(Canvas), typeof(CanvasScaler));
+            var canvas = go.GetComponent<Canvas>();
+            canvas.renderMode = RenderMode.WorldSpace;
+            var scaler = go.GetComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1280, 720);
+
+            var rt = go.GetComponent<RectTransform>();
+            rt.sizeDelta = new Vector2(1280, 720);
+            rt.localScale = Vector3.one * 0.0018f;
+            XRUIUtility.ConfigureWorldCanvas(go, canvas);
+            XRUIUtility.PlaceCanvasInFront(canvas, 2.15f, 1.45f);
+            return canvas;
         }
 
-        void SetStatus(string msg)
+        void RefreshScoreText()
         {
-            if (_statusText != null) _statusText.text = msg;
+            if (_scorer == null) return;
+
+            var player = CurrentPlayerScore(false);
+            _score = player.finalScore;
+            int gwangCount = _playerCaptured.Count(c => c.cardType == CardType.Gwang);
+            int yulCount = _playerCaptured.Count(c => c.cardType == CardType.Yul);
+            int ttiCount = _playerCaptured.Count(c => c.cardType == CardType.Tti);
+            int piCount = CountPiForDisplay(_playerCaptured);
+
+            if (_scoreText != null)
+            {
+                _scoreText.text =
+                    $"내 점수 {player.finalScore}점\n" +
+                    $"광 {gwangCount}  열끗 {yulCount}\n" +
+                    $"띠 {ttiCount}  피 {piCount}\n" +
+                    $"고 {_goCount}  흔들기 {_playerShakenMonths.Count}  폭탄 {_playerBombCount}";
+            }
+
+            if (_deckText != null)
+            {
+                _deckText.text =
+                    $"더미 {_deckRemaining.Count}장\n" +
+                    $"바닥 {_floorCards.Count}장\n" +
+                    $"내가 먹은 패 {_playerCaptured.Count}장";
+            }
         }
 
-        // ── UI 헬퍼 ──────────────────────────────────────────
+        static int CountPiForDisplay(List<HwatooCard> cards)
+        {
+            return cards.Where(c => c.cardType == CardType.Pi).Sum(c => c.isDoublePi ? 2 : 1);
+        }
 
-        static Text MakeUIText(Transform parent, string name, string content, int size,
-                               Vector2 pos, Vector2 sd)
+        void SetStatus(string message)
+        {
+            if (_statusText != null) _statusText.text = message;
+        }
+
+        static void MakePanel(Transform parent, Vector2 pos, Vector2 size, Color color)
+        {
+            var go = new GameObject("Panel", typeof(RectTransform), typeof(Image));
+            go.transform.SetParent(parent, false);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+            go.GetComponent<Image>().color = color;
+        }
+
+        static Text MakeText(Transform parent, string name, string text, int fontSize, Vector2 pos, Vector2 size)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchoredPosition = pos; rt.sizeDelta = sd;
-            var t = go.GetComponent<Text>();
-            t.text = content; t.fontSize = size; t.color = Color.white;
-            t.alignment = TextAnchor.MiddleCenter;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", size);
-            t.horizontalOverflow = HorizontalWrapMode.Wrap;
-            t.verticalOverflow   = VerticalWrapMode.Truncate;
-            return t;
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
+
+            var uiText = go.GetComponent<Text>();
+            uiText.text = text;
+            uiText.font = Font.CreateDynamicFontFromOSFont("Malgun Gothic", fontSize);
+            uiText.fontSize = fontSize;
+            uiText.alignment = TextAnchor.MiddleCenter;
+            uiText.color = Color.white;
+            uiText.horizontalOverflow = HorizontalWrapMode.Wrap;
+            uiText.verticalOverflow = VerticalWrapMode.Overflow;
+            return uiText;
         }
 
-        static void MakeDiffButton(Transform parent, string label, int fontSize,
-                                    Vector2 pos, Vector2 size, Color color,
-                                    System.Action onClick)
+        static void MakeButton(Transform parent, string label, Vector2 pos, Vector2 size, Color color, System.Action onClick)
         {
             var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchoredPosition = pos; rt.sizeDelta = size;
+            rt.anchoredPosition = pos;
+            rt.sizeDelta = size;
             go.GetComponent<Image>().color = color;
 
-            var textGO = new GameObject("L", typeof(RectTransform), typeof(Text));
-            textGO.transform.SetParent(go.transform, false);
-            var trt = textGO.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = trt.offsetMax = Vector2.zero;
-            var t = textGO.GetComponent<Text>();
-            t.text = label; t.fontSize = fontSize; t.color = Color.white;
-            t.fontStyle = FontStyle.Bold; t.alignment = TextAnchor.MiddleCenter;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
+            var text = MakeText(go.transform, "Label", label, 26, Vector2.zero, size);
+            text.fontStyle = FontStyle.Bold;
+
             go.GetComponent<Button>().onClick.AddListener(() => onClick?.Invoke());
         }
 
-        static Material MakeColorMat(Color c)
+        void ClearCardViews()
         {
-            var mat = new Material(Shader.Find("Sprites/Default"));
-            mat.color = c;
-            return mat;
+            if (_cardRoot != null) Destroy(_cardRoot.gameObject);
+            _cardViews.Clear();
         }
 
-        // ── 픽셀 드로잉 (폴백 텍스처) ────────────────────────
-
-        static void DrawRect(Texture2D tex, int x, int y, int w, int h, Color col)
+        void GoToLobbySafe()
         {
-            int x1 = Mathf.Max(0, x), x2 = Mathf.Min(tex.width, x + w);
-            int y1 = Mathf.Max(0, y), y2 = Mathf.Min(tex.height, y + h);
-            for (int yy = y1; yy < y2; yy++)
-                for (int xx = x1; xx < x2; xx++)
-                    tex.SetPixel(xx, yy, col);
-        }
-
-        // 월 숫자 (큼직하게)
-        static void DrawNumber(Texture2D tex, int n, int x, int y, Color col)
-        {
-            bool[][] seg = {
-                new[]{true, true, true, false,true, true, true},
-                new[]{false,false,true, false,false,true, false},
-                new[]{true, false,true, true, true, false,true},
-                new[]{true, false,true, true, false,true, true},
-                new[]{false,true, true, true, false,true, false},
-                new[]{true, true, false,true, false,true, true},
-                new[]{true, true, false,true, true, true, true},
-                new[]{true, false,true, false,false,true, false},
-                new[]{true, true, true, true, true, true, true},
-                new[]{true, true, true, true, false,true, true},
-            };
-            string s = n.ToString();
-            int dw = 22, dh = 40, th = 5, gap = 6;
-            int totalW = s.Length * dw + (s.Length - 1) * gap;
-            int sx = x - totalW / 2;
-            for (int i = 0; i < s.Length; i++)
-            {
-                int d = s[i] - '0';
-                int ox = sx + i * (dw + gap);
-                int midY = y + dh / 2 - th / 2, topY = y + dh - th;
-                int rx = ox + dw - th, midLY = y + dh / 2;
-                bool[] sg = seg[d];
-                if (sg[0]) DrawRect(tex, ox,  topY,  dw, th,         col);
-                if (sg[1]) DrawRect(tex, ox,  midLY, th, dh / 2 - th,col);
-                if (sg[2]) DrawRect(tex, rx,  midLY, th, dh / 2 - th,col);
-                if (sg[3]) DrawRect(tex, ox,  midY,  dw, th,         col);
-                if (sg[4]) DrawRect(tex, ox,  y + th,th, dh / 2 - th,col);
-                if (sg[5]) DrawRect(tex, rx,  y + th,th, dh / 2 - th,col);
-                if (sg[6]) DrawRect(tex, ox,  y,     dw, th,         col);
-            }
-        }
-
-        // 타입 레이블 (우하단 작은 글씨 — 흰 사각형 배경 위)
-        static void DrawLabel(Texture2D tex, string s, int x, int y, Color col)
-        {
-            DrawRect(tex, x - 2, y - 2, 32, 20, new Color(0, 0, 0, 0.5f));
-            // 최소 픽셀 표시 (2×3 dot per char)
-            for (int i = 0; i < Mathf.Min(s.Length, 2); i++)
-                DrawRect(tex, x + i * 9, y + 3, 7, 12, col);
+            if (GameSceneManager.Instance != null) GameSceneManager.Instance.LoadScene(lobbySceneName);
+            else UnityEngine.SceneManagement.SceneManager.LoadScene(lobbySceneName);
         }
     }
 
-    // 플레이어 패 카드임을 표시하는 마커
     public class HandCardMarker : MonoBehaviour
     {
         public HwatooCard Card;

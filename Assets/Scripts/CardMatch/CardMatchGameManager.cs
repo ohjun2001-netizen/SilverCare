@@ -54,12 +54,7 @@ namespace SilverCare.CardMatch
         void Update()
         {
             if (!_isPlaying || _isChecking) return;
-            if (!Input.GetMouseButtonDown(0)) return;
-
-            Camera cam = Camera.main;
-            if (cam == null) return;
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-            if (Physics.Raycast(ray, out RaycastHit hit, 20f))
+            if (XRPointerInput.TryGetSelectionHit(20f, out RaycastHit hit))
             {
                 var card = hit.collider.GetComponent<CardController>();
                 if (card != null) HandleCardClick(card);
@@ -78,13 +73,14 @@ namespace SilverCare.CardMatch
             _diffCanvas = go.AddComponent<Canvas>();
             _diffCanvas.renderMode = RenderMode.WorldSpace;
             go.AddComponent<CanvasScaler>();
-            go.AddComponent<GraphicRaycaster>();
+            XRUIUtility.ConfigureWorldCanvas(go, _diffCanvas);
 
             var rt = _diffCanvas.GetComponent<RectTransform>();
             rt.sizeDelta  = new Vector2(600, 400);
             rt.localScale = Vector3.one * 0.003f;
 
             PlaceCanvasInFront(_diffCanvas, 0f);
+            SelectionBackdropUtility.ShowNatureBackdrop(_diffCanvas.transform, "CardMatchDifficulty");
 
             var bg = go.AddComponent<Image>();
             bg.color = new Color(0.05f, 0.08f, 0.15f, 0.95f);
@@ -119,6 +115,7 @@ namespace SilverCare.CardMatch
             _activePairCount = pairs;
 
             if (_diffCanvas != null) { Destroy(_diffCanvas.gameObject); _diffCanvas = null; }
+            SelectionBackdropUtility.ClearBackdrop("CardMatchDifficulty");
 
             if (cardFrontTextures == null || cardFrontTextures.Length < _activePairCount)
                 cardFrontTextures = MakeFallbackTextures(_activePairCount);
@@ -203,11 +200,7 @@ namespace SilverCare.CardMatch
             _cardRoot = new GameObject("CardGrid").transform;
 
             Camera cam     = Camera.main ?? FindObjectOfType<Camera>();
-            Vector3 camPos = cam != null ? cam.transform.position : Vector3.up * 1.6f;
-            Vector3 forward = cam != null
-                ? Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized
-                : Vector3.forward;
-            if (forward.sqrMagnitude < 0.01f) forward = Vector3.forward;
+            XRUIUtility.GetSceneViewAnchor(cam, out Vector3 camPos, out Vector3 forward);
 
             Quaternion baseRot = Quaternion.LookRotation(-forward, Vector3.up);
             Vector3    right   = Vector3.Cross(Vector3.up, forward).normalized;
@@ -301,7 +294,7 @@ namespace SilverCare.CardMatch
             _gameCanvas = go.AddComponent<Canvas>();
             _gameCanvas.renderMode = RenderMode.WorldSpace;
             go.AddComponent<CanvasScaler>();
-            go.AddComponent<GraphicRaycaster>();
+            XRUIUtility.ConfigureWorldCanvas(go, _gameCanvas);
 
             var rt = _gameCanvas.GetComponent<RectTransform>();
             rt.sizeDelta  = new Vector2(820, 120);
@@ -371,15 +364,7 @@ namespace SilverCare.CardMatch
 
         void PlaceCanvasInFront(Canvas canvas, float yOffset)
         {
-            Camera cam = Camera.main ?? FindObjectOfType<Camera>();
-            if (cam == null) return;
-
-            Vector3 fwd = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
-            if (fwd.sqrMagnitude < 0.01f) fwd = Vector3.forward;
-
-            var rt = canvas.GetComponent<RectTransform>();
-            rt.position = cam.transform.position + fwd * 2f + Vector3.up * (0.1f + yOffset);
-            rt.rotation = Quaternion.LookRotation(fwd, Vector3.up);
+            XRUIUtility.PlaceCanvasFacingCamera(canvas, 2f, 0.1f + yOffset);
         }
 
         // ── 유틸 ─────────────────────────────────────────────

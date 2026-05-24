@@ -1,9 +1,6 @@
-// Assets/Scripts/Baduk/BadukGameManager.cs
-// Desktop/VR 공용 - IBadukInput, IBadukUI 인터페이스로 입력/UI 추상화
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 using Baduk.Data;
 using SilverCare.Common;
 
@@ -11,76 +8,71 @@ namespace Baduk
 {
     public class BadukGameManager : MonoBehaviour
     {
-        [Header("씬 이름")]
+        [Header("Scene Names")]
         [SerializeField] string lobbySceneName = "MainLobby";
 
-        // 공유 컴포넌트 (자동 탐색)
-        BadukBoard          _board;
-        BadukProblemLoader  _loader;
-        BadukAnswerChecker  _checker;
-        BadukHintSystem     _hint;
-        BadukTTSConnector   _tts;
+        BadukBoard _board;
+        BadukProblemLoader _loader;
+        BadukAnswerChecker _checker;
+        BadukHintSystem _hint;
+        BadukTTSConnector _tts;
 
-        // 인터페이스 (Desktop 또는 VR 구현체)
         IBadukInput _input;
-        IBadukUI    _ui;
-
-        // VR 전용
+        IBadukUI _ui;
         BadukVRBoardSetup _vrBoardSetup;
 
         BadukProblem _cur;
-        int          _idx = 0;
-        HashSet<(int r, int c)> _placedStones = new();
+        readonly HashSet<(int r, int c)> _placedStones = new();
+        (int r, int c)? _selectedPlacement;
+        bool _awaitingPlacementConfirm;
 
         List<BadukProblem> _filteredProblems = new();
-        int _filteredIdx = 0;
+        int _filteredIdx;
 
-        // ────────────────────────────────────────────────
         void Awake()
         {
-            _board   = GetComponent<BadukBoard>();
-            _loader  = GetComponent<BadukProblemLoader>();
+            _board = GetComponent<BadukBoard>();
+            _loader = GetComponent<BadukProblemLoader>();
             _checker = GetComponent<BadukAnswerChecker>();
-            _hint    = GetComponent<BadukHintSystem>();
-            _tts     = GetComponent<BadukTTSConnector>();
-
-            // Desktop 또는 VR 입력 자동 감지
+            _hint = GetComponent<BadukHintSystem>();
+            _tts = GetComponent<BadukTTSConnector>();
             _input = GetComponent<IBadukInput>();
-            _ui    = GetComponent<IBadukUI>();
-
-            // VR 보드 셋업 (있으면)
+            _ui = GetComponent<IBadukUI>();
             _vrBoardSetup = GetComponent<BadukVRBoardSetup>();
 
-            if (_input == null) Debug.LogError("[BadukGameManager] IBadukInput 구현체 없음 (BadukDesktopInput 또는 BadukVRInput 필요)");
-            if (_ui == null) Debug.LogError("[BadukGameManager] IBadukUI 구현체 없음 (BadukDesktopUI 또는 BadukVRUI 필요)");
+            if (_input == null)
+                Debug.LogError("[BadukGameManager] Missing IBadukInput implementation.");
+            if (_ui == null)
+                Debug.LogError("[BadukGameManager] Missing IBadukUI implementation.");
         }
 
         void Start()
         {
-            // 입력 이벤트 연결
             _input.OnIntersectionClicked += HandlePlayerMove;
 
-            // UI 버튼 이벤트 연결
-            _ui.OnNext   = NextProblem;
-            _ui.OnPrev   = PrevProblem;
-            _ui.OnHint   = ShowHint;
-            _ui.OnRetry  = () => LoadFilteredProblem(_filteredIdx);
-            _ui.OnBack   = () => { _board.ClearBoard(); _ui.ShowDifficultySelect(); };  // 나가기 → 보드 정리 후 난이도 선택
+            _ui.OnNext = NextProblem;
+            _ui.OnPrev = PrevProblem;
+            _ui.OnHint = ShowHint;
+            _ui.OnRetry = () => LoadFilteredProblem(_filteredIdx);
+            _ui.OnBack = () =>
+            {
+                _board.ClearBoard();
+                _ui.ShowDifficultySelect();
+            };
+            _ui.OnConfirmPlacement = ConfirmPlacement;
+            _ui.OnCancelPlacement = CancelPlacement;
             _ui.OnDifficultySelected = OnDifficultySelected;
 
-            // 힌트 시스템 콜백
-            _hint.OnHintTextReady = (text) => _ui.ShowHintText(text);
-
-            // 난이도 선택 화면부터 시작
+            _hint.OnHintTextReady = text => _ui.ShowHintText(text);
             _ui.ShowDifficultySelect();
         }
 
         void OnDestroy()
         {
-            if (_input != null) _input.OnIntersectionClicked -= HandlePlayerMove;
+            if (_input != null)
+                _input.OnIntersectionClicked -= HandlePlayerMove;
         }
 
-        // ── 난이도 선택 ───────────────────────────────────
         void OnDifficultySelected(int difficulty)
         {
             if (difficulty == 0)
@@ -88,8 +80,9 @@ namespace Baduk
                 _filteredProblems = new List<BadukProblem>();
                 for (int i = 1; i <= _loader.TotalProblems; i++)
                 {
-                    var p = _loader.GetProblemById(i);
-                    if (p != null) _filteredProblems.Add(p);
+                    var problem = _loader.GetProblemById(i);
+                    if (problem != null)
+                        _filteredProblems.Add(problem);
                 }
             }
             else
@@ -99,7 +92,7 @@ namespace Baduk
 
             if (_filteredProblems.Count == 0)
             {
-                Debug.LogWarning($"난이도 {difficulty} 문제 없음");
+                Debug.LogWarning($"No problems found for difficulty {difficulty}.");
                 return;
             }
 
@@ -107,27 +100,27 @@ namespace Baduk
             LoadFilteredProblem(0);
         }
 
-        // ── 문제 로드 ─────────────────────────────────────
         void LoadFilteredProblem(int idx)
         {
-            if (_filteredProblems.Count == 0) return;
+            if (_filteredProblems.Count == 0)
+                return;
+
             _filteredIdx = idx;
             _cur = _filteredProblems[idx];
-
             _placedStones.Clear();
+            _selectedPlacement = null;
+            _awaitingPlacementConfirm = false;
+
             _board.SetupBoard(_cur);
             _checker.SetProblem(_cur);
             _hint.SetProblem(_cur);
             _ui.ShowProblem(_cur, idx + 1, _filteredProblems.Count);
+            RefreshPlacementGuide();
 
-            // 입력 컴포넌트에 보드 준비 알림 (카메라/위치 조정)
             _input.OnBoardReady(_board.R0, _board.C0, _board.R1, _board.C1);
             _input.EnableInput();
-
-            // VR: 교차점에 XR Interactable 부착
             _vrBoardSetup?.AttachInteractables();
 
-            // 공통 TTSManager 우선, 없으면 자체 BadukTTSConnector 사용
             if (TTSManager.Instance != null)
                 TTSManager.Instance.Speak(_cur.description, interruptCurrent: true);
             else
@@ -137,34 +130,59 @@ namespace Baduk
         void NextProblem()
         {
             int next = _filteredIdx + 1;
-            if (next >= _filteredProblems.Count) next = 0;
+            if (next >= _filteredProblems.Count)
+                next = 0;
+
             LoadFilteredProblem(next);
         }
 
         void PrevProblem()
         {
             int prev = _filteredIdx - 1;
-            if (prev < 0) prev = _filteredProblems.Count - 1;
+            if (prev < 0)
+                prev = _filteredProblems.Count - 1;
+
             LoadFilteredProblem(prev);
         }
 
-        // ── 클릭 처리 ─────────────────────────────────────
         void HandlePlayerMove(int row, int col)
         {
-            if (IsOccupied(row, col)) return;
+            if (_awaitingPlacementConfirm)
+                return;
 
+            if (IsOccupied(row, col))
+                return;
+
+            _selectedPlacement = (row, col);
+            _awaitingPlacementConfirm = true;
+            _board.ShowHintMarker(row, col);
+            _ui.ShowPlacementConfirm("선택하신 자리가 여기 맞을까요?");
+            // 확인창이 떠 있는 동안에는 보드 입력을 꺼서, 레이저가 확인창 뒤 보드로 새는 오작동을 막는다.
+            _input.DisableInput();
+            SpeakTTS("선택하신 자리가 여기 맞을까요? 맞으면 확인, 아니면 다시 선택해 주세요.");
+        }
+
+        void ConfirmPlacement()
+        {
+            if (!_selectedPlacement.HasValue)
+                return;
+
+            var placement = _selectedPlacement.Value;
             StoneType playerStone = _cur.player == "black" ? StoneType.Black : StoneType.White;
-            _board.PlaceStone(row, col, playerStone);
-            _placedStones.Add((row, col));
+            _board.PlaceStone(placement.r, placement.c, playerStone);
+            _placedStones.Add((placement.r, placement.c));
 
-            ProblemResult result = _checker.CheckMove(row, col);
+            _awaitingPlacementConfirm = false;
+            _selectedPlacement = null;
+            _ui.HidePlacementConfirm();
+            _board.HideHintMarker();
 
+            ProblemResult result = _checker.CheckMove(placement.r, placement.c);
             switch (result)
             {
                 case ProblemResult.Correct:
                     _ui.ShowResult(result, _cur.explanation);
                     _input.DisableInput();
-                    _board.HideHintMarker();
                     SpeakTTS(_cur.tts_correct);
                     break;
 
@@ -178,8 +196,21 @@ namespace Baduk
 
                 case ProblemResult.PartialCorrect:
                     _ui.ShowResult(result);
+                    RefreshPlacementGuide();
+                    _input.EnableInput();   // 다음 수를 두도록 보드 입력 재개
                     break;
             }
+        }
+
+        void CancelPlacement()
+        {
+            _awaitingPlacementConfirm = false;
+            _selectedPlacement = null;
+            _board.HideHintMarker();
+            _ui.HidePlacementConfirm();
+            _input.EnableInput();   // 확인창을 닫았으니 다시 자리를 고를 수 있게 보드 입력 재개
+            _ui.ShowGuideMessage("괜찮습니다. 다시 바둑돌을 둘 자리를 눌러보세요.");
+            SpeakTTS("괜찮습니다. 다시 고르시면 됩니다.");
         }
 
         IEnumerator RemoveWrongStoneAfterDelay(float delay)
@@ -188,6 +219,10 @@ namespace Baduk
             yield return new WaitForSeconds(delay);
             _board.RemoveAllPlayerStones();
             _placedStones.Clear();
+            _selectedPlacement = null;
+            _awaitingPlacementConfirm = false;
+            _ui.HidePlacementConfirm();
+            RefreshPlacementGuide();
             _input.EnableInput();
         }
 
@@ -196,9 +231,11 @@ namespace Baduk
             _hint.ShowHint();
         }
 
-        // 공통 TTSManager 우선, 없으면 자체 BadukTTSConnector 폴백
         void SpeakTTS(string text)
         {
+            if (string.IsNullOrWhiteSpace(text))
+                return;
+
             if (TTSManager.Instance != null)
                 TTSManager.Instance.Speak(text, interruptCurrent: true);
             else
@@ -207,14 +244,40 @@ namespace Baduk
 
         bool IsOccupied(int row, int col)
         {
-            if (_placedStones.Contains((row, col))) return true;
+            if (_placedStones.Contains((row, col)))
+                return true;
+
             if (_cur.stones?.black != null)
-                foreach (var s in _cur.stones.black)
-                    if (s.row == row && s.col == col) return true;
+            {
+                foreach (var stone in _cur.stones.black)
+                {
+                    if (stone.row == row && stone.col == col)
+                        return true;
+                }
+            }
+
             if (_cur.stones?.white != null)
-                foreach (var s in _cur.stones.white)
-                    if (s.row == row && s.col == col) return true;
+            {
+                foreach (var stone in _cur.stones.white)
+                {
+                    if (stone.row == row && stone.col == col)
+                        return true;
+                }
+            }
+
             return false;
+        }
+
+        void RefreshPlacementGuide()
+        {
+            if (_checker == null || _board == null || _ui == null)
+                return;
+
+            _selectedPlacement = null;
+            _awaitingPlacementConfirm = false;
+            _board.HideHintMarker();
+            _ui.HidePlacementConfirm();
+            _ui.ShowGuideMessage("바둑돌을 둘 자리를 누르면 확인창이 열립니다. 맞으면 확인을 눌러 진행하세요.");
         }
     }
 }

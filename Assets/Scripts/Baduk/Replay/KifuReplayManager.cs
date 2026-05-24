@@ -135,6 +135,7 @@ namespace Baduk.Replay
             var move = _currentKifu.moves[_moveIndex];
             var type = move.color == "black" ? StoneType.Black : StoneType.White;
             _board.PlaceStone(move.row, move.col, type);
+            _avatars?.TriggerPlaceStone(move.color);
 
             _commentator?.OnMovePlayed(_moveIndex, move);
 

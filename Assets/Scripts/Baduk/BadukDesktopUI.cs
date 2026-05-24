@@ -1,78 +1,121 @@
-// Assets/Scripts/Baduk/BadukDesktopUI.cs
-// Desktop 전용 - OnGUI 방식 (노인 친화 UI)
 using UnityEngine;
 using Baduk.Data;
+using SilverCare.Common;
 
 namespace Baduk
 {
     public class BadukDesktopUI : MonoBehaviour, IBadukUI
     {
-        public System.Action OnNext  { get; set; }
-        public System.Action OnPrev  { get; set; }
-        public System.Action OnHint  { get; set; }
+        public System.Action OnNext { get; set; }
+        public System.Action OnPrev { get; set; }
+        public System.Action OnHint { get; set; }
         public System.Action OnRetry { get; set; }
-        public System.Action OnBack  { get; set; }
+        public System.Action OnBack { get; set; }
+        public System.Action OnConfirmPlacement { get; set; }
+        public System.Action OnCancelPlacement { get; set; }
         public System.Action<int> OnDifficultySelected { get; set; }
 
         BadukProblem _cur;
-        int    _curIdx, _total;
-        string _msg      = "바둑판을 클릭해서 돌을 놓으세요.";
-        Color  _msgColor = Color.white;
-        bool   _answered;
-        bool   _showDifficultySelect = true;
+        int _curIdx;
+        int _total;
+        string _msg = "바둑판의 교차점을 선택하세요.";
+        Color _msgColor = new(0.08f, 0.38f, 0.42f);
+        bool _answered;
+        bool _showDifficultySelect = true;
+        bool _showPlacementConfirm;
+        string _confirmMessage = "여기에 바둑돌을 두시겠어요?";
 
-        GUIStyle _stTitle, _stDesc, _stMsg, _stBtn, _stBtnLarge;
-        bool     _guiReady;
+        GUIStyle _title;
+        GUIStyle _sub;
+        GUIStyle _body;
+        GUIStyle _message;
+        GUIStyle _button;
+        GUIStyle _largeButton;
+        GUIStyle _confirmBody;
+        bool _guiReady;
 
-        // ── IBadukUI 구현 ────────────────────────────────
+        readonly Color _bg = new(0.96f, 0.94f, 0.88f, 0.98f);
+        readonly Color _panel = new(0.98f, 0.97f, 0.93f, 0.96f);
+        readonly Color _accent = new(0.08f, 0.38f, 0.42f);
+        readonly Color _ink = new(0.10f, 0.13f, 0.16f);
 
         public void ShowDifficultySelect()
         {
             _showDifficultySelect = true;
+            _showPlacementConfirm = false;
             _cur = null;
         }
 
         public void ShowProblem(BadukProblem problem, int idx, int total)
         {
-            _cur      = problem;
-            _curIdx   = idx;
-            _total    = total;
-            _msg      = "바둑판을 클릭해서 돌을 놓으세요.";
-            _msgColor = Color.white;
+            _cur = problem;
+            _curIdx = idx;
+            _total = total;
+            _msg = "바둑판에서 좋은 자리를 찾아 선택하세요.";
+            _msgColor = _accent;
             _answered = false;
             _showDifficultySelect = false;
+            _showPlacementConfirm = false;
         }
 
         public void ShowResult(ProblemResult result, string explanation = "")
         {
+            _showPlacementConfirm = false;
+
             switch (result)
             {
                 case ProblemResult.Correct:
-                    _msg      = $"정답!  {explanation}";
-                    _msgColor = new Color(0.2f, 1f, 0.2f);
+                    _msg = string.IsNullOrWhiteSpace(explanation)
+                        ? "정답입니다. 잘 찾으셨어요."
+                        : $"정답입니다. {explanation}";
+                    _msgColor = new Color(0.10f, 0.55f, 0.22f);
                     _answered = true;
                     break;
+
                 case ProblemResult.Wrong:
-                    _msg      = "틀렸습니다. 힌트 버튼을 눌러보세요.";
-                    _msgColor = new Color(1f, 0.4f, 0.4f);
+                    _msg = "아쉽지만 틀렸습니다. 힌트를 보고 다시 시도해 보세요.";
+                    _msgColor = new Color(0.78f, 0.20f, 0.16f);
                     break;
+
                 case ProblemResult.PartialCorrect:
-                    _msg      = "잘했어요! 계속 두세요.";
-                    _msgColor = new Color(0.4f, 1f, 1f);
+                    _msg = "좋습니다. 이어서 다음 수를 찾아보세요.";
+                    _msgColor = new Color(0.08f, 0.42f, 0.64f);
                     break;
             }
         }
 
         public void ShowHintText(string hint)
         {
-            _msg      = $"힌트: {hint}";
-            _msgColor = new Color(1f, 1f, 0.3f);
+            _showPlacementConfirm = false;
+            _msg = string.IsNullOrWhiteSpace(hint)
+                ? "힌트가 없습니다. 빈 자리를 천천히 살펴보세요."
+                : $"힌트: {hint}";
+            _msgColor = new Color(0.58f, 0.38f, 0.05f);
         }
 
-        // ── OnGUI ────────────────────────────────────────
+        public void ShowGuideMessage(string message)
+        {
+            _msg = string.IsNullOrWhiteSpace(message)
+                ? "바둑돌을 둘 자리를 눌러보세요."
+                : message;
+            _msgColor = new Color(0.70f, 0.46f, 0.08f);
+        }
+
+        public void ShowPlacementConfirm(string message)
+        {
+            _confirmMessage = string.IsNullOrWhiteSpace(message) ? "여기에 바둑돌을 두시겠어요?" : message;
+            _showPlacementConfirm = true;
+        }
+
+        public void HidePlacementConfirm()
+        {
+            _showPlacementConfirm = false;
+        }
+
         void OnGUI()
         {
-            if (!_guiReady) BuildStyles();
+            if (!_guiReady)
+                BuildStyles();
 
             if (_showDifficultySelect)
             {
@@ -80,119 +123,185 @@ namespace Baduk
                 return;
             }
 
-            if (_cur == null) return;
+            if (_cur == null)
+                return;
 
-            DrawRect(0, 0, Screen.width, 110, new Color(0, 0, 0, 0.82f));
-            string stars = new string('★', _cur.difficulty) + new string('☆', 3 - _cur.difficulty);
-            GUI.Label(new Rect(16, 8, Screen.width - 30, 44),
-                $"#{_cur.id}  {_cur.title}    {stars} {_cur.difficulty_name}", _stTitle);
-            GUI.Label(new Rect(16, 56, Screen.width - 30, 48), _cur.description, _stDesc);
-
-            float bottomH = 140;
-            DrawRect(0, Screen.height - bottomH, Screen.width, bottomH, new Color(0, 0, 0, 0.82f));
-            _stMsg.normal.textColor = _msgColor;
-            GUI.Label(new Rect(16, Screen.height - bottomH + 6, Screen.width - 140, 60), _msg, _stMsg);
-
-            float btnW = 110, btnH = 50, gap = 10;
-            float y = Screen.height - btnH - 14;
-
-            if (GUI.Button(new Rect(16, y, btnW, btnH), "◀ 이전", _stBtn)) OnPrev?.Invoke();
-            if (GUI.Button(new Rect(16 + (btnW + gap), y, btnW, btnH), "힌트", _stBtn)) OnHint?.Invoke();
-            if (GUI.Button(new Rect(16 + (btnW + gap) * 2, y, btnW, btnH), "다음 ▶", _stBtn)) OnNext?.Invoke();
-            if (_answered && GUI.Button(new Rect(16 + (btnW + gap) * 3, y, btnW, btnH), "다시 풀기", _stBtn))
-                OnRetry?.Invoke();
-
-            if (GUI.Button(new Rect(Screen.width - btnW - 16, y, btnW, btnH), "나가기", _stBtn))
-                OnBack?.Invoke();
-
-            GUI.Label(new Rect(Screen.width - btnW - 16, y - 30, btnW, 28),
-                $"{_curIdx} / {_total}", _stDesc);
+            DrawGameUI();
+            if (_showPlacementConfirm)
+                DrawPlacementConfirm();
         }
 
         void DrawDifficultySelect()
         {
-            DrawRect(0, 0, Screen.width, Screen.height, new Color(0.10f, 0.10f, 0.18f));
+            DrawRect(0, 0, Screen.width, Screen.height, _bg);
 
-            GUI.Label(new Rect(0, Screen.height * 0.12f, Screen.width, 60),
-                "바둑 사활문제", _stTitle);
+            float panelW = Mathf.Min(760, Screen.width - 80);
+            float panelH = Mathf.Min(560, Screen.height - 80);
+            float x = (Screen.width - panelW) * 0.5f;
+            float y = (Screen.height - panelH) * 0.5f;
+            DrawRect(x, y, panelW, panelH, _panel);
+            DrawRect(x + 34, y + 34, panelW - 68, 6, _accent);
 
-            GUIStyle sub = new GUIStyle(_stDesc) { alignment = TextAnchor.MiddleCenter };
-            GUI.Label(new Rect(0, Screen.height * 0.12f + 60, Screen.width, 40),
-                "난이도를 선택하세요", sub);
+            GUI.Label(new Rect(x, y + 58, panelW, 58), "바둑 사활문제", _title);
+            GUI.Label(new Rect(x, y + 112, panelW, 44), "난이도를 고르고 좋은 자리를 찾아보세요.", _sub);
 
-            float bw = 280, bh = 70, bGap = 20;
-            float startX = (Screen.width - bw) / 2f;
-            float startY = Screen.height * 0.35f;
+            float bw = panelW - 180;
+            float bh = 70;
+            float bx = x + 90;
+            float by = y + 185;
+            DrawDifficultyButton(new Rect(bx, by, bw, bh), "쉬움  -  처음 시작하는 문제", 1);
+            DrawDifficultyButton(new Rect(bx, by + 84, bw, bh), "보통  -  조금 더 생각하는 문제", 2);
+            DrawDifficultyButton(new Rect(bx, by + 168, bw, bh), "어려움  -  집중해서 푸는 문제", 3);
+            DrawDifficultyButton(new Rect(bx, by + 252, bw, bh), "전체 문제", 0);
 
-            (int diff, string label)[] options =
-            {
-                (1, "초급  ★☆☆"),
-                (2, "중급  ★★☆"),
-                (3, "고급  ★★★"),
-                (0, "전체 문제"),
-            };
-
-            for (int i = 0; i < options.Length; i++)
-            {
-                float y = startY + i * (bh + bGap);
-                if (GUI.Button(new Rect(startX, y, bw, bh), options[i].label, _stBtnLarge))
-                    OnDifficultySelected?.Invoke(options[i].diff);
-            }
-
-            if (GUI.Button(new Rect(startX, startY + options.Length * (bh + bGap) + 10, bw, bh), "로비로 돌아가기", _stBtnLarge))
+            if (GUI.Button(new Rect(bx, y + panelH - 82, bw, 58), "로비로 돌아가기", _largeButton))
                 LoadLobby();
+        }
+
+        void DrawDifficultyButton(Rect rect, string label, int difficulty)
+        {
+            if (GUI.Button(rect, label, _largeButton))
+                OnDifficultySelected?.Invoke(difficulty);
+        }
+
+        void DrawGameUI()
+        {
+            DrawRect(0, 0, Screen.width, 132, _panel);
+            DrawRect(32, 20, Screen.width - 64, 5, _accent);
+
+            GUI.Label(new Rect(24, 28, Screen.width - 220, 42),
+                $"{_cur.title}  ({GetDifficultyLabel(_cur.difficulty)})", _title);
+            GUI.Label(new Rect(Screen.width - 170, 35, 140, 35), $"{_curIdx} / {_total}", _sub);
+            GUI.Label(new Rect(32, 78, Screen.width - 64, 46), _cur.description, _body);
+
+            float bottomH = 150;
+            DrawRect(0, Screen.height - bottomH, Screen.width, bottomH, _panel);
+
+            _message.normal.textColor = _msgColor;
+            GUI.Label(new Rect(28, Screen.height - bottomH + 16, Screen.width - 56, 46), _msg, _message);
+
+            float btnW = 132;
+            float btnH = 56;
+            float gap = 12;
+            float y = Screen.height - btnH - 18;
+            float x = 28;
+
+            if (_answered && GUI.Button(new Rect(x, y, btnW, btnH), "다시 풀기", _button))
+                OnRetry?.Invoke();
+
+            x += _answered ? btnW + gap : 0;
+            if (GUI.Button(new Rect(x, y, btnW, btnH), "이전", _button)) OnPrev?.Invoke();
+            if (GUI.Button(new Rect(x + (btnW + gap), y, btnW, btnH), "힌트", _button)) OnHint?.Invoke();
+            if (GUI.Button(new Rect(x + (btnW + gap) * 2, y, btnW, btnH), "다음", _button)) OnNext?.Invoke();
+            if (GUI.Button(new Rect(Screen.width - 220, y, 192, btnH), "난이도 선택", _button)) OnBack?.Invoke();
+        }
+
+        void DrawPlacementConfirm()
+        {
+            DrawRect(0, 0, Screen.width, Screen.height, new Color(0f, 0f, 0f, 0.42f));
+
+            float panelW = Mathf.Min(520, Screen.width - 120);
+            float panelH = 220;
+            float x = (Screen.width - panelW) * 0.5f;
+            float y = (Screen.height - panelH) * 0.5f;
+            DrawRect(x, y, panelW, panelH, new Color(0.12f, 0.14f, 0.18f, 0.96f));
+            DrawRect(x + 24, y + 24, panelW - 48, 4, new Color(0.90f, 0.72f, 0.22f));
+
+            GUI.Label(new Rect(x + 30, y + 46, panelW - 60, 60), _confirmMessage, _title);
+            GUI.Label(new Rect(x + 30, y + 104, panelW - 60, 38), "확인을 누르면 착수하고, 다시 선택을 누르면 취소됩니다.", _confirmBody);
+
+            if (GUI.Button(new Rect(x + 72, y + 156, 160, 46), "확인", _button))
+                OnConfirmPlacement?.Invoke();
+
+            if (GUI.Button(new Rect(x + panelW - 232, y + 156, 160, 46), "다시 선택", _button))
+                OnCancelPlacement?.Invoke();
         }
 
         static void LoadLobby()
         {
-            if (SilverCare.Common.GameSceneManager.Instance != null)
-                SilverCare.Common.GameSceneManager.Instance.LoadScene(SilverCare.Common.GameSceneManager.SCENE_LOBBY);
+            if (GameSceneManager.Instance != null)
+                GameSceneManager.Instance.LoadScene(GameSceneManager.SCENE_LOBBY);
             else
                 UnityEngine.SceneManagement.SceneManager.LoadScene("MainLobby");
         }
 
-        void DrawRect(float x, float y, float w, float h, Color c)
+        static string GetDifficultyLabel(int difficulty)
         {
-            var prev = GUI.color; GUI.color = c;
-            GUI.DrawTexture(new UnityEngine.Rect(x, y, w, h), Texture2D.whiteTexture);
+            return difficulty switch
+            {
+                1 => "쉬움",
+                2 => "보통",
+                3 => "어려움",
+                _ => "전체",
+            };
+        }
+
+        static void DrawRect(float x, float y, float w, float h, Color color)
+        {
+            var prev = GUI.color;
+            GUI.color = color;
+            GUI.DrawTexture(new Rect(x, y, w, h), Texture2D.whiteTexture);
             GUI.color = prev;
         }
 
         void BuildStyles()
         {
-            _stTitle = new GUIStyle
+            _title = new GUIStyle
             {
-                fontSize = 26, fontStyle = FontStyle.Bold,
-                alignment = TextAnchor.MiddleCenter
+                fontSize = 30,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
             };
-            _stTitle.normal.textColor = Color.white;
+            _title.normal.textColor = _accent;
 
-            _stDesc = new GUIStyle
+            _sub = new GUIStyle
             {
-                fontSize = 20, wordWrap = true,
-                alignment = TextAnchor.MiddleCenter
+                fontSize = 21,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
             };
-            _stDesc.normal.textColor = new Color(0.92f, 0.92f, 0.92f);
+            _sub.normal.textColor = new Color(0.34f, 0.39f, 0.43f);
 
-            _stMsg = new GUIStyle
+            _body = new GUIStyle
             {
-                fontSize = 22, fontStyle = FontStyle.Bold, wordWrap = true
+                fontSize = 20,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
             };
-            _stMsg.normal.textColor = Color.white;
+            _body.normal.textColor = _ink;
 
-            _stBtn = new GUIStyle(GUI.skin.button)
+            _message = new GUIStyle
             {
-                fontSize = 20, fontStyle = FontStyle.Bold
+                fontSize = 23,
+                fontStyle = FontStyle.Bold,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
             };
-            _stBtn.normal.textColor = Color.white;
-            _stBtn.padding = new RectOffset(8, 8, 10, 10);
 
-            _stBtnLarge = new GUIStyle(GUI.skin.button)
+            _confirmBody = new GUIStyle
             {
-                fontSize = 24, fontStyle = FontStyle.Bold
+                fontSize = 19,
+                alignment = TextAnchor.MiddleCenter,
+                wordWrap = true
             };
-            _stBtnLarge.normal.textColor = Color.white;
-            _stBtnLarge.padding = new RectOffset(12, 12, 14, 14);
+            _confirmBody.normal.textColor = new Color(0.90f, 0.92f, 0.94f);
+
+            _button = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = 21,
+                fontStyle = FontStyle.Bold
+            };
+            _button.normal.textColor = Color.white;
+            _button.padding = new RectOffset(12, 12, 10, 10);
+
+            _largeButton = new GUIStyle(GUI.skin.button)
+            {
+                fontSize = 24,
+                fontStyle = FontStyle.Bold
+            };
+            _largeButton.normal.textColor = Color.white;
+            _largeButton.padding = new RectOffset(16, 16, 14, 14);
 
             _guiReady = true;
         }
