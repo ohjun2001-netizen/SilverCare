@@ -59,5 +59,14 @@ namespace Baduk
 
         /// <summary>총 정답 스텝 수</summary>
         public int TotalAnswerSteps => _currentProblem?.answer?.Count ?? 0;
+        public bool TryGetExpectedMove(out StonePosition expectedMove)
+        {
+            expectedMove = null;
+            if (_currentProblem?.answer == null) return false;
+            if (_currentAnswerStep < 0 || _currentAnswerStep >= _currentProblem.answer.Count) return false;
+
+            expectedMove = _currentProblem.answer[_currentAnswerStep];
+            return expectedMove != null;
+        }
     }
 }

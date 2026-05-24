@@ -9,11 +9,12 @@ namespace SilverCare.GoStop
 
     public class HwatooCard
     {
-        public int      index;      // 0~47 (BuildDeck 순서)
+        public int      index;      // 0~47 (BuildDeck order)
         public int      month;
         public CardType cardType;
         public TtiType  ttiType;
         public string   cardName;
+        public bool     isDoublePi; // Counts as 2 pi
     }
 
     public class GoStopDeck : MonoBehaviour
@@ -39,79 +40,89 @@ namespace SilverCare.GoStop
         public HwatooCard Draw()
         {
             if (_deck.Count == 0) return null;
-            var c = _deck[0]; _deck.RemoveAt(0); return c;
+            var c = _deck[0];
+            _deck.RemoveAt(0);
+            return c;
         }
 
         void BuildDeck()
         {
-            // 광: 1·3·6·8·12월 / 홍단: 1·2·3월 / 청단: 6·9·10월 / 초단: 4·5·7월
-            var defs = new (int m, CardType t, TtiType tt, string n)[]
+            // Keep this order aligned with Resources/GoStop/card_00..card_47.
+            var defs = new (int month, CardType type, TtiType tti, string name, bool isDoublePi)[]
             {
-                (1,  CardType.Gwang, TtiType.None,  "솔광"),
-                (1,  CardType.Yul,   TtiType.None,  "솔학"),
-                (1,  CardType.Tti,   TtiType.Red,   "솔홍띠"),
-                (1,  CardType.Pi,    TtiType.None,  "솔피"),
+                (1,  CardType.Gwang, TtiType.None,  "Jan Gwang",       false),
+                (1,  CardType.Tti,   TtiType.Red,   "Jan Hongdan",     false),
+                (1,  CardType.Pi,    TtiType.None,  "Jan Pi 1",        false),
+                (1,  CardType.Pi,    TtiType.None,  "Jan Pi 2",        false),
 
-                (2,  CardType.Yul,   TtiType.None,  "매조"),
-                (2,  CardType.Yul,   TtiType.None,  "매열끗"),
-                (2,  CardType.Tti,   TtiType.Red,   "매홍띠"),
-                (2,  CardType.Pi,    TtiType.None,  "매피"),
+                (2,  CardType.Yul,   TtiType.None,  "Feb Bird",        false),
+                (2,  CardType.Tti,   TtiType.Red,   "Feb Hongdan",     false),
+                (2,  CardType.Pi,    TtiType.None,  "Feb Pi 1",        false),
+                (2,  CardType.Pi,    TtiType.None,  "Feb Pi 2",        false),
 
-                (3,  CardType.Gwang, TtiType.None,  "벚광"),
-                (3,  CardType.Yul,   TtiType.None,  "벚조"),
-                (3,  CardType.Tti,   TtiType.Red,   "벚홍띠"),
-                (3,  CardType.Pi,    TtiType.None,  "벚피"),
+                (3,  CardType.Gwang, TtiType.None,  "Mar Gwang",       false),
+                (3,  CardType.Tti,   TtiType.Red,   "Mar Hongdan",     false),
+                (3,  CardType.Pi,    TtiType.None,  "Mar Pi 1",        false),
+                (3,  CardType.Pi,    TtiType.None,  "Mar Pi 2",        false),
 
-                (4,  CardType.Yul,   TtiType.None,  "등두견"),
-                (4,  CardType.Yul,   TtiType.None,  "등열끗"),
-                (4,  CardType.Tti,   TtiType.Grass, "등초단"),
-                (4,  CardType.Pi,    TtiType.None,  "등피"),
+                (4,  CardType.Yul,   TtiType.None,  "Apr Cuckoo",      false),
+                (4,  CardType.Tti,   TtiType.Grass, "Apr Chodan",      false),
+                (4,  CardType.Pi,    TtiType.None,  "Apr Pi 1",        false),
+                (4,  CardType.Pi,    TtiType.None,  "Apr Pi 2",        false),
 
-                (5,  CardType.Yul,   TtiType.None,  "난조"),
-                (5,  CardType.Yul,   TtiType.None,  "난열끗"),
-                (5,  CardType.Tti,   TtiType.Grass, "난초단"),
-                (5,  CardType.Pi,    TtiType.None,  "난피"),
+                (5,  CardType.Yul,   TtiType.None,  "May Bridge",      false),
+                (5,  CardType.Tti,   TtiType.Grass, "May Chodan",      false),
+                (5,  CardType.Pi,    TtiType.None,  "May Pi 1",        false),
+                (5,  CardType.Pi,    TtiType.None,  "May Pi 2",        false),
 
-                (6,  CardType.Gwang, TtiType.None,  "모란광"),
-                (6,  CardType.Yul,   TtiType.None,  "모란나비"),
-                (6,  CardType.Tti,   TtiType.Blue,  "모란청단"),
-                (6,  CardType.Pi,    TtiType.None,  "모란피"),
+                (6,  CardType.Yul,   TtiType.None,  "Jun Butterfly",   false),
+                (6,  CardType.Tti,   TtiType.Blue,  "Jun Cheongdan",   false),
+                (6,  CardType.Pi,    TtiType.None,  "Jun Pi 1",        false),
+                (6,  CardType.Pi,    TtiType.None,  "Jun Pi 2",        false),
 
-                (7,  CardType.Yul,   TtiType.None,  "홍돼지"),
-                (7,  CardType.Yul,   TtiType.None,  "홍열끗"),
-                (7,  CardType.Tti,   TtiType.Grass, "홍초단"),
-                (7,  CardType.Pi,    TtiType.None,  "홍피"),
+                (7,  CardType.Yul,   TtiType.None,  "Jul Boar",        false),
+                (7,  CardType.Tti,   TtiType.Grass, "Jul Chodan",      false),
+                (7,  CardType.Pi,    TtiType.None,  "Jul Pi 1",        false),
+                (7,  CardType.Pi,    TtiType.None,  "Jul Pi 2",        false),
 
-                (8,  CardType.Gwang, TtiType.None,  "공산광"),
-                (8,  CardType.Yul,   TtiType.None,  "공산기러기"),
-                (8,  CardType.Tti,   TtiType.None,  "공산띠"),
-                (8,  CardType.Pi,    TtiType.None,  "공산피"),
+                (8,  CardType.Gwang, TtiType.None,  "Aug Gwang",       false),
+                (8,  CardType.Yul,   TtiType.None,  "Aug Goose",       false),
+                (8,  CardType.Pi,    TtiType.None,  "Aug Pi 1",        false),
+                (8,  CardType.Pi,    TtiType.None,  "Aug Pi 2",        false),
 
-                (9,  CardType.Yul,   TtiType.None,  "국화술"),
-                (9,  CardType.Yul,   TtiType.None,  "국화열끗"),
-                (9,  CardType.Tti,   TtiType.Blue,  "국화청단"),
-                (9,  CardType.Pi,    TtiType.None,  "국화피"),
+                (9,  CardType.Yul,   TtiType.None,  "Sep Cup",         false),
+                (9,  CardType.Tti,   TtiType.Blue,  "Sep Cheongdan",   false),
+                (9,  CardType.Pi,    TtiType.None,  "Sep Pi 1",        false),
+                (9,  CardType.Pi,    TtiType.None,  "Sep Pi 2",        false),
 
-                (10, CardType.Yul,   TtiType.None,  "단풍사슴"),
-                (10, CardType.Yul,   TtiType.None,  "단풍열끗"),
-                (10, CardType.Tti,   TtiType.Blue,  "단풍청단"),
-                (10, CardType.Pi,    TtiType.None,  "단풍피"),
+                (10, CardType.Yul,   TtiType.None,  "Oct Deer",        false),
+                (10, CardType.Tti,   TtiType.Blue,  "Oct Cheongdan",   false),
+                (10, CardType.Pi,    TtiType.None,  "Oct Pi 1",        false),
+                (10, CardType.Pi,    TtiType.None,  "Oct Pi 2",        false),
 
-                (11, CardType.Pi,    TtiType.None,  "오동피1"),
-                (11, CardType.Pi,    TtiType.None,  "오동피2"),
-                (11, CardType.Pi,    TtiType.None,  "오동피3"),
-                (11, CardType.Pi,    TtiType.None,  "오동쌍피"),
+                (11, CardType.Gwang, TtiType.None,  "Nov Gwang",       false),
+                (11, CardType.Pi,    TtiType.None,  "Nov Double Pi",   true),
+                (11, CardType.Pi,    TtiType.None,  "Nov Pi 1",        false),
+                (11, CardType.Pi,    TtiType.None,  "Nov Pi 2",        false),
 
-                (12, CardType.Gwang, TtiType.None,  "비광"),
-                (12, CardType.Yul,   TtiType.None,  "비열끗"),
-                (12, CardType.Pi,    TtiType.None,  "비피1"),
-                (12, CardType.Pi,    TtiType.None,  "비피2"),
+                (12, CardType.Gwang, TtiType.None,  "Dec Bi-Gwang",    false),
+                (12, CardType.Yul,   TtiType.None,  "Dec Phoenix",     false),
+                (12, CardType.Tti,   TtiType.None,  "Dec Ribbon",      false),
+                (12, CardType.Pi,    TtiType.None,  "Dec Pi",          false),
             };
 
             for (int i = 0; i < defs.Length; i++)
             {
                 var d = defs[i];
-                _deck.Add(new HwatooCard { index = i, month = d.m, cardType = d.t, ttiType = d.tt, cardName = d.n });
+                _deck.Add(new HwatooCard
+                {
+                    index      = i,
+                    month      = d.month,
+                    cardType   = d.type,
+                    ttiType    = d.tti,
+                    cardName   = d.name,
+                    isDoublePi = d.isDoublePi
+                });
             }
         }
     }

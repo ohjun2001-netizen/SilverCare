@@ -11,11 +11,16 @@ namespace Baduk
         System.Action OnHint  { get; set; }
         System.Action OnRetry { get; set; }
         System.Action OnBack  { get; set; }
+        System.Action OnConfirmPlacement { get; set; }
+        System.Action OnCancelPlacement { get; set; }
         System.Action<int> OnDifficultySelected { get; set; }
 
         void ShowDifficultySelect();
         void ShowProblem(BadukProblem problem, int idx, int total);
         void ShowResult(ProblemResult result, string explanation = "");
         void ShowHintText(string hint);
+        void ShowGuideMessage(string message);
+        void ShowPlacementConfirm(string message);
+        void HidePlacementConfirm();
     }
 }

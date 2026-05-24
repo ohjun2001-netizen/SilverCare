@@ -1,6 +1,7 @@
 // Assets/Scripts/Golf/BallController.cs
 // 담당: 양석원
 using UnityEngine;
+using SilverCare.Common;
 
 namespace SilverCare.Golf
 {
@@ -87,6 +88,12 @@ namespace SilverCare.Golf
 
             if (_isMoving) return;
 
+            if (XRPointerInput.TryGetSelectionHit(80f, out RaycastHit laserHit))
+            {
+                ApplyLaserSwing(laserHit);
+                return;
+            }
+
             // ── PC: Space 차지 스윙 ───────────────────────────────
             if (Input.GetKeyDown(KeyCode.Space))
             {
@@ -126,6 +133,20 @@ namespace SilverCare.Golf
                     _swingArmed = false;
                 }
             }
+        }
+
+        void ApplyLaserSwing(RaycastHit hit)
+        {
+            Vector3 flatTarget = hit.point;
+            flatTarget.y = transform.position.y;
+
+            Vector3 direction = flatTarget - transform.position;
+            if (direction.sqrMagnitude < 0.05f)
+                direction = GetAimDirection();
+
+            float distance = Mathf.Max(0.5f, direction.magnitude);
+            float force = Mathf.Clamp(distance * 2.2f, maxSwingForce * 0.18f, maxSwingForce * 0.85f);
+            ApplySwing(direction.normalized, force);
         }
 
         Vector3 GetAimDirection()

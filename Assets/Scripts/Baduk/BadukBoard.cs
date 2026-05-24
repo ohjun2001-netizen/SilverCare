@@ -88,13 +88,26 @@ namespace Baduk
         {
             HideHintMarker();
             EnsureMaterials();
-            _hintMarker = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-            _hintMarker.name = "HintMarker";
+            _hintMarker = new GameObject("HintMarker");
             _hintMarker.transform.SetParent(transform, false);
-            _hintMarker.transform.localPosition = GridToWorld(row, col) + Vector3.up * 0.2f;
-            _hintMarker.transform.localScale    = Vector3.one * STONE * 2.2f;
-            Destroy(_hintMarker.GetComponent<Collider>());
-            _hintMarker.GetComponent<Renderer>().material = MakeMat(new Color(0.2f, 1f, 0.2f, 0.5f));
+            _hintMarker.transform.localPosition = GridToWorld(row, col) + Vector3.up * 0.04f;
+
+            var ringMaterial = MakeMat(new Color(1.0f, 0.82f, 0.18f), 0f, new Color(0.32f, 0.22f, 0.02f));
+            const int segments = 12;
+            float radius = STONE * 0.82f;
+
+            for (int i = 0; i < segments; i++)
+            {
+                float angle = i * Mathf.PI * 2f / segments;
+                var segment = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+                segment.name = $"HintRing_{i}";
+                segment.transform.SetParent(_hintMarker.transform, false);
+                segment.transform.localPosition = new Vector3(Mathf.Cos(angle) * radius, 0f, Mathf.Sin(angle) * radius);
+                segment.transform.localScale = new Vector3(0.05f, 0.015f, 0.05f);
+                Destroy(segment.GetComponent<Collider>());
+                segment.GetComponent<Renderer>().material = ringMaterial;
+            }
+
             _hintBlink = StartCoroutine(BlinkMarker());
         }
 
@@ -109,15 +122,35 @@ namespace Baduk
         public Vector3 GridToWorld(int row, int col)
             => new Vector3((col - _c0) * CELL, 0f, -(row - _r0) * CELL);
 
+        public bool TryWorldToIntersection(Vector3 worldPoint, out int row, out int col)
+        {
+            Vector3 local = transform.InverseTransformPoint(worldPoint);
+
+            int nearestCol = Mathf.RoundToInt(local.x / CELL) + _c0;
+            int nearestRow = Mathf.RoundToInt(-local.z / CELL) + _r0;
+
+            if (nearestRow < _r0 || nearestRow > _r1 || nearestCol < _c0 || nearestCol > _c1)
+            {
+                row = -1;
+                col = -1;
+                return false;
+            }
+
+            row = nearestRow;
+            col = nearestCol;
+            return true;
+        }
+
         // ── 내부 ─────────────────────────────────────────
 
         System.Collections.IEnumerator BlinkMarker()
         {
             if (_hintMarker == null) yield break;
-            var rend = _hintMarker.GetComponent<Renderer>();
+            bool visible = true;
             while (_hintMarker != null)
             {
-                rend.enabled = !rend.enabled;
+                _hintMarker.SetActive(visible);
+                visible = !visible;
                 yield return new WaitForSeconds(0.5f);
             }
         }

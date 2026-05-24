@@ -151,3 +151,6 @@ _업데이트: 2026-05-10_
 - [x] `BadukBoard.cs` — `ClearBoard()` public 노출
 - [x] `BadukGameManager.cs` — `OnBack` 콜백에 `ClearBoard()` 추가 (보드 잔상 버그 수정)
 - [x] `baduk_problems.json` — 문제 11 중복 돌·포위 오류 수정
+
+
+내 피랑 점수 같은거 시각화 해줘야 하고 화투패가 지금 그림이 이상함 그리고 로직이 이상함 게임(게임이 끝났을 때 화투패가 모두 없어져야하는데 3월이 모두 다 남아있었음)
