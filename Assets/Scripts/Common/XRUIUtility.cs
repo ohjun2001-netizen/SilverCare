@@ -33,6 +33,7 @@ namespace SilverCare.Common
             if (cam == null) return;
 
             canvas.worldCamera = cam;
+            RefreshSceneViewAnchor(cam);
             GetSceneViewAnchor(cam, out Vector3 anchorPosition, out Vector3 forward);
 
             var rt = canvas.GetComponent<RectTransform>();
@@ -50,6 +51,7 @@ namespace SilverCare.Common
             if (cam == null) return;
 
             canvas.worldCamera = cam;
+            RefreshSceneViewAnchor(cam);
             GetSceneViewAnchor(cam, out Vector3 anchorPosition, out Vector3 forward);
 
             var rt = canvas.GetComponent<RectTransform>();
@@ -85,6 +87,22 @@ namespace SilverCare.Common
 
             position = anchor.position;
             forward = anchor.forward;
+        }
+
+        public static void RefreshSceneViewAnchor(Camera cam = null)
+        {
+            cam ??= Camera.main;
+            if (cam == null)
+                return;
+
+            EnsureSceneHook();
+
+            string scenePath = SceneManager.GetActiveScene().path;
+            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (flatForward.sqrMagnitude < 0.001f)
+                flatForward = Vector3.forward;
+
+            SceneViewAnchors[scenePath] = (cam.transform.position, flatForward);
         }
 
         public static void EnsureEventSystem()
@@ -175,6 +193,7 @@ namespace SilverCare.Common
             {
                 if (canvas == null || canvas.renderMode != RenderMode.WorldSpace) continue;
                 ConfigureWorldCanvasComponents(canvas.gameObject, canvas);
+                ConfigureWorldCanvasButtons(canvas);
             }
         }
 
@@ -188,6 +207,20 @@ namespace SilverCare.Common
 
             if (canvasObject.GetComponent<TrackedDeviceGraphicRaycaster>() == null)
                 canvasObject.AddComponent<TrackedDeviceGraphicRaycaster>();
+
+            ConfigureWorldCanvasButtons(canvas);
+        }
+
+        static void ConfigureWorldCanvasButtons(Canvas canvas)
+        {
+            foreach (var button in canvas.GetComponentsInChildren<Button>(true))
+            {
+                if (button == null)
+                    continue;
+
+                if (button.GetComponent<XRButtonHoverFeedback>() == null)
+                    button.gameObject.AddComponent<XRButtonHoverFeedback>();
+            }
         }
     }
 }

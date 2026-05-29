@@ -16,7 +16,6 @@ namespace Baduk.Replay
         [Header("참조 (자동 탐색)")]
         BadukBoard       _board;
         NpcCommentator   _commentator;
-        NpcAvatarSpawner _avatars;
 
         Kifu _currentKifu;
         int  _moveIndex;       // 다음에 둘 수의 인덱스 (0 = 아직 안 둠)
@@ -37,7 +36,6 @@ namespace Baduk.Replay
         {
             _board       = GetComponent<BadukBoard>();
             _commentator = GetComponent<NpcCommentator>();
-            _avatars     = GetComponent<NpcAvatarSpawner>();
 
             if (_board == null) Debug.LogError("[KifuReplayManager] BadukBoard 없음");
             if (_commentator == null) Debug.LogWarning("[KifuReplayManager] NpcCommentator 없음 — 코멘트 비활성");
@@ -58,8 +56,6 @@ namespace Baduk.Replay
                 stones = new BoardStones { black = new List<StonePosition>(), white = new List<StonePosition>() }
             };
             _board.SetupBoard(emptyProblem);
-
-            _avatars?.Spawn(_board.transform);
 
             _commentator?.Initialize(commentPool, kifu.moves?.Count ?? 0);
             _commentator?.OnReplayStart(kifu);
@@ -135,7 +131,6 @@ namespace Baduk.Replay
             var move = _currentKifu.moves[_moveIndex];
             var type = move.color == "black" ? StoneType.Black : StoneType.White;
             _board.PlaceStone(move.row, move.col, type);
-            _avatars?.TriggerPlaceStone(move.color);
 
             _commentator?.OnMovePlayed(_moveIndex, move);
 

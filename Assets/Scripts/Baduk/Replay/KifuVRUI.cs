@@ -1,10 +1,9 @@
-// Assets/Scripts/Baduk/Replay/KifuVRUI.cs
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using Baduk.Data;
 using SilverCare.Common;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Baduk.Replay
 {
@@ -18,13 +17,10 @@ namespace Baduk.Replay
         public System.Action OnBack;
         public System.Action<float> OnSpeedChanged;
 
-        [Header("UI Position")]
-        [SerializeField] Vector3 panelOffset = new(0f, 1.65f, 0f);
-
         readonly Color _panel = new(0.96f, 0.94f, 0.88f, 0.98f);
         readonly Color _ink = new(0.10f, 0.13f, 0.16f);
         readonly Color _muted = new(0.36f, 0.40f, 0.44f);
-        readonly Color _accent = new(0.21f, 0.36f, 0.57f);
+        readonly Color _accent = new(0.08f, 0.38f, 0.42f);
 
         Canvas _canvas;
         GameObject _selectPanel;
@@ -36,6 +32,7 @@ namespace Baduk.Replay
         Text _progressText;
         Text _commentText;
         Button _btnPlayPause;
+        BadukPanelBillboard _billboard;
 
         bool _built;
         bool _placementLocked;
@@ -44,6 +41,11 @@ namespace Baduk.Replay
         {
             EnsureBuilt();
             EnsureCanvasPlacement();
+            BadukRoomEnvironment.Cleanup();
+            SelectionBackdropUtility.ClearAllBackdrops();
+            _billboard.anchorToBoard = false;
+            _billboard.ForceReposition();
+            SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "BadukReplaySelect");
             BuildKifuSelectButtons(kifus);
             _selectPanel.SetActive(true);
             _replayPanel.SetActive(false);
@@ -53,37 +55,46 @@ namespace Baduk.Replay
         {
             EnsureBuilt();
             EnsureCanvasPlacement();
+            SelectionBackdropUtility.ClearBackdrop("BadukReplaySelect");
+            _billboard.anchorToBoard = true;
+            _billboard.RequestReposition();
             _selectPanel.SetActive(false);
             _replayPanel.SetActive(true);
 
             _titleText.text = string.IsNullOrWhiteSpace(kifu.title) ? "바둑 복기" : kifu.title;
-            _playersText.text = $"흑: {Safe(kifu.black_player)}    백: {Safe(kifu.white_player)}";
-            _commentText.text = "재생 버튼을 누르면 수순이 시작됩니다.";
+            _playersText.text = $"흑  {Safe(kifu.black_player)}    백  {Safe(kifu.white_player)}";
+            _commentText.text = "재생 버튼을 눌러 수순을 시작하세요.";
             UpdateProgress(0, kifu.moves?.Count ?? 0);
             UpdatePlayPauseLabel(false);
         }
 
         public void UpdateProgress(int current, int total)
         {
-            if (_progressText != null) _progressText.text = $"{current} / {total} 수";
+            if (_progressText != null)
+                _progressText.text = $"{current} / {total} 수";
         }
 
         public void UpdatePlayPauseLabel(bool isPlaying)
         {
-            if (_btnPlayPause == null) return;
+            if (_btnPlayPause == null)
+                return;
+
             var text = _btnPlayPause.GetComponentInChildren<Text>();
-            if (text != null) text.text = isPlaying ? "잠시 멈춤" : "재생";
+            if (text != null)
+                text.text = isPlaying ? "일시정지" : "재생";
         }
 
         public void ShowComment(string text)
         {
             if (_commentText != null)
-                _commentText.text = string.IsNullOrWhiteSpace(text) ? "해설 문구가 없습니다." : text;
+                _commentText.text = string.IsNullOrWhiteSpace(text) ? "설명 문구가 없습니다." : text;
         }
 
         void EnsureBuilt()
         {
-            if (_built) return;
+            if (_built)
+                return;
+
             EnsureEventSystem();
             BuildUI();
             _built = true;
@@ -91,35 +102,31 @@ namespace Baduk.Replay
 
         void EnsureCanvasPlacement()
         {
-            if (_placementLocked) return;
-            PlaceCanvasInFrontOfCamera();
-            _placementLocked = true;
+            if (_placementLocked)
+                return;
+
+            if (ApplyCameraVisuals())
+                _placementLocked = true;
         }
 
         static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null) return;
+            if (FindObjectOfType<EventSystem>() != null)
+                return;
+
             var es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             es.AddComponent<StandaloneInputModule>();
         }
 
-        void PlaceCanvasInFrontOfCamera()
+        bool ApplyCameraVisuals()
         {
             var cam = Camera.main;
-            if (cam == null || _canvas == null) return;
+            if (cam == null || _canvas == null)
+                return false;
 
             _canvas.worldCamera = cam;
-            var rt = _canvas.GetComponent<RectTransform>();
-            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
-            if (flatForward.sqrMagnitude < 0.001f)
-                flatForward = Vector3.forward;
-
-            Vector3 position = cam.transform.position + flatForward * 1.75f;
-            position.y = cam.transform.position.y + 0.02f;
-
-            rt.position = position;
-            rt.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+            return true;
         }
 
         void BuildUI()
@@ -135,8 +142,12 @@ namespace Baduk.Replay
             var rt = _canvas.GetComponent<RectTransform>();
             rt.sizeDelta = new Vector2(920, 560);
             rt.localScale = Vector3.one * 0.0018f;
-            rt.position = panelOffset;
-            rt.rotation = Quaternion.Euler(15, 180, 0);
+
+            _billboard = canvasGO.AddComponent<BadukPanelBillboard>();
+            _billboard.distance = 1.75f;
+            _billboard.heightOffset = 0.40f;
+            _billboard.backOffset = 0.75f;
+            _billboard.board = GetComponent<BadukBoard>();
 
             _selectPanel = BuildSelectPanel(rt);
             _replayPanel = BuildReplayPanel(rt);
@@ -170,7 +181,8 @@ namespace Baduk.Replay
 
         void BuildKifuSelectButtons(List<Kifu> kifus)
         {
-            if (_kifuListRoot == null) return;
+            if (_kifuListRoot == null)
+                return;
 
             for (int i = _kifuListRoot.childCount - 1; i >= 0; i--)
                 Destroy(_kifuListRoot.GetChild(i).gameObject);
@@ -198,53 +210,44 @@ namespace Baduk.Replay
 
         GameObject BuildReplayPanel(RectTransform parent)
         {
-            var panel = CreatePanel(parent, "ReplayPanel", new Color(0, 0, 0, 0));
+            var panel = CreatePanel(parent, "ReplayPanel", new Color(0f, 0f, 0f, 0f));
             Stretch(panel);
             var prt = panel.GetComponent<RectTransform>();
 
-            var top = CreatePanel(prt, "TopPanel", _panel);
+            var top = CreatePanel(prt, "TopPanel", _panel, new Vector2(0, 128), new Vector2(860, 126));
             var topRt = top.GetComponent<RectTransform>();
-            topRt.anchorMin = new Vector2(0, 1);
-            topRt.anchorMax = Vector2.one;
-            topRt.pivot = new Vector2(0.5f, 1);
-            topRt.offsetMin = new Vector2(0, -142);
-            topRt.offsetMax = Vector2.zero;
 
             _titleText = CreateText(topRt, "Title", "", 31, FontStyle.Bold,
-                new Vector2(-60, 38), new Vector2(700, 44), _accent);
+                new Vector2(-52, 26), new Vector2(690, 46), _accent);
             _progressText = CreateText(topRt, "Progress", "", 22, FontStyle.Bold,
-                new Vector2(365, 38), new Vector2(130, 36), _muted);
+                new Vector2(332, 26), new Vector2(120, 38), _muted);
             _playersText = CreateText(topRt, "Players", "", 22, FontStyle.Normal,
-                new Vector2(0, -28), new Vector2(840, 50), _ink);
+                new Vector2(0, -24), new Vector2(790, 58), _ink);
 
-            var bottom = CreatePanel(prt, "BottomPanel", _panel);
+            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -44), new Vector2(860, 150));
             var botRt = bottom.GetComponent<RectTransform>();
-            botRt.anchorMin = Vector2.zero;
-            botRt.anchorMax = new Vector2(1, 0);
-            botRt.pivot = new Vector2(0.5f, 0);
-            botRt.offsetMin = Vector2.zero;
-            botRt.offsetMax = new Vector2(0, 195);
 
             _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,
-                new Vector2(0, 67), new Vector2(840, 56), new Color(0.58f, 0.38f, 0.05f));
+                new Vector2(0, 36), new Vector2(790, 56), new Color(0.58f, 0.38f, 0.05f));
 
-            var prev = CreateButton(botRt, "이전", 21, new Vector2(-345, -12), new Vector2(120, 54), new Color(0.30f, 0.36f, 0.42f));
-            _btnPlayPause = CreateButton(botRt, "재생", 21, new Vector2(-215, -12), new Vector2(120, 54), _accent);
-            var next = CreateButton(botRt, "다음", 21, new Vector2(-85, -12), new Vector2(120, 54), _accent);
-            var restart = CreateButton(botRt, "처음부터", 20, new Vector2(55, -12), new Vector2(140, 54), new Color(0.35f, 0.52f, 0.28f));
-            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(205, -12), new Vector2(120, 54), new Color(0.48f, 0.35f, 0.16f));
-            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(335, -12), new Vector2(120, 54), new Color(0.48f, 0.35f, 0.16f));
-            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(205, -74), new Vector2(120, 48), new Color(0.48f, 0.35f, 0.16f));
-            var back = CreateButton(botRt, "목록", 18, new Vector2(335, -74), new Vector2(120, 48), new Color(0.34f, 0.38f, 0.40f));
+            var prev = CreateButton(botRt, "이전", 20, new Vector2(-300, -18), new Vector2(110, 50), new Color(0.30f, 0.36f, 0.42f));
+            _btnPlayPause = CreateButton(botRt, "재생", 20, new Vector2(-180, -18), new Vector2(110, 50), _accent);
+            var next = CreateButton(botRt, "다음", 20, new Vector2(-60, -18), new Vector2(110, 50), _accent);
+            var restart = CreateButton(botRt, "처음부터", 18, new Vector2(70, -18), new Vector2(130, 50), new Color(0.35f, 0.52f, 0.28f));
+            var back = CreateButton(botRt, "목록", 18, new Vector2(210, -18), new Vector2(110, 50), new Color(0.34f, 0.38f, 0.40f));
+
+            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-120, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(0, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(120, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
 
             prev.onClick.AddListener(() => OnPrev?.Invoke());
             _btnPlayPause.onClick.AddListener(() => OnPlayPause?.Invoke());
             next.onClick.AddListener(() => OnNext?.Invoke());
             restart.onClick.AddListener(() => OnRestart?.Invoke());
+            back.onClick.AddListener(() => OnBack?.Invoke());
             speed05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
             speed1.onClick.AddListener(() => OnSpeedChanged?.Invoke(1f));
             speed2.onClick.AddListener(() => OnSpeedChanged?.Invoke(2f));
-            back.onClick.AddListener(() => OnBack?.Invoke());
 
             return panel;
         }
@@ -309,6 +312,8 @@ namespace Baduk.Replay
             colors.pressedColor = Color.Lerp(color, Color.black, 0.20f);
             colors.selectedColor = colors.highlightedColor;
             btn.colors = colors;
+            if (btn.GetComponent<XRButtonHoverFeedback>() == null)
+                btn.gameObject.AddComponent<XRButtonHoverFeedback>();
             return btn;
         }
 

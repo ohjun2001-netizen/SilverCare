@@ -53,10 +53,16 @@ namespace Baduk
             _ui.OnNext = NextProblem;
             _ui.OnPrev = PrevProblem;
             _ui.OnHint = ShowHint;
-            _ui.OnRetry = () => LoadFilteredProblem(_filteredIdx);
+            _ui.OnRetry = () =>
+            {
+                if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 차단
+                LoadFilteredProblem(_filteredIdx);
+            };
             _ui.OnBack = () =>
             {
+                if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 차단
                 _board.ClearBoard();
+                BadukRoomEnvironment.Cleanup();
                 _ui.ShowDifficultySelect();
             };
             _ui.OnConfirmPlacement = ConfirmPlacement;
@@ -71,6 +77,8 @@ namespace Baduk
         {
             if (_input != null)
                 _input.OnIntersectionClicked -= HandlePlayerMove;
+
+            BadukRoomEnvironment.Cleanup();
         }
 
         void OnDifficultySelected(int difficulty)
@@ -129,6 +137,7 @@ namespace Baduk
 
         void NextProblem()
         {
+            if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 이동 차단(다시 선택 클릭이 새는 것 방지)
             int next = _filteredIdx + 1;
             if (next >= _filteredProblems.Count)
                 next = 0;
@@ -138,6 +147,7 @@ namespace Baduk
 
         void PrevProblem()
         {
+            if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 이동 차단
             int prev = _filteredIdx - 1;
             if (prev < 0)
                 prev = _filteredProblems.Count - 1;

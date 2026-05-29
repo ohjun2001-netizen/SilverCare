@@ -1,59 +1,81 @@
-// Assets/Scripts/Baduk/Prediction/PredictionVRUI.cs
-// 다음 수 맞히기 모드 UI - 기보 선택 / 재생 / 예측 오버레이 / 최종 결과
 using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.EventSystems;
 using Baduk.Data;
 using SilverCare.Common;
+using UnityEngine;
+using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace Baduk.Prediction
 {
     public class PredictionVRUI : MonoBehaviour
     {
-        // ── 외부 콜백 ────────────────────────────────────
-        public System.Action<Kifu>  OnKifuSelected;
-        public System.Action        OnPlayPause;
+        public System.Action<Kifu> OnKifuSelected;
+        public System.Action OnPlayPause;
         public System.Action<float> OnSpeedChanged;
-        public System.Action<int>   OnPredictionSubmit;
-        public System.Action        OnRestart;
-        public System.Action        OnBack;
-        public System.Action        OnBackToSelect;
+        public System.Action<int> OnPredictionSubmit;
+        public System.Action OnRestart;
+        public System.Action OnBack;
+        public System.Action OnBackToSelect;
+
+        readonly Color _panel = new(0.96f, 0.94f, 0.88f, 0.98f);
+        readonly Color _ink = new(0.10f, 0.13f, 0.16f);
+        readonly Color _muted = new(0.36f, 0.40f, 0.44f);
+        readonly Color _accent = new(0.08f, 0.38f, 0.42f);
+        readonly Color _note = new(0.58f, 0.38f, 0.05f);
 
         Canvas _canvas;
-        GameObject _selectPanel, _replayPanel, _predictPanel, _resultPanel;
+        GameObject _selectPanel;
+        GameObject _replayPanel;
+        GameObject _predictPanel;
+        GameObject _resultPanel;
+        RectTransform _kifuListRoot;
 
-        // 재생 패널
-        Text _titleText, _playersText, _progressText, _commentText;
+        Text _titleText;
+        Text _playersText;
+        Text _progressText;
+        Text _commentText;
         Button _btnPlayPause;
+        BadukPanelBillboard _billboard;
 
-        // 예측 오버레이
-        Text _predictQuestion, _predictResultLabel, _predictExplain;
-        Transform _predictCandidatesContainer;
+        Text _predictQuestion;
+        Text _predictResultLabel;
+        Text _predictExplain;
+        RectTransform _predictCandidatesRoot;
         readonly List<Button> _candidateButtons = new();
 
-        // 결과 패널
-        Text _resultHeadline, _resultDetail;
+        Text _resultHeadline;
+        Text _resultDetail;
 
         bool _built;
         bool _placementLocked;
 
-        // ── 외부 호출 ────────────────────────────────────
-
         public void ShowKifuSelect(List<Kifu> kifus)
         {
-            EnsureBuilt(); EnsureCanvasPlacement();
+            EnsureBuilt();
+            EnsureCanvasPlacement();
+            BadukRoomEnvironment.Cleanup();
+            SelectionBackdropUtility.ClearAllBackdrops();
+            _billboard.anchorToBoard = false;
+            _billboard.ForceReposition();
+            SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "BadukPredictionSelect");
             ShowOnly(_selectPanel);
             BuildKifuButtons(kifus);
         }
 
         public void ShowReplay(Kifu kifu)
         {
-            EnsureBuilt(); EnsureCanvasPlacement();
+            EnsureBuilt();
+            EnsureCanvasPlacement();
+            SelectionBackdropUtility.ClearBackdrop("BadukPredictionSelect");
+            _billboard.anchorToBoard = true;
+            _billboard.RequestReposition();
             ShowOnly(_replayPanel);
-            _titleText.text   = kifu.title ?? "기보";
-            _playersText.text = $"흑: {kifu.black_player ?? "?"}    백: {kifu.white_player ?? "?"}";
-            _commentText.text = kifu.description ?? "";
+
+            _titleText.text = string.IsNullOrWhiteSpace(kifu.title) ? "수 예측하기" : kifu.title;
+            _playersText.text = $"흑 {Safe(kifu.black_player)}    백 {Safe(kifu.white_player)}";
+            _commentText.text = string.IsNullOrWhiteSpace(kifu.description)
+                ? "재생 버튼을 눌러 다음 수 예측을 시작해보세요."
+                : kifu.description;
             UpdateProgress(0, kifu.moves?.Count ?? 0);
             UpdatePlayPauseLabel(false);
         }
@@ -64,72 +86,76 @@ namespace Baduk.Prediction
             _predictPanel.SetActive(true);
             _predictResultLabel.text = "";
             _predictExplain.text = "";
-            _predictQuestion.text = string.IsNullOrEmpty(point?.question)
+            _predictQuestion.text = string.IsNullOrWhiteSpace(point?.question)
                 ? "다음 수는 어디일까요?"
                 : point.question;
-
             BuildCandidateButtons(point);
         }
 
-        public void ShowPredictionResult(bool correct, PredictionPoint point, int chosenIndex)
+        public void ShowPredictionResult(bool correct, PredictionPoint point, int chosenCandidateIndex)
         {
-            if (correct)
-            {
-                _predictResultLabel.text  = "정답!";
-                _predictResultLabel.color = new Color(0.3f, 1f, 0.4f);
-            }
-            else
-            {
-                _predictResultLabel.text  = "아쉽네요";
-                _predictResultLabel.color = new Color(1f, 0.5f, 0.5f);
-            }
-            _predictExplain.text = point?.explanation ?? "";
+            _predictResultLabel.text = correct ? "정답입니다." : "다시 생각해보세요.";
+            _predictResultLabel.color = correct
+                ? new Color(0.10f, 0.55f, 0.22f)
+                : new Color(0.78f, 0.20f, 0.16f);
+            _predictExplain.text = string.IsNullOrWhiteSpace(point?.explanation)
+                ? "설명을 준비 중입니다."
+                : point.explanation;
 
             for (int i = 0; i < _candidateButtons.Count; i++)
             {
-                var img = _candidateButtons[i].GetComponent<Image>();
+                var image = _candidateButtons[i].GetComponent<Image>();
                 if (i == point.correct_index)
-                    img.color = new Color(0.25f, 0.6f, 0.3f);
-                else if (i == chosenIndex && !correct)
-                    img.color = new Color(0.6f, 0.25f, 0.25f);
+                    image.color = new Color(0.22f, 0.55f, 0.28f);
+                else if (i == chosenCandidateIndex && !correct)
+                    image.color = new Color(0.63f, 0.24f, 0.20f);
+                else
+                    image.color = _accent;
+
                 _candidateButtons[i].interactable = false;
             }
         }
 
         public void HidePredictionOverlay()
         {
-            if (_predictPanel != null) _predictPanel.SetActive(false);
+            if (_predictPanel != null)
+                _predictPanel.SetActive(false);
         }
 
         public void ShowResult(int correct, int total)
         {
-            EnsureBuilt(); EnsureCanvasPlacement();
+            EnsureBuilt();
+            EnsureCanvasPlacement();
             ShowOnly(_resultPanel);
-            _resultHeadline.text = total == 0
-                ? "관전 완료!"
-                : $"{correct} / {total} 적중";
+            _resultHeadline.text = total <= 0
+                ? "수 예측이 끝났습니다."
+                : $"{correct} / {total} 문제를 맞혔습니다.";
             _resultDetail.text = correct == total && total > 0
-                ? "모두 맞혔습니다!"
-                : "다시 도전해 보세요";
+                ? "모든 수를 정확히 읽어냈어요."
+                : "다시 도전해서 흐름을 익혀보세요.";
         }
 
-        public void UpdateProgress(int cur, int total)
+        public void UpdateProgress(int current, int total)
         {
-            if (_progressText != null) _progressText.text = $"{cur} / {total} 수";
+            if (_progressText != null)
+                _progressText.text = $"{current} / {total} 수";
         }
 
         public void UpdatePlayPauseLabel(bool isPlaying)
         {
-            if (_btnPlayPause == null) return;
-            var t = _btnPlayPause.GetComponentInChildren<Text>();
-            if (t != null) t.text = isPlaying ? "⏸ 일시정지" : "▶ 재생";
-        }
+            if (_btnPlayPause == null)
+                return;
 
-        // ── 빌드 ─────────────────────────────────────────
+            var text = _btnPlayPause.GetComponentInChildren<Text>();
+            if (text != null)
+                text.text = isPlaying ? "일시 정지" : "재생";
+        }
 
         void EnsureBuilt()
         {
-            if (_built) return;
+            if (_built)
+                return;
+
             EnsureEventSystem();
             BuildUI();
             _built = true;
@@ -137,34 +163,31 @@ namespace Baduk.Prediction
 
         void EnsureCanvasPlacement()
         {
-            if (_placementLocked) return;
-            PlaceCanvas();
-            _placementLocked = true;
+            if (_placementLocked)
+                return;
+
+            if (ApplyCameraVisuals())
+                _placementLocked = true;
         }
 
         static void EnsureEventSystem()
         {
-            if (FindObjectOfType<EventSystem>() != null) return;
+            if (FindObjectOfType<EventSystem>() != null)
+                return;
+
             var es = new GameObject("EventSystem");
             es.AddComponent<EventSystem>();
             es.AddComponent<StandaloneInputModule>();
         }
 
-        void PlaceCanvas()
+        bool ApplyCameraVisuals()
         {
-            Camera cam = Camera.main;
-            if (cam == null || _canvas == null) return;
+            var cam = Camera.main;
+            if (cam == null || _canvas == null)
+                return false;
+
             _canvas.worldCamera = cam;
-            var rt = _canvas.GetComponent<RectTransform>();
-            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
-            if (flatForward.sqrMagnitude < 0.001f)
-                flatForward = Vector3.forward;
-
-            Vector3 position = cam.transform.position + flatForward * 1.75f;
-            position.y = cam.transform.position.y + 0.02f;
-
-            rt.position = position;
-            rt.rotation = Quaternion.LookRotation(flatForward, Vector3.up);
+            return true;
         }
 
         void BuildUI()
@@ -172,17 +195,25 @@ namespace Baduk.Prediction
             var canvasGO = new GameObject("PredictionVRCanvas");
             _canvas = canvasGO.AddComponent<Canvas>();
             _canvas.renderMode = RenderMode.WorldSpace;
-            canvasGO.AddComponent<CanvasScaler>();
+            var scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.dynamicPixelsPerUnit = 4f;
+            scaler.referencePixelsPerUnit = 140f;
             XRUIUtility.ConfigureWorldCanvas(canvasGO, _canvas);
 
             var rt = _canvas.GetComponent<RectTransform>();
-            rt.sizeDelta  = new Vector2(800, 540);
-            rt.localScale = Vector3.one * 0.002f;
+            rt.sizeDelta = new Vector2(920, 560);
+            rt.localScale = Vector3.one * 0.0018f;
 
-            _selectPanel  = BuildSelectPanel(rt);
-            _replayPanel  = BuildReplayPanel(rt);
+            _billboard = canvasGO.AddComponent<BadukPanelBillboard>();
+            _billboard.distance = 1.75f;
+            _billboard.heightOffset = 0.40f;
+            _billboard.backOffset = 0.75f;
+            _billboard.board = GetComponent<BadukBoard>();
+
+            _selectPanel = BuildSelectPanel(rt);
+            _replayPanel = BuildReplayPanel(rt);
             _predictPanel = BuildPredictionOverlay(rt);
-            _resultPanel  = BuildResultPanel(rt);
+            _resultPanel = BuildResultPanel(rt);
 
             ShowOnly(_selectPanel);
             _predictPanel.SetActive(false);
@@ -196,221 +227,288 @@ namespace Baduk.Prediction
             _predictPanel.SetActive(false);
         }
 
-        // ── 기보 선택 ────────────────────────────────────
         GameObject BuildSelectPanel(RectTransform parent)
         {
-            var p = CreatePanel(parent, "SelectPanel", new Color(0.1f, 0.1f, 0.18f, 0.95f));
-            FillParent(p);
-            CreateText(p.GetComponent<RectTransform>(), "Title", "다음 수 맞히기", 40, FontStyle.Bold,
-                new Vector2(0, 220), new Vector2(700, 60), Color.white);
-            CreateText(p.GetComponent<RectTransform>(), "Sub", "관전할 명승부를 고르세요", 24, FontStyle.Normal,
-                new Vector2(0, 170), new Vector2(700, 40), new Color(0.85f, 0.85f, 0.85f));
+            var panel = CreatePanel(parent, "SelectPanel", _panel);
+            Stretch(panel);
+            var prt = panel.GetComponent<RectTransform>();
 
-            var listGO = new GameObject("KifuList", typeof(RectTransform));
-            listGO.transform.SetParent(p.transform, false);
-            var lrt = listGO.GetComponent<RectTransform>();
-            lrt.anchoredPosition = new Vector2(0, -10);
-            lrt.sizeDelta        = new Vector2(700, 240);
+            CreatePanel(prt, "Accent", _accent, new Vector2(0, 240), new Vector2(840, 6));
+            CreateText(prt, "Title", "수 예측하기", 42, FontStyle.Bold,
+                new Vector2(0, 190), new Vector2(820, 60), _accent);
+            CreateText(prt, "Sub", "관찰할 기보를 고르고 다음 수를 맞혀보세요.", 24, FontStyle.Normal,
+                new Vector2(0, 142), new Vector2(820, 42), _muted);
 
-            var back = CreateButton(p.GetComponent<RectTransform>(), "로비로 돌아가기", 26,
-                new Vector2(0, -230), new Vector2(380, 60));
-            back.onClick.AddListener(() => OnBack?.Invoke());
-            return p;
+            var list = new GameObject("KifuList", typeof(RectTransform));
+            list.transform.SetParent(prt, false);
+            _kifuListRoot = list.GetComponent<RectTransform>();
+            _kifuListRoot.anchoredPosition = new Vector2(0, -25);
+            _kifuListRoot.sizeDelta = new Vector2(760, 280);
+
+            var backBtn = CreateButton(prt, "로비로 돌아가기", 24,
+                new Vector2(0, -220), new Vector2(420, 64), new Color(0.34f, 0.38f, 0.40f));
+            backBtn.onClick.AddListener(() => OnBack?.Invoke());
+
+            return panel;
         }
 
         void BuildKifuButtons(List<Kifu> kifus)
         {
-            var listTr = _selectPanel.transform.Find("KifuList") as RectTransform;
-            if (listTr == null) return;
-            for (int i = listTr.childCount - 1; i >= 0; i--) Destroy(listTr.GetChild(i).gameObject);
+            if (_kifuListRoot == null)
+                return;
+
+            for (int i = _kifuListRoot.childCount - 1; i >= 0; i--)
+                Destroy(_kifuListRoot.GetChild(i).gameObject);
 
             if (kifus == null || kifus.Count == 0)
             {
-                CreateText(listTr, "Empty", "기보가 없습니다.", 24, FontStyle.Normal,
-                    Vector2.zero, new Vector2(640, 40), new Color(1f, 0.6f, 0.6f));
+                CreateText(_kifuListRoot, "Empty", "사용 가능한 기보가 없습니다.", 26, FontStyle.Bold,
+                    Vector2.zero, new Vector2(720, 60), new Color(0.78f, 0.20f, 0.16f));
                 return;
             }
-            int n = Mathf.Min(kifus.Count, 5);
-            float spacing = 56f;
-            float startY = (n - 1) * spacing / 2f;
-            listTr.sizeDelta = new Vector2(700, n * spacing + 16);
-            for (int i = 0; i < n; i++)
+
+            int count = Mathf.Min(kifus.Count, 4);
+            float spacing = 72f;
+            float startY = (count - 1) * spacing * 0.5f;
+
+            for (int i = 0; i < count; i++)
             {
-                var k = kifus[i];
-                int predCount = k.prediction_points?.Count ?? 0;
-                string label = predCount > 0 ? $"{k.title}  ({predCount})" : k.title;
-                var btn = CreateButton(listTr, label, 22,
-                    new Vector2(0, startY - i * spacing), new Vector2(640, 52));
-                btn.onClick.AddListener(() => OnKifuSelected?.Invoke(k));
+                var kifu = kifus[i];
+                int predictionCount = kifu.prediction_points?.Count ?? 0;
+                string label = string.IsNullOrWhiteSpace(kifu.title) ? $"기보 {i + 1}" : kifu.title;
+                if (predictionCount > 0)
+                    label = $"{label}  ({predictionCount}문제)";
+
+                var btn = CreateButton(_kifuListRoot, label, 24,
+                    new Vector2(0, startY - i * spacing), new Vector2(720, 62), _accent);
+                btn.onClick.AddListener(() => OnKifuSelected?.Invoke(kifu));
             }
         }
 
-        // ── 재생 패널 ────────────────────────────────────
         GameObject BuildReplayPanel(RectTransform parent)
         {
-            var p = CreatePanel(parent, "ReplayPanel", new Color(0, 0, 0, 0f));
-            FillParent(p);
-            var prt = p.GetComponent<RectTransform>();
+            var panel = CreatePanel(parent, "ReplayPanel", new Color(0f, 0f, 0f, 0f));
+            Stretch(panel);
+            var prt = panel.GetComponent<RectTransform>();
 
-            var topBar = CreatePanel(prt, "TopBar", new Color(0, 0, 0, 0.82f));
-            var tbrt = topBar.GetComponent<RectTransform>();
-            tbrt.anchorMin = new Vector2(0, 1); tbrt.anchorMax = Vector2.one;
-            tbrt.pivot = new Vector2(0.5f, 1);
-            tbrt.offsetMin = new Vector2(0, -120); tbrt.offsetMax = Vector2.zero;
+            var top = CreatePanel(prt, "TopPanel", _panel, new Vector2(0, 128), new Vector2(860, 126));
+            var topRt = top.GetComponent<RectTransform>();
 
-            _titleText    = CreateText(tbrt, "Title", "", 26, FontStyle.Bold,
-                new Vector2(0, 15), new Vector2(750, 45), Color.white);
-            _playersText  = CreateText(tbrt, "Players", "", 20, FontStyle.Normal,
-                new Vector2(0, -28), new Vector2(750, 32), new Color(0.85f, 0.85f, 0.85f));
-            _progressText = CreateText(tbrt, "Progress", "", 18, FontStyle.Normal,
-                new Vector2(320, -55), new Vector2(150, 28), new Color(0.7f, 0.7f, 0.7f));
+            _titleText = CreateText(topRt, "Title", "", 31, FontStyle.Bold,
+                new Vector2(-52, 26), new Vector2(690, 46), _accent);
+            _progressText = CreateText(topRt, "Progress", "", 22, FontStyle.Bold,
+                new Vector2(332, 26), new Vector2(120, 38), _muted);
+            _playersText = CreateText(topRt, "Players", "", 22, FontStyle.Normal,
+                new Vector2(0, -24), new Vector2(790, 58), _ink);
 
-            var botBar = CreatePanel(prt, "BotBar", new Color(0, 0, 0, 0.82f));
-            var bbrt = botBar.GetComponent<RectTransform>();
-            bbrt.anchorMin = Vector2.zero; bbrt.anchorMax = new Vector2(1, 0);
-            bbrt.pivot = new Vector2(0.5f, 0);
-            bbrt.offsetMin = Vector2.zero; bbrt.offsetMax = new Vector2(0, 170);
+            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -44), new Vector2(860, 150));
+            var botRt = bottom.GetComponent<RectTransform>();
 
-            _commentText = CreateText(bbrt, "Comment", "", 22, FontStyle.Italic,
-                new Vector2(0, 120), new Vector2(750, 36), new Color(1f, 0.95f, 0.6f));
+            _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,
+                new Vector2(0, 36), new Vector2(790, 56), _note);
 
-            float btnY = 60f;
-            _btnPlayPause = CreateButton(bbrt, "▶ 재생", 22, new Vector2(-200, btnY), new Vector2(160, 50));
-            var s05 = CreateButton(bbrt, "0.5x", 20, new Vector2( -30, btnY), new Vector2(90, 50));
-            var s1  = CreateButton(bbrt, "1x",   20, new Vector2(  70, btnY), new Vector2(90, 50));
-            var s2  = CreateButton(bbrt, "2x",   20, new Vector2( 170, btnY), new Vector2(90, 50));
-            var back = CreateButton(bbrt, "그만 보기", 20, new Vector2(0, 0), new Vector2(200, 45));
+            _btnPlayPause = CreateButton(botRt, "재생", 20, new Vector2(-180, -30), new Vector2(120, 46), _accent);
+            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-60, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(60, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(180, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var back = CreateButton(botRt, "목록", 18, new Vector2(310, -30), new Vector2(110, 46), new Color(0.34f, 0.38f, 0.40f));
+
+            var restart = CreateButton(botRt, "다시 보기", 18, new Vector2(0, -78), new Vector2(150, 38), new Color(0.35f, 0.52f, 0.28f));
 
             _btnPlayPause.onClick.AddListener(() => OnPlayPause?.Invoke());
-            s05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
-            s1.onClick.AddListener (() => OnSpeedChanged?.Invoke(1f));
-            s2.onClick.AddListener (() => OnSpeedChanged?.Invoke(2f));
+            speed05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
+            speed1.onClick.AddListener(() => OnSpeedChanged?.Invoke(1f));
+            speed2.onClick.AddListener(() => OnSpeedChanged?.Invoke(2f));
             back.onClick.AddListener(() => OnBackToSelect?.Invoke());
+            restart.onClick.AddListener(() => OnRestart?.Invoke());
 
-            return p;
+            return panel;
         }
 
-        // ── 예측 오버레이 ────────────────────────────────
         GameObject BuildPredictionOverlay(RectTransform parent)
         {
-            var p = CreatePanel(parent, "PredictPanel", new Color(0.05f, 0.07f, 0.12f, 0.96f));
-            FillParent(p);
-            var prt = p.GetComponent<RectTransform>();
+            var panel = CreatePanel(parent, "PredictPanel", new Color(0.08f, 0.10f, 0.12f, 0.96f));
+            Stretch(panel);
+            var prt = panel.GetComponent<RectTransform>();
 
-            _predictQuestion = CreateText(prt, "Q", "", 30, FontStyle.Bold,
-                new Vector2(0, 200), new Vector2(720, 60), Color.white);
+            var modal = CreatePanel(prt, "Modal", _panel, new Vector2(0, 12), new Vector2(760, 390));
+            var modalRt = modal.GetComponent<RectTransform>();
 
-            var listGO = new GameObject("Candidates", typeof(RectTransform));
-            listGO.transform.SetParent(prt, false);
-            var lrt = listGO.GetComponent<RectTransform>();
-            lrt.anchoredPosition = new Vector2(0, 50);
-            lrt.sizeDelta        = new Vector2(720, 220);
-            _predictCandidatesContainer = lrt;
+            _predictQuestion = CreateText(modalRt, "Question", "", 30, FontStyle.Bold,
+                new Vector2(0, 138), new Vector2(680, 60), _accent);
 
-            _predictResultLabel = CreateText(prt, "ResultLabel", "", 32, FontStyle.Bold,
-                new Vector2(0, -100), new Vector2(720, 44), Color.white);
-            _predictExplain = CreateText(prt, "Explain", "", 20, FontStyle.Italic,
-                new Vector2(0, -160), new Vector2(720, 80), new Color(0.95f, 0.95f, 0.7f));
+            var list = new GameObject("Candidates", typeof(RectTransform));
+            list.transform.SetParent(modalRt, false);
+            _predictCandidatesRoot = list.GetComponent<RectTransform>();
+            _predictCandidatesRoot.anchoredPosition = new Vector2(0, 16);
+            _predictCandidatesRoot.sizeDelta = new Vector2(640, 170);
 
-            return p;
+            _predictResultLabel = CreateText(modalRt, "Result", "", 28, FontStyle.Bold,
+                new Vector2(0, -92), new Vector2(640, 42), _ink);
+            _predictExplain = CreateText(modalRt, "Explain", "", 20, FontStyle.Normal,
+                new Vector2(0, -140), new Vector2(640, 72), _muted);
+
+            return panel;
         }
 
         void BuildCandidateButtons(PredictionPoint point)
         {
             _candidateButtons.Clear();
-            for (int i = _predictCandidatesContainer.childCount - 1; i >= 0; i--)
-                Destroy(_predictCandidatesContainer.GetChild(i).gameObject);
+            if (_predictCandidatesRoot == null)
+                return;
 
-            if (point?.candidates == null || point.candidates.Count == 0) return;
+            for (int i = _predictCandidatesRoot.childCount - 1; i >= 0; i--)
+                Destroy(_predictCandidatesRoot.GetChild(i).gameObject);
 
-            int n = point.candidates.Count;
-            float bw = 160f, gap = 18f;
-            float startX = -((bw + gap) * (n - 1)) / 2f;
-
-            for (int i = 0; i < n; i++)
+            if (point?.candidates == null || point.candidates.Count == 0)
             {
-                var c = point.candidates[i];
-                int idx = i;
-                string label = $"{(char)('A' + i)}\n{FormatCoord(c.row, c.col)}";
-                var btn = CreateButton(_predictCandidatesContainer, label, 22,
-                    new Vector2(startX + i * (bw + gap), 0), new Vector2(bw, 110));
-                btn.GetComponent<Image>().color = new Color(0.25f, 0.3f, 0.45f);
-                btn.onClick.AddListener(() => OnPredictionSubmit?.Invoke(idx));
+                CreateText(_predictCandidatesRoot, "Empty", "선택지가 없습니다.", 22, FontStyle.Bold,
+                    Vector2.zero, new Vector2(520, 36), new Color(0.78f, 0.20f, 0.16f));
+                return;
+            }
+
+            int count = Mathf.Min(point.candidates.Count, 4);
+            float spacing = 62f;
+            float startY = (count - 1) * spacing * 0.5f;
+
+            for (int i = 0; i < count; i++)
+            {
+                int index = i;
+                string label = FormatCandidateLabel(point.candidates[i], i);
+                var btn = CreateButton(_predictCandidatesRoot, label, 22,
+                    new Vector2(0, startY - i * spacing), new Vector2(560, 50), _accent);
+                btn.onClick.AddListener(() => OnPredictionSubmit?.Invoke(index));
                 _candidateButtons.Add(btn);
             }
         }
 
-        static string FormatCoord(int row, int col) => $"{row + 1}행 {col + 1}열";
-
-        // ── 결과 패널 ────────────────────────────────────
         GameObject BuildResultPanel(RectTransform parent)
         {
-            var p = CreatePanel(parent, "ResultPanel", new Color(0.08f, 0.1f, 0.18f, 0.97f));
-            FillParent(p);
-            var prt = p.GetComponent<RectTransform>();
+            var panel = CreatePanel(parent, "ResultPanel", _panel);
+            Stretch(panel);
+            var prt = panel.GetComponent<RectTransform>();
 
-            _resultHeadline = CreateText(prt, "Result", "", 52, FontStyle.Bold,
-                new Vector2(0, 80), new Vector2(700, 80), Color.white);
-            _resultDetail   = CreateText(prt, "Detail", "", 28, FontStyle.Bold,
-                new Vector2(0, -10), new Vector2(700, 50), new Color(0.85f, 0.85f, 0.85f));
+            CreatePanel(prt, "Accent", _accent, new Vector2(0, 240), new Vector2(840, 6));
+            _resultHeadline = CreateText(prt, "Headline", "", 40, FontStyle.Bold,
+                new Vector2(0, 120), new Vector2(820, 56), _accent);
+            _resultDetail = CreateText(prt, "Detail", "", 24, FontStyle.Normal,
+                new Vector2(0, 48), new Vector2(820, 42), _muted);
 
-            var again = CreateButton(prt, "한판 더!", 24, new Vector2(-130, -150), new Vector2(220, 60));
-            var lobby = CreateButton(prt, "로비로",   24, new Vector2( 130, -150), new Vector2(220, 60));
-            again.onClick.AddListener(() => OnRestart?.Invoke());
+            var retry = CreateButton(prt, "다시 하기", 24,
+                new Vector2(-170, -92), new Vector2(220, 62), new Color(0.35f, 0.52f, 0.28f));
+            var backToList = CreateButton(prt, "목록으로", 24,
+                new Vector2(95, -92), new Vector2(220, 62), _accent);
+            var lobby = CreateButton(prt, "로비로", 24,
+                new Vector2(0, -182), new Vector2(220, 58), new Color(0.34f, 0.38f, 0.40f));
+
+            retry.onClick.AddListener(() => OnRestart?.Invoke());
+            backToList.onClick.AddListener(() => OnBackToSelect?.Invoke());
             lobby.onClick.AddListener(() => OnBack?.Invoke());
-            return p;
+
+            return panel;
         }
 
-        // ── 헬퍼 ─────────────────────────────────────────
-        static void FillParent(GameObject panel)
+        static string Safe(string value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
+
+        static string FormatCandidateLabel(StonePosition stone, int index)
         {
-            var rt = panel.GetComponent<RectTransform>();
-            rt.anchorMin = Vector2.zero; rt.anchorMax = Vector2.one;
-            rt.offsetMin = Vector2.zero; rt.offsetMax = Vector2.zero;
+            if (stone == null)
+                return $"후보 {index + 1}";
+
+            return $"후보 {index + 1}  ({stone.row + 1}, {stone.col + 1})";
         }
 
-        GameObject CreatePanel(RectTransform parent, string name, Color bg)
+        GameObject CreatePanel(RectTransform parent, string name, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Image));
             go.transform.SetParent(parent, false);
-            go.GetComponent<Image>().color = bg;
+            go.GetComponent<Image>().color = color;
             return go;
         }
 
-        Text CreateText(Transform parent, string name, string text,
-            int fontSize, FontStyle style, Vector2 pos, Vector2 size, Color color)
+        GameObject CreatePanel(RectTransform parent, string name, Color color, Vector2 anchoredPos, Vector2 size)
+        {
+            var go = CreatePanel(parent, name, color);
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
+            return go;
+        }
+
+        Text CreateText(RectTransform parent, string name, string text, int fontSize, FontStyle style,
+            Vector2 anchoredPos, Vector2 size, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchoredPosition = pos; rt.sizeDelta = size;
-            var t = go.GetComponent<Text>();
-            t.text = text; t.fontSize = fontSize; t.fontStyle = style; t.color = color;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
-            t.alignment = TextAnchor.MiddleCenter;
-            t.horizontalOverflow = HorizontalWrapMode.Wrap;
-            t.verticalOverflow   = VerticalWrapMode.Truncate;
-            return t;
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
+
+            var label = go.GetComponent<Text>();
+            label.text = text;
+            label.font = CreateUIFont(fontSize);
+            label.fontSize = fontSize;
+            label.fontStyle = style;
+            label.alignment = TextAnchor.MiddleCenter;
+            label.color = color;
+            label.horizontalOverflow = HorizontalWrapMode.Wrap;
+            label.verticalOverflow = VerticalWrapMode.Overflow;
+            return label;
         }
 
-        Button CreateButton(Transform parent, string label, int fontSize, Vector2 pos, Vector2 size)
+        Button CreateButton(RectTransform parent, string title, int fontSize, Vector2 anchoredPos, Vector2 size, Color? fill = null)
         {
-            var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
+            var go = new GameObject(title, typeof(RectTransform), typeof(Image), typeof(Button));
             go.transform.SetParent(parent, false);
             var rt = go.GetComponent<RectTransform>();
-            rt.anchoredPosition = pos; rt.sizeDelta = size;
-            go.GetComponent<Image>().color = new Color(0.25f, 0.25f, 0.35f);
+            rt.anchorMin = rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.pivot = new Vector2(0.5f, 0.5f);
+            rt.anchoredPosition = anchoredPos;
+            rt.sizeDelta = size;
 
-            var textGO = new GameObject("Text", typeof(RectTransform), typeof(Text));
-            textGO.transform.SetParent(go.transform, false);
-            var trt = textGO.GetComponent<RectTransform>();
-            trt.anchorMin = Vector2.zero; trt.anchorMax = Vector2.one;
-            trt.offsetMin = Vector2.zero; trt.offsetMax = Vector2.zero;
-            var t = textGO.GetComponent<Text>();
-            t.text = label; t.fontSize = fontSize; t.fontStyle = FontStyle.Bold; t.color = Color.white;
-            t.font = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
-            t.alignment = TextAnchor.MiddleCenter;
-            return go.GetComponent<Button>();
+            var img = go.GetComponent<Image>();
+            img.color = fill ?? _accent;
+
+            var btn = go.GetComponent<Button>();
+            var colors = btn.colors;
+            colors.normalColor = img.color;
+            colors.highlightedColor = img.color * 1.08f;
+            colors.pressedColor = img.color * 0.92f;
+            colors.selectedColor = colors.highlightedColor;
+            colors.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.9f);
+            btn.colors = colors;
+            if (btn.GetComponent<XRButtonHoverFeedback>() == null)
+                btn.gameObject.AddComponent<XRButtonHoverFeedback>();
+
+            CreateText(rt, "Label", title, fontSize, FontStyle.Bold, Vector2.zero, size - new Vector2(18, 12), Color.white);
+            return btn;
+        }
+
+        static Font CreateUIFont(int fontSize)
+        {
+            string[] fontNames =
+            {
+                "Malgun Gothic",
+                "Noto Sans CJK KR",
+                "Noto Sans KR",
+                "Droid Sans Fallback",
+                "sans-serif"
+            };
+
+            return Font.CreateDynamicFontFromOSFont(fontNames, fontSize);
+        }
+
+        static void Stretch(GameObject go)
+        {
+            var rt = go.GetComponent<RectTransform>();
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = Vector2.zero;
+            rt.offsetMax = Vector2.zero;
         }
     }
 }

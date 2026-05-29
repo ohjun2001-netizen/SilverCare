@@ -99,10 +99,9 @@ namespace Baduk
         static void SetupDeskBoard(Transform boardObj, float cx, float cy)
         {
             Camera cam = Camera.main;
-            bool isReplayStyle = SceneManager.GetActiveScene().name is "BadukReplay" or "BadukPrediction";
-            float boardSizeTarget = isReplayStyle ? 0.48f : 0.92f;
-            float boardDistance = isReplayStyle ? 0.52f : 0.20f;
-            float tableHeightOffset = isReplayStyle ? 0.32f : 0.62f;
+            float boardSizeTarget = 0.92f;
+            float boardDistance = 0.20f;
+            float tableHeightOffset = 0.62f;
             BadukDeskLayoutUtility.ApplyDeskLayout(
                 boardObj,
                 cx,
@@ -143,10 +142,9 @@ namespace Baduk
         static void SetupDeskBoard(Transform boardObj, float cx, float cy)
         {
             Camera cam = Camera.main;
-            bool isReplayStyle = SceneManager.GetActiveScene().name is "BadukReplay" or "BadukPrediction";
-            float boardSizeTarget = isReplayStyle ? 0.48f : 0.92f;
-            float boardDistance = isReplayStyle ? 0.52f : 0.20f;
-            float tableHeightOffset = isReplayStyle ? 0.32f : 0.62f;
+            float boardSizeTarget = 0.92f;
+            float boardDistance = 0.20f;
+            float tableHeightOffset = 0.62f;
             BadukDeskLayoutUtility.ApplyDeskLayout(
                 boardObj,
                 cx,
