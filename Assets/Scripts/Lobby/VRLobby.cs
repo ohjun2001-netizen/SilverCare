@@ -43,6 +43,7 @@ public class VRLobby : MonoBehaviour
         BuildUI();
         PlaceCanvas();
         BuildLobbyEnvironment();
+        StartCoroutine(RefreshInitialLayout());
         StartCoroutine(UpdateInfoTexts());
     }
 
@@ -77,6 +78,19 @@ public class VRLobby : MonoBehaviour
         pos.y = 1.48f;
         rt.position = pos;
         rt.rotation = Quaternion.LookRotation(forward, Vector3.up);
+    }
+
+    IEnumerator RefreshInitialLayout()
+    {
+        for (int i = 0; i < 12; i++)
+        {
+            yield return null;
+            PlaceCanvas();
+        }
+
+        yield return new WaitForSeconds(0.2f);
+        PlaceCanvas();
+        BuildLobbyEnvironment();
     }
 
     void BuildLobbyEnvironment()
@@ -303,6 +317,8 @@ public class VRLobby : MonoBehaviour
         colors.pressedColor = Color.Lerp(color, Color.black, 0.18f);
         colors.selectedColor = colors.highlightedColor;
         btn.colors = colors;
+        if (btn.GetComponent<XRButtonHoverFeedback>() == null)
+            btn.gameObject.AddComponent<XRButtonHoverFeedback>();
         return btn;
     }
 

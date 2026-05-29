@@ -15,7 +15,6 @@ namespace Baduk.Prediction
 
         KifuLoader _loader;
         KifuReplayManager _replay;
-        NpcAvatarSpawner _avatars;
         PredictionVRUI _ui;
         BadukVRBoardSetup _vrBoardSetup;
 
@@ -38,7 +37,6 @@ namespace Baduk.Prediction
         {
             _loader = GetComponent<KifuLoader>();
             _replay = GetComponent<KifuReplayManager>();
-            _avatars = GetComponent<NpcAvatarSpawner>();
             _ui = GetComponent<PredictionVRUI>();
             _vrBoardSetup = GetComponent<BadukVRBoardSetup>();
 
@@ -141,18 +139,24 @@ namespace Baduk.Prediction
                 board.transform,
                 cx,
                 cy,
-                0.75f,
-                0.65f,
-                0.35f,
+                0.92f,
+                0.20f,
+                0.62f,
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
                 cam,
                 out Vector3 boardCenter,
                 out float tableY);
 
             float scale = board.transform.localScale.x;
-            BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, board.transform.rotation);
+            BadukRoomEnvironment.Spawn(
+                boardCenter,
+                cx * scale,
+                cy * scale,
+                tableY,
+                board.transform.rotation,
+                true,
+                BadukRoomEnvironment.SceneStyle.Practice);
             _vrBoardSetup?.AttachInteractables();
-            _avatars?.Spawn(board.transform);
         }
 
         void HandleMoveAdvanced(int cur, int total)
@@ -226,8 +230,9 @@ namespace Baduk.Prediction
         void HandleBackToSelect()
         {
             _replay.Pause();
+            GetComponent<NpcAvatarSpawner>()?.Despawn();
             BadukRoomEnvironment.Cleanup();
-            _avatars?.Despawn();
+            SelectionBackdropUtility.ClearAllBackdrops();
 
             var board = GetComponent<BadukBoard>();
             if (board != null)

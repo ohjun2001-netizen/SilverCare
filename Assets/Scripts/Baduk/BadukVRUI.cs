@@ -20,10 +20,10 @@ namespace Baduk
         [Header("UI Position")]
         [SerializeField] Vector3 panelOffset = new(0f, 1.65f, 0f);
 
-        readonly Color _panel = new(0.96f, 0.94f, 0.88f, 0.98f);
-        readonly Color _ink = new(0.10f, 0.13f, 0.16f);
-        readonly Color _muted = new(0.36f, 0.40f, 0.44f);
-        readonly Color _accent = new(0.08f, 0.38f, 0.42f);
+        readonly Color _panel = new(0.96f, 0.93f, 0.84f, 0.97f);
+        readonly Color _ink = new(0.06f, 0.13f, 0.22f);
+        readonly Color _muted = new(0.28f, 0.34f, 0.32f);
+        readonly Color _accent = new(0.07f, 0.30f, 0.24f);
 
         Canvas _canvas;
         GameObject _difficultyPanel;
@@ -46,9 +46,11 @@ namespace Baduk
             EnsureBuilt();
             EnsureCanvasPlacement();
             HidePlacementConfirm();
-            SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "BadukDifficulty");
+            BadukRoomEnvironment.Cleanup();
+            SelectionBackdropUtility.ClearAllBackdrops();
             _billboard.anchorToBoard = false;   // 난이도 선택은 보드가 없으니 카메라 정면
-            _billboard.RequestReposition();
+            _billboard.ForceReposition();
+            SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "BadukDifficulty");
             _difficultyPanel.SetActive(true);
             _gamePanel.SetActive(false);
         }
@@ -173,8 +175,8 @@ namespace Baduk
 
             _canvas.worldCamera = cam;
             cam.clearFlags = CameraClearFlags.SolidColor;
-            cam.backgroundColor = new Color(0.78f, 0.88f, 0.92f);
-            RenderSettings.ambientLight = new Color(0.64f, 0.58f, 0.48f);
+            cam.backgroundColor = new Color(0.80f, 0.91f, 0.95f);
+            RenderSettings.ambientLight = new Color(0.76f, 0.73f, 0.62f);
             // 위치/회전은 BadukPanelBillboard가 매 프레임 카메라 기준으로 정렬한다.
             return true;
         }
@@ -210,11 +212,17 @@ namespace Baduk
 
         GameObject BuildDifficultyPanel(RectTransform parent)
         {
+            return BuildDifficultyPanelLegacy(parent);
+        }
+
+        GameObject BuildDifficultyPanelLegacy(RectTransform parent)
+        {
             var panel = CreatePanel(parent, "DifficultyPanel", _panel);
             Stretch(panel);
+            AddOutline(panel, new Color(0.55f, 0.49f, 0.35f, 0.42f), new Vector2(2f, -2f));
             var prt = panel.GetComponent<RectTransform>();
 
-            CreatePanel(prt, "Accent", _accent, new Vector2(0, 240), new Vector2(840, 6));
+            CreatePanel(prt, "Accent", new Color(0.08f, 0.41f, 0.33f), new Vector2(0, 240), new Vector2(840, 6));
             CreateText(prt, "Title", "바둑 사활문제", 42, FontStyle.Bold,
                 new Vector2(0, 190), new Vector2(820, 60), _accent);
             CreateText(prt, "Sub", "난이도를 고르고 바둑판에서 좋은 자리를 찾아보세요.", 24, FontStyle.Normal,
@@ -234,12 +242,12 @@ namespace Baduk
 
         void MakeDifficultyButton(RectTransform parent, int difficulty, string title, string desc, Vector2 pos)
         {
-            var btn = CreateButton(parent, "", 24, pos, new Vector2(400, 94), _accent);
+            var btn = CreateButton(parent, "", 24, pos, new Vector2(400, 94), new Color(0.06f, 0.25f, 0.30f));
             var rt = btn.GetComponent<RectTransform>();
             CreateText(rt, "Title", title, 30, FontStyle.Bold,
                 new Vector2(0, 18), new Vector2(360, 38), Color.white);
             CreateText(rt, "Desc", desc, 19, FontStyle.Normal,
-                new Vector2(0, -23), new Vector2(360, 30), new Color(0.94f, 0.98f, 0.96f));
+                new Vector2(0, -23), new Vector2(360, 30), new Color(0.92f, 0.98f, 0.91f));
             btn.onClick.AddListener(() => OnDifficultySelected?.Invoke(difficulty));
         }
 
@@ -371,11 +379,28 @@ namespace Baduk
             var btn = go.GetComponent<Button>();
             var colors = btn.colors;
             colors.normalColor = color;
-            colors.highlightedColor = Color.Lerp(color, Color.white, 0.16f);
+            colors.highlightedColor = Color.Lerp(color, new Color(0.84f, 0.93f, 0.56f), 0.34f);
             colors.pressedColor = Color.Lerp(color, Color.black, 0.20f);
             colors.selectedColor = colors.highlightedColor;
             btn.colors = colors;
+            AddOutline(go, new Color(0.92f, 0.86f, 0.62f, 0.55f), new Vector2(2f, -2f));
+            if (btn.GetComponent<XRButtonHoverFeedback>() == null)
+                btn.gameObject.AddComponent<XRButtonHoverFeedback>();
             return btn;
+        }
+
+        static void AddOutline(GameObject go, Color color, Vector2 distance)
+        {
+            if (go == null)
+                return;
+
+            var outline = go.GetComponent<Outline>();
+            if (outline == null)
+                outline = go.AddComponent<Outline>();
+
+            outline.effectColor = color;
+            outline.effectDistance = distance;
+            outline.useGraphicAlpha = true;
         }
 
         static void Stretch(GameObject go)

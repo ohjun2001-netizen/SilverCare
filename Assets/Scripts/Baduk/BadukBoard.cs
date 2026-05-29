@@ -27,10 +27,60 @@ namespace Baduk
 
         Material _matBlack, _matWhite, _matBoard, _matLine;
 
+        AudioSource        _clackSource;
+        static AudioClip   _clackClip;
+
         void EnsureMaterials()
         {
             if (_matBlack != null) return;
             BuildMaterials();
+        }
+
+        // 돌 놓는 "탁" 소리 — 에셋/인스펙터 연결 없이 코드로 생성
+        void EnsureClackAudio()
+        {
+            if (_clackSource != null) return;
+            if (_clackClip == null) _clackClip = BuildClackClip();
+
+            // 보드 transform을 건드리지 않도록 전용 자식 오브젝트에 부착
+            var go = new GameObject("ClackAudio");
+            go.transform.SetParent(transform, false);
+            _clackSource = go.AddComponent<AudioSource>();
+            _clackSource.clip          = _clackClip;
+            _clackSource.playOnAwake   = false;
+            _clackSource.volume        = 1f;
+            _clackSource.spatialBlend  = 1f;      // 3D — 돌 위치에서 들림 (VR 대응)
+            _clackSource.minDistance   = 2.5f;    // 가까이서 충분히 크게
+            _clackSource.maxDistance   = 18f;
+            _clackSource.dopplerLevel  = 0f;
+        }
+
+        /// <summary>나무 바둑판에 돌 놓는 "탁" 소리 합성 (짧은 트랜지언트 + 우디 레저넌스)</summary>
+        static AudioClip BuildClackClip()
+        {
+            const int   rate     = 44100;
+            const float duration = 0.10f;
+            int   samples = (int)(rate * duration);
+            var   data    = new float[samples];
+            var   rng     = new System.Random(7);
+
+            // 나무 + 돌 공명 주파수
+            const float f1 = 1100f, f2 = 1800f, f3 = 2600f;
+            for (int i = 0; i < samples; i++)
+            {
+                float t   = (float)i / rate;
+                float env = Mathf.Exp(-t * 55f);                                   // 전체 감쇠
+                float click = ((float)rng.NextDouble() * 2f - 1f)                  // 초기 클릭(노이즈 버스트)
+                            * Mathf.Exp(-t * 450f) * 0.6f;
+                float body = (Mathf.Sin(2f * Mathf.PI * f1 * t) * 0.5f
+                            + Mathf.Sin(2f * Mathf.PI * f2 * t) * 0.3f
+                            + Mathf.Sin(2f * Mathf.PI * f3 * t) * 0.2f) * env;
+                data[i] = Mathf.Clamp(click + body, -1f, 1f) * 0.92f;
+            }
+
+            var clip = AudioClip.Create("BadukClack", samples, 1, rate, false);
+            clip.SetData(data, 0);
+            return clip;
         }
 
         // ── 공개 메서드 ──────────────────────────────────
@@ -55,6 +105,10 @@ namespace Baduk
         {
             _lastStone = SpawnStone(row, col, type == StoneType.Black);
             _playerStones.Add(_lastStone);
+
+            EnsureClackAudio();
+            _clackSource.transform.localPosition = GridToWorld(row, col);  // 돌 위치에서 재생
+            _clackSource.PlayOneShot(_clackClip, 1f);
             return true;
         }
 

@@ -186,6 +186,10 @@ namespace Baduk
             float y = Screen.height - btnH - 18;
             float x = 28;
 
+            // 확인창이 떠 있는 동안에는 하단 버튼이 함께 눌리지 않도록 클릭을 막는다.
+            bool prevEnabled = GUI.enabled;
+            GUI.enabled = !_showPlacementConfirm;
+
             if (_answered && GUI.Button(new Rect(x, y, btnW, btnH), "다시 풀기", _button))
                 OnRetry?.Invoke();
 
@@ -194,26 +198,28 @@ namespace Baduk
             if (GUI.Button(new Rect(x + (btnW + gap), y, btnW, btnH), "힌트", _button)) OnHint?.Invoke();
             if (GUI.Button(new Rect(x + (btnW + gap) * 2, y, btnW, btnH), "다음", _button)) OnNext?.Invoke();
             if (GUI.Button(new Rect(Screen.width - 220, y, 192, btnH), "난이도 선택", _button)) OnBack?.Invoke();
+
+            GUI.enabled = prevEnabled;
         }
 
         void DrawPlacementConfirm()
         {
             DrawRect(0, 0, Screen.width, Screen.height, new Color(0f, 0f, 0f, 0.42f));
 
-            float panelW = Mathf.Min(520, Screen.width - 120);
-            float panelH = 220;
+            float panelW = Mathf.Min(560, Screen.width - 80);
+            float panelH = 200;
             float x = (Screen.width - panelW) * 0.5f;
-            float y = (Screen.height - panelH) * 0.5f;
+            float y = 16f;   // 화면 상단(설명창 위)에 고정 — 하단 버튼과 겹치지 않게
             DrawRect(x, y, panelW, panelH, new Color(0.12f, 0.14f, 0.18f, 0.96f));
-            DrawRect(x + 24, y + 24, panelW - 48, 4, new Color(0.90f, 0.72f, 0.22f));
+            DrawRect(x + 24, y + 20, panelW - 48, 4, new Color(0.90f, 0.72f, 0.22f));
 
-            GUI.Label(new Rect(x + 30, y + 46, panelW - 60, 60), _confirmMessage, _title);
-            GUI.Label(new Rect(x + 30, y + 104, panelW - 60, 38), "확인을 누르면 착수하고, 다시 선택을 누르면 취소됩니다.", _confirmBody);
+            GUI.Label(new Rect(x + 30, y + 38, panelW - 60, 52), _confirmMessage, _title);
+            GUI.Label(new Rect(x + 30, y + 92, panelW - 60, 34), "확인을 누르면 착수하고, 다시 선택을 누르면 취소됩니다.", _confirmBody);
 
-            if (GUI.Button(new Rect(x + 72, y + 156, 160, 46), "확인", _button))
+            if (GUI.Button(new Rect(x + 72, y + 138, 160, 48), "확인", _button))
                 OnConfirmPlacement?.Invoke();
 
-            if (GUI.Button(new Rect(x + panelW - 232, y + 156, 160, 46), "다시 선택", _button))
+            if (GUI.Button(new Rect(x + panelW - 232, y + 138, 160, 48), "다시 선택", _button))
                 OnCancelPlacement?.Invoke();
         }
 

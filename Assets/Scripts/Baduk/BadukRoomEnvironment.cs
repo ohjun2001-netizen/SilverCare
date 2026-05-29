@@ -1,17 +1,24 @@
 // Assets/Scripts/Baduk/BadukRoomEnvironment.cs
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Baduk
 {
     public static class BadukRoomEnvironment
     {
+        public enum SceneStyle
+        {
+            Practice,
+            Replay
+        }
+
         const string RootName = "BadukRoom";
         const string InteriorResourceRoot = "BadukInterior";
         const string ParkResourceRoot = "BadukPark";
         const string NpcResourceRoot = "BadukNPC";
 
         public static void Spawn(Vector3 boardCenter, float halfW, float halfD,
-            float tableY, Quaternion roomRot, bool adjustCamera = true)
+            float tableY, Quaternion roomRot, bool adjustCamera = true, SceneStyle style = SceneStyle.Practice)
         {
             Cleanup();
 
@@ -22,8 +29,8 @@ namespace Baduk
             Vector3 forward = roomRot * Vector3.forward;
             float boardRadius = Mathf.Max(halfW, halfD);
 
-            ConfigureOutdoorMood();
-            SpawnParkBackground(root, boardCenter, halfW, halfD, tableY, roomRot, right, forward);
+            ConfigureOutdoorMood(style);
+            SpawnParkBackground(root, boardCenter, halfW, halfD, tableY, roomRot, right, forward, style);
             SpawnDarkTable(root, boardCenter, halfW, halfD, tableY, roomRot);
             SpawnStoneBowl(root, boardCenter + right * (boardRadius + 0.24f) + forward * 0.02f, tableY, true);
             SpawnStoneBowl(root, boardCenter - right * (boardRadius + 0.24f) + forward * 0.02f, tableY, false);
@@ -39,14 +46,43 @@ namespace Baduk
 
         public static void Cleanup()
         {
-            var room = GameObject.Find(RootName);
-            if (room != null) Object.Destroy(room);
+            var sceneObjects = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            for (int i = 0; i < sceneObjects.Length; i++)
+            {
+                var go = sceneObjects[i].gameObject;
+                GameObject root = go.transform.root.gameObject;
+                if (root.name != RootName && !IsLooseBadukEnvironmentObject(go) && !IsLooseBadukEnvironmentObject(root))
+                    continue;
+
+                root.SetActive(false);
+                Object.Destroy(root);
+            }
 
             var table = GameObject.Find("BadukTable");
-            if (table != null) Object.Destroy(table);
+            if (table != null)
+            {
+                table.SetActive(false);
+                Object.Destroy(table);
+            }
 
             RenderSettings.ambientLight = new Color(0.2f, 0.2f, 0.2f);
             RenderSettings.fog = false;
+        }
+
+        static bool IsLooseBadukEnvironmentObject(GameObject go)
+        {
+            if (go == null)
+                return false;
+
+            string name = go.name;
+            return name.StartsWith("BlackAvatar") ||
+                   name.StartsWith("WhiteAvatar") ||
+                   name.StartsWith("Spectator") ||
+                   name.StartsWith("SpectatorNPC") ||
+                   name.StartsWith("SelectionSpectator") ||
+                   name.StartsWith("NpcAvatar") ||
+                   name.StartsWith("SpectatorComment") ||
+                   name.StartsWith("SelectionSpectatorSpeech");
         }
 
         static void AdjustCamera(Vector3 boardCenter, float halfD, float tableY, Vector3 forward)
@@ -62,23 +98,82 @@ namespace Baduk
             cam.fieldOfView = 58f;
         }
 
-        static void ConfigureOutdoorMood()
+        static void ConfigureOutdoorMood(SceneStyle style)
         {
             RenderSettings.fog = true;
             RenderSettings.fogMode = FogMode.Linear;
-            RenderSettings.fogColor = new Color(0.79f, 0.84f, 0.77f);
-            RenderSettings.fogStartDistance = 4f;
-            RenderSettings.fogEndDistance = 18f;
+            if (style == SceneStyle.Replay)
+            {
+                RenderSettings.fogColor = new Color(0.80f, 0.86f, 0.82f);
+                RenderSettings.fogStartDistance = 8f;
+                RenderSettings.fogEndDistance = 28f;
+            }
+            else
+            {
+                RenderSettings.fogColor = new Color(0.79f, 0.84f, 0.77f);
+                RenderSettings.fogStartDistance = 4f;
+                RenderSettings.fogEndDistance = 18f;
+            }
         }
 
         static void SpawnParkBackground(GameObject root, Vector3 center, float halfW, float halfD, float tableY,
-            Quaternion rot, Vector3 right, Vector3 forward)
+            Quaternion rot, Vector3 right, Vector3 forward, SceneStyle style)
         {
             SpawnGround(root, center);
-            SpawnBenches(root, center, right, forward, tableY);
-            SpawnSpectators(root, center, right, forward);
+            if (style == SceneStyle.Practice)
+            {
+                SpawnBenches(root, center, right, forward, tableY);
+                SpawnSpectators(root, center, right, forward);
+            }
+            else
+            {
+                SpawnBenches(root, center, right, forward, tableY);
+            }
             SpawnTreeLine(root, center, right, forward);
             SpawnBushLine(root, center, right, forward);
+        }
+
+        static void SpawnSpectators(GameObject root, Vector3 center, Vector3 right, Vector3 forward)
+        {
+            Vector3 boardInterest = center + forward * 0.10f;
+            Vector3[] positions =
+            {
+                center - right * 1.18f + forward * 1.38f,
+                center + right * 1.20f + forward * 1.42f,
+                center - right * 1.85f + forward * 2.05f,
+                center + right * 1.92f + forward * 2.05f,
+                center - right * 0.45f + forward * 2.42f,
+                center + right * 0.52f + forward * 2.48f,
+                center - right * 2.35f + forward * 1.05f
+            };
+
+            float[] heights = { 0.98f, 1.02f, 0.95f, 1.04f, 0.97f, 1.00f, 0.96f };
+            Color[] clothes =
+            {
+                new Color(0.24f, 0.31f, 0.42f),
+                new Color(0.38f, 0.28f, 0.22f),
+                new Color(0.29f, 0.33f, 0.27f),
+                new Color(0.42f, 0.35f, 0.28f),
+                new Color(0.22f, 0.24f, 0.29f),
+                new Color(0.52f, 0.44f, 0.33f),
+                new Color(0.34f, 0.41f, 0.50f)
+            };
+            for (int i = 0; i < positions.Length; i++)
+            {
+                Vector3 lookTarget = boardInterest + ((i % 2 == 0) ? right * 0.08f : -right * 0.08f);
+                Quaternion rot = Quaternion.LookRotation((lookTarget - positions[i]).normalized, Vector3.up);
+                float wanderRadius = (i < 2) ? 0.16f : 0.22f;
+                float moveSpeed = 0.010f + (i * 0.0015f);
+                GameObject spectator = SpawnSpectatorNpc(root, positions[i], rot, boardInterest, wanderRadius, moveSpeed, heights[i]);
+                if (spectator == null)
+                    spectator = SpawnSpectatorFigure(root, positions[i], rot, heights[i], clothes[i], wanderRadius, moveSpeed);
+
+                if (spectator != null)
+                {
+                    var gesture = spectator.AddComponent<BadukSpectatorGesture>();
+                    gesture.Initialize(i * 0.73f);
+                }
+            }
         }
 
         static void SpawnDarkTable(GameObject root, Vector3 center, float halfW, float halfD, float tableY, Quaternion roomRot)
@@ -163,38 +258,6 @@ namespace Baduk
                 SpawnBenchFallback(root, benchPosition, benchRotation);
         }
 
-        static void SpawnSpectators(GameObject root, Vector3 center, Vector3 right, Vector3 forward)
-        {
-            Vector3 boardInterest = center + forward * 0.10f;
-            Vector3[] positions =
-            {
-                center - right * 1.65f + forward * 1.75f,
-                center + right * 1.72f + forward * 1.82f,
-                center - right * 2.55f + forward * 2.55f,
-                center + right * 2.40f + forward * 2.62f,
-                center - right * 0.75f + forward * 2.95f
-            };
-
-            float[] heights = { 0.98f, 1.02f, 0.95f, 1.04f, 0.97f };
-            Color[] clothes =
-            {
-                new Color(0.24f, 0.31f, 0.42f),
-                new Color(0.38f, 0.28f, 0.22f),
-                new Color(0.29f, 0.33f, 0.27f),
-                new Color(0.42f, 0.35f, 0.28f),
-                new Color(0.22f, 0.24f, 0.29f)
-            };
-
-            for (int i = 0; i < positions.Length; i++)
-            {
-                Vector3 lookTarget = boardInterest + ((i % 2 == 0) ? right * 0.08f : -right * 0.08f);
-                Quaternion rot = Quaternion.LookRotation((lookTarget - positions[i]).normalized, Vector3.up);
-                float wanderRadius = (i < 2) ? 0.14f : 0.18f;
-                float moveSpeed = 0.010f + (i * 0.0010f);
-                if (!SpawnSpectatorNpc(root, positions[i], rot, boardInterest, wanderRadius, moveSpeed, heights[i]))
-                    SpawnSpectatorFigure(root, positions[i], rot, heights[i], clothes[i], wanderRadius, moveSpeed);
-            }
-        }
 
         static void SpawnTreeLine(GameObject root, Vector3 center, Vector3 right, Vector3 forward)
         {
@@ -299,11 +362,11 @@ namespace Baduk
             return true;
         }
 
-        static bool SpawnSpectatorNpc(GameObject root, Vector3 position, Quaternion rotation, Vector3 interestPoint,
+        static GameObject SpawnSpectatorNpc(GameObject root, Vector3 position, Quaternion rotation, Vector3 interestPoint,
             float wanderRadius, float moveSpeed, float heightScale)
         {
             var prefab = Resources.Load<GameObject>($"{NpcResourceRoot}/SimpleHuman");
-            if (prefab == null) return false;
+            if (prefab == null) return null;
 
             var instance = Object.Instantiate(prefab, position, rotation, root.transform);
             instance.name = "SpectatorNPC";
@@ -318,7 +381,7 @@ namespace Baduk
 
             var walker = instance.AddComponent<BadukAmbientWalker>();
             walker.Initialize(instance.transform.position, interestPoint, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f, 180f);
-            return true;
+            return instance;
         }
 
         static void SnapPrefabToGround(GameObject instance)
@@ -352,7 +415,7 @@ namespace Baduk
             back.transform.rotation = rot;
         }
 
-        static void SpawnSpectatorFigure(GameObject root, Vector3 center, Quaternion rot, float height, Color clothColor,
+        static GameObject SpawnSpectatorFigure(GameObject root, Vector3 center, Quaternion rot, float height, Color clothColor,
             float wanderRadius, float moveSpeed)
         {
             var actor = new GameObject("Spectator");
@@ -375,6 +438,7 @@ namespace Baduk
                 Vector3.one * (headRadius * 2f),
                 new Color(0.80f, 0.67f, 0.56f));
             head.transform.rotation = rot;
+            AddFallbackFace(actor, center, rot, legHeight + bodyHeight + headRadius * 0.9f, headRadius);
 
             Vector3 right = rot * Vector3.right;
             Vector3 forward = rot * Vector3.forward;
@@ -409,6 +473,39 @@ namespace Baduk
 
             var walker = actor.AddComponent<BadukAmbientWalker>();
             walker.Initialize(center, center + rot * Vector3.forward * 1.2f, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f);
+            return actor;
+        }
+
+        static void AddFallbackFace(GameObject actor, Vector3 center, Quaternion rot, float headY, float headRadius)
+        {
+            Vector3 right = rot * Vector3.right;
+            Vector3 up = Vector3.up;
+            Vector3 front = rot * Vector3.forward;
+
+            Prim(actor, "FaceLeftEye", PrimitiveType.Sphere,
+                center + up * (headY + headRadius * 0.16f) + front * (headRadius * 1.45f) - right * (headRadius * 0.36f),
+                Vector3.one * (headRadius * 0.13f), new Color(0.08f, 0.07f, 0.06f));
+            Prim(actor, "FaceRightEye", PrimitiveType.Sphere,
+                center + up * (headY + headRadius * 0.16f) + front * (headRadius * 1.45f) + right * (headRadius * 0.36f),
+                Vector3.one * (headRadius * 0.13f), new Color(0.08f, 0.07f, 0.06f));
+
+            var mouth = Prim(actor, "FaceSmile", PrimitiveType.Cube,
+                center + up * (headY - headRadius * 0.28f) + front * (headRadius * 1.48f),
+                new Vector3(headRadius * 0.62f, headRadius * 0.055f, headRadius * 0.04f),
+                new Color(0.44f, 0.12f, 0.10f));
+            mouth.transform.rotation = rot;
+
+            var browL = Prim(actor, "FaceLeftBrow", PrimitiveType.Cube,
+                center + up * (headY + headRadius * 0.40f) + front * (headRadius * 1.50f) - right * (headRadius * 0.36f),
+                new Vector3(headRadius * 0.34f, headRadius * 0.04f, headRadius * 0.035f),
+                new Color(0.18f, 0.16f, 0.14f));
+            browL.transform.rotation = rot;
+
+            var browR = Prim(actor, "FaceRightBrow", PrimitiveType.Cube,
+                center + up * (headY + headRadius * 0.40f) + front * (headRadius * 1.50f) + right * (headRadius * 0.36f),
+                new Vector3(headRadius * 0.34f, headRadius * 0.04f, headRadius * 0.035f),
+                new Color(0.18f, 0.16f, 0.14f));
+            browR.transform.rotation = rot;
         }
 
         static void SpawnTreeFallback(GameObject root, Vector3 center, float scale)
