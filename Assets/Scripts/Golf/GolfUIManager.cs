@@ -1,8 +1,9 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using SilverCare.Common;
 using UnityEngine;
 using UnityEngine.UI;
-using SilverCare.Common;
 
 namespace SilverCare.Golf
 {
@@ -15,19 +16,25 @@ namespace SilverCare.Golf
         Text _courseText;
         Text _strokeText;
         Text _resultText;
+        Text _distanceText;
+        Text _feedbackText;
+        Text _powerText;
+        Image _powerFill;
         GameObject _swingGuide;
+        Coroutine _feedbackRoutine;
 
         void Awake() => BuildCanvas();
         void Start() => PlaceCanvas();
 
         public void ShowCourseSelection(Action<int> onSelect, Action onLobby = null)
         {
+            SelectionBackdropUtility.ClearAllBackdrops();
             _selectionPanel.SetActive(true);
             _gamePanel.SetActive(false);
             _resultPanel.SetActive(false);
-            SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "GolfDifficulty");
+            // Golf는 자체 코스 프리뷰 환경을 사용 — ShowNatureBackdrop의 sky/mountain이 마젠타로 표시되므로 미호출
 
-            var buttons = _selectionPanel.GetComponentsInChildren<Button>();
+            var buttons = _selectionPanel.GetComponentsInChildren<Button>(true);
             for (int i = 0; i < buttons.Length; i++)
             {
                 buttons[i].onClick.RemoveAllListeners();
@@ -47,20 +54,41 @@ namespace SilverCare.Golf
         {
             _selectionPanel.SetActive(false);
             _gamePanel.SetActive(true);
-            SelectionBackdropUtility.ClearBackdrop("GolfDifficulty");
+            _resultPanel.SetActive(false);
+            SelectionBackdropUtility.ClearAllBackdrops();
         }
 
         public void ShowCourseInfo(int current, int total)
         {
             if (_courseText != null)
-                _courseText.text = $"코스 {current} / {total}";
+                _courseText.text = $"Course {current} / {total}";
         }
 
         public void UpdateStroke(int stroke)
         {
             if (_strokeText != null)
-                _strokeText.text = $"{stroke}타";
+                _strokeText.text = $"Stroke {stroke}";
             SetSwingUIActive(false);
+        }
+
+        public void ShowShotFeedback(float normalizedPower)
+        {
+            if (_feedbackText == null)
+                return;
+
+            string message = normalizedPower >= 0.85f ? "Nice Shot!" : "Good Swing!";
+            Color color = normalizedPower >= 0.85f ? new Color(1f, 0.92f, 0.40f) : new Color(0.82f, 0.95f, 1f);
+
+            if (_feedbackRoutine != null)
+                StopCoroutine(_feedbackRoutine);
+
+            _feedbackRoutine = StartCoroutine(PlayFeedback(message, color));
+        }
+
+        public void ShowShotDistance(float distance)
+        {
+            if (_distanceText != null)
+                _distanceText.text = $"Distance {distance:0.0}m";
         }
 
         public void SetSwingUIActive(bool on)
@@ -69,13 +97,25 @@ namespace SilverCare.Golf
                 _swingGuide.SetActive(on);
         }
 
+        public void ShowPower(float normalizedPower)
+        {
+            float clamped = Mathf.Clamp01(normalizedPower);
+            if (_powerText != null)
+                _powerText.text = $"Power {Mathf.RoundToInt(clamped * 100f)}%";
+            if (_powerFill != null)
+                _powerFill.fillAmount = clamped;
+        }
+
         public void ShowResult(int stroke, int score, Action onReselect, Action onLobby)
         {
+            _selectionPanel.SetActive(false);
             _gamePanel.SetActive(false);
             _resultPanel.SetActive(true);
-            _resultText.text = $"{stroke}타 완료\n점수: {score}점";
 
-            var buttons = _resultPanel.GetComponentsInChildren<Button>();
+            if (_resultText != null)
+                _resultText.text = $"Strokes {stroke}\nScore {score}";
+
+            var buttons = _resultPanel.GetComponentsInChildren<Button>(true);
             if (buttons.Length > 0)
             {
                 buttons[0].onClick.RemoveAllListeners();
@@ -93,6 +133,20 @@ namespace SilverCare.Golf
         {
         }
 
+        public void SetBackToSelectCallback(Action onBack)
+        {
+            var buttons = _gamePanel.GetComponentsInChildren<Button>(true);
+            foreach (var button in buttons)
+            {
+                if (button.name != "BackToSelectBtn")
+                    continue;
+
+                button.onClick.RemoveAllListeners();
+                button.onClick.AddListener(() => onBack?.Invoke());
+                break;
+            }
+        }
+
         void BuildCanvas()
         {
             var go = new GameObject("GolfUI_Canvas");
@@ -101,7 +155,7 @@ namespace SilverCare.Golf
             XRUIUtility.ConfigureWorldCanvas(go, _canvas);
 
             var rt = go.GetComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(500f, 400f);
+            rt.sizeDelta = new Vector2(520f, 420f);
             rt.localScale = Vector3.one * 0.003f;
 
             _selectionPanel = BuildSelectionPanel(go.transform);
@@ -114,96 +168,93 @@ namespace SilverCare.Golf
 
         GameObject BuildSelectionPanel(Transform parent)
         {
-            var panel = MakePanel(parent, "SelectionPanel", new Color(0.05f, 0.12f, 0.05f, 0.92f));
-
-            MakeLabel(panel.transform, "Title", new Vector2(0f, 150f), 32, Color.white, "골프 코스 선택");
+            var panel = MakePanel(parent, "SelectionPanel", new Vector2(490f, 380f), new Color(0.05f, 0.11f, 0.08f, 0.90f));
+            MakeLabel(panel.transform, "Title", new Vector2(0f, 152f), new Vector2(460f, 56f), 30, Color.white, "Golf Course Select");
 
             string[] labels =
             {
-                "1번 홀  |  직선 코스  (초급)",
-                "2번 홀  |  장애물 1개 (중급)",
-                "3번 홀  |  장애물 2개 (고급)"
+                "Course 1  |  Straight  (No obstacles)",
+                "Course 2  |  Bumper Slalom  (x3)",
+                "Course 3  |  Obstacle Run  (Windmill + x5)"
             };
-            float[] yPos = { 80f, 0f, -80f };
+
+            float[] yPos = { 84f, 4f, -76f };
             Color[] colors =
             {
-                new Color(0.2f, 0.7f, 0.3f),
-                new Color(0.8f, 0.6f, 0.1f),
-                new Color(0.8f, 0.2f, 0.2f)
+                new Color(0.22f, 0.59f, 0.30f),
+                new Color(0.72f, 0.53f, 0.14f),
+                new Color(0.72f, 0.28f, 0.22f)
             };
 
             for (int i = 0; i < 3; i++)
-            {
-                MakeButton(panel.transform, $"CourseBtn{i + 1}", new Vector2(0f, yPos[i]), new Vector2(420f, 60f), colors[i], labels[i], 22);
-            }
+                MakeButton(panel.transform, $"CourseBtn{i + 1}", new Vector2(0f, yPos[i]), new Vector2(420f, 60f), colors[i], labels[i], 20);
 
-            MakeButton(panel.transform, "LobbyBtn", new Vector2(0f, -165f), new Vector2(200f, 45f), new Color(0.35f, 0.35f, 0.35f), "뒤로 돌아가기", 20);
+            MakeButton(panel.transform, "LobbyBtn", new Vector2(0f, -165f), new Vector2(220f, 46f), new Color(0.24f, 0.28f, 0.32f), "Back To Lobby", 18);
             return panel;
         }
 
         GameObject BuildGamePanel(Transform parent)
         {
-            var panel = MakePanel(parent, "GamePanel", new Color(0f, 0f, 0f, 0.5f));
+            var panel = MakePanel(parent, "GamePanel", new Vector2(300f, 205f), new Color(0.02f, 0.04f, 0.06f, 0.18f));
+            _courseText = MakeLabel(panel.transform, "CourseText", new Vector2(0f, 76f), new Vector2(280f, 30f), 16, Color.white, "Course 1 / 3");
+            _strokeText = MakeLabel(panel.transform, "StrokeText", new Vector2(0f, 48f), new Vector2(280f, 32f), 19, new Color(1f, 0.90f, 0.38f), "Stroke 0");
+            _distanceText = MakeLabel(panel.transform, "DistanceText", new Vector2(0f, 21f), new Vector2(280f, 28f), 15, new Color(0.83f, 0.97f, 1f), "Distance 0.0m");
+            _powerText = MakeLabel(panel.transform, "PowerText", new Vector2(0f, -8f), new Vector2(280f, 24f), 13, new Color(1f, 0.93f, 0.45f), "Power 0%");
+            _powerFill = MakePowerBar(panel.transform, new Vector2(0f, -30f), new Vector2(210f, 14f));
+            _feedbackText = MakeLabel(panel.transform, "FeedbackText", new Vector2(0f, -58f), new Vector2(280f, 30f), 18, new Color(1f, 0.94f, 0.42f), string.Empty);
+            _swingGuide = MakeLabel(panel.transform, "SwingGuide", new Vector2(0f, -83f), new Vector2(290f, 22f), 11, new Color(0.94f, 0.86f, 0.54f), "Hold Space to charge, release to shoot").gameObject;
 
-            _courseText = MakeLabel(panel.transform, "CourseText", new Vector2(0f, 140f), 26, Color.white, "코스 1 / 3");
-            _strokeText = MakeLabel(panel.transform, "StrokeText", new Vector2(0f, 80f), 30, Color.yellow, "0타");
-            _swingGuide = MakeLabel(panel.transform, "SwingGuide", new Vector2(0f, 10f), 20, new Color(1f, 0.85f, 0.4f), "Space 키 / VR 컨트롤러 스윙").gameObject;
-
-            MakeButton(panel.transform, "BackToSelectBtn", new Vector2(0f, -90f), new Vector2(240f, 50f), new Color(0.3f, 0.3f, 0.3f), "코스 선택", 20);
+            MakeButton(panel.transform, "BackToSelectBtn", new Vector2(0f, -111f), new Vector2(142f, 26f), new Color(0.16f, 0.20f, 0.23f), "Course Select", 12);
             return panel;
-        }
-
-        public void SetBackToSelectCallback(Action onBack)
-        {
-            var buttons = _gamePanel.GetComponentsInChildren<Button>();
-            foreach (var button in buttons)
-            {
-                if (button.name != "BackToSelectBtn")
-                    continue;
-
-                button.onClick.RemoveAllListeners();
-                button.onClick.AddListener(() => onBack?.Invoke());
-                break;
-            }
         }
 
         GameObject BuildResultPanel(Transform parent)
         {
-            var panel = MakePanel(parent, "ResultPanel", new Color(0.05f, 0.05f, 0.15f, 0.92f));
+            var panel = MakePanel(parent, "ResultPanel", new Vector2(490f, 380f), new Color(0.06f, 0.08f, 0.15f, 0.92f));
+            MakeLabel(panel.transform, "ResultTitle", new Vector2(0f, 146f), new Vector2(460f, 56f), 28, Color.white, "Result");
+            _resultText = MakeLabel(panel.transform, "ResultText", new Vector2(0f, 68f), new Vector2(460f, 70f), 25, new Color(0.80f, 1f, 0.82f), string.Empty);
 
-            MakeLabel(panel.transform, "ResultTitle", new Vector2(0f, 140f), 28, Color.white, "결과");
-            _resultText = MakeLabel(panel.transform, "ResultText", new Vector2(0f, 60f), 26, Color.green, "");
-
-            MakeButton(panel.transform, "ReselectBtn", new Vector2(-110f, -60f), new Vector2(180f, 55f), new Color(0.2f, 0.5f, 0.9f), "다시 선택", 20);
-            MakeButton(panel.transform, "LobbyBtn", new Vector2(110f, -60f), new Vector2(180f, 55f), new Color(0.4f, 0.4f, 0.4f), "로비로", 20);
+            MakeButton(panel.transform, "ReselectBtn", new Vector2(-112f, -66f), new Vector2(180f, 54f), new Color(0.20f, 0.50f, 0.88f), "Retry", 18);
+            MakeButton(panel.transform, "LobbyBtn", new Vector2(112f, -66f), new Vector2(180f, 54f), new Color(0.35f, 0.38f, 0.42f), "Lobby", 18);
             return panel;
         }
 
         void PlaceCanvas()
         {
             Camera cam = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
-            if (cam == null) return;
+            if (cam == null)
+                return;
+
             _canvas.worldCamera = cam;
-            XRUIUtility.PlaceCanvasFacingCamera(_canvas, 2f, 0.2f);
+            XRUIUtility.PlaceCanvasFacingCamera(_canvas, 2.35f, 0.75f);
         }
 
-        static GameObject MakePanel(Transform parent, string name, Color bg)
+        IEnumerator PlayFeedback(string message, Color color)
+        {
+            _feedbackText.text = message;
+            _feedbackText.color = color;
+            yield return new WaitForSeconds(1.1f);
+            _feedbackText.text = string.Empty;
+            _feedbackRoutine = null;
+        }
+
+        static GameObject MakePanel(Transform parent, string name, Vector2 size, Color bg)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             var rt = go.AddComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(490f, 370f);
+            rt.sizeDelta = size;
             var image = go.AddComponent<Image>();
             image.color = bg;
             return go;
         }
 
-        static Text MakeLabel(Transform parent, string name, Vector2 pos, int fontSize, Color color, string text)
+        static Text MakeLabel(Transform parent, string name, Vector2 pos, Vector2 size, int fontSize, Color color, string text)
         {
             var go = new GameObject(name);
             go.transform.SetParent(parent, false);
             var rt = go.AddComponent<RectTransform>();
-            rt.sizeDelta = new Vector2(460f, 50f);
+            rt.sizeDelta = size;
             rt.anchoredPosition = pos;
             var label = go.AddComponent<Text>();
             label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
@@ -212,6 +263,31 @@ namespace SilverCare.Golf
             label.alignment = TextAnchor.MiddleCenter;
             label.text = text;
             return label;
+        }
+
+        static Image MakePowerBar(Transform parent, Vector2 pos, Vector2 size)
+        {
+            var bg = new GameObject("PowerBar");
+            bg.transform.SetParent(parent, false);
+            var bgRt = bg.AddComponent<RectTransform>();
+            bgRt.sizeDelta = size;
+            bgRt.anchoredPosition = pos;
+            var bgImage = bg.AddComponent<Image>();
+            bgImage.color = new Color(0f, 0f, 0f, 0.55f);
+
+            var fill = new GameObject("Fill");
+            fill.transform.SetParent(bg.transform, false);
+            var fillRt = fill.AddComponent<RectTransform>();
+            fillRt.anchorMin = Vector2.zero;
+            fillRt.anchorMax = Vector2.one;
+            fillRt.offsetMin = fillRt.offsetMax = Vector2.zero;
+            var fillImage = fill.AddComponent<Image>();
+            fillImage.color = new Color(1f, 0.82f, 0.16f, 0.95f);
+            fillImage.type = Image.Type.Filled;
+            fillImage.fillMethod = Image.FillMethod.Horizontal;
+            fillImage.fillOrigin = (int)Image.OriginHorizontal.Left;
+            fillImage.fillAmount = 0f;
+            return fillImage;
         }
 
         static void MakeButton(Transform parent, string name, Vector2 pos, Vector2 size, Color color, string label, int fontSize)
@@ -226,16 +302,19 @@ namespace SilverCare.Golf
             image.color = color;
 
             var button = go.AddComponent<Button>();
-            var block = new ColorBlock
+            button.colors = new ColorBlock
             {
                 normalColor = color,
-                highlightedColor = color * 1.3f,
-                pressedColor = color * 0.7f,
-                selectedColor = color,
+                highlightedColor = color * 1.25f,
+                pressedColor = color * 0.75f,
+                selectedColor = color * 1.18f,
+                disabledColor = new Color(0.4f, 0.4f, 0.4f, 0.6f),
                 colorMultiplier = 1f,
                 fadeDuration = 0.1f
             };
-            button.colors = block;
+
+            if (button.GetComponent<XRButtonHoverFeedback>() == null)
+                button.gameObject.AddComponent<XRButtonHoverFeedback>();
 
             var labelGo = new GameObject("Label");
             labelGo.transform.SetParent(go.transform, false);

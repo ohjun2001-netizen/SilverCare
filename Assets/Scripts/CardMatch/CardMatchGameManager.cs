@@ -440,7 +440,10 @@ namespace SilverCare.CardMatch
             t.fontStyle = FontStyle.Bold;
             t.alignment = TextAnchor.MiddleCenter;
             t.font      = Font.CreateDynamicFontFromOSFont("Arial", fontSize);
-            go.GetComponent<Button>().onClick.AddListener(() => onClick?.Invoke());
+            var button = go.GetComponent<Button>();
+            if (button.GetComponent<XRButtonHoverFeedback>() == null)
+                button.gameObject.AddComponent<XRButtonHoverFeedback>();
+            button.onClick.AddListener(() => onClick?.Invoke());
         }
 
         void MakeButton(Transform parent, string label, Vector2 pos, Vector2 size,

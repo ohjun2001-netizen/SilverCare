@@ -55,6 +55,7 @@ namespace Baduk
             SetClothes(random);
             SetShoes(random);
             SetGlasses(random.NextDouble() > 0.35);
+            AddFacialExpression(random);
         }
 
         void SetSkinTone(System.Random random)
@@ -95,6 +96,68 @@ namespace Baduk
             var headMesh = FindDeep("human_head_mesh");
             if (headMesh != null)
                 TintRenderer(headMesh, Color.Lerp(new Color(0.97f, 0.95f, 0.92f), new Color(0.91f, 0.88f, 0.84f), (float)random.NextDouble() * 0.35f));
+        }
+
+        void AddFacialExpression(System.Random random)
+        {
+            Transform head = FindDeep("human_head_mesh") ?? FindDeep("skin_head") ?? FindDeep("head");
+            if (head == null)
+                return;
+
+            Transform oldFace = head.Find("SilverCareFace");
+            if (oldFace != null)
+                Destroy(oldFace.gameObject);
+
+            var face = new GameObject("SilverCareFace");
+            face.transform.SetParent(head, false);
+            face.transform.localPosition = Vector3.zero;
+            face.transform.localRotation = Quaternion.identity;
+            face.transform.localScale = Vector3.one;
+
+            float smile = 0.85f + (float)random.NextDouble() * 0.18f;
+            AddFacialSet(face.transform, "Front", 1f, smile);
+            AddFacialSet(face.transform, "Back", -1f, smile * 0.92f);
+        }
+
+        static void AddFacialSet(Transform parent, string suffix, float zSign, float smile)
+        {
+            AddFacePart(parent, $"LeftEye_{suffix}", PrimitiveType.Sphere, new Vector3(-0.052f, 0.028f, 0.096f * zSign),
+                new Vector3(0.018f, 0.012f, 0.008f), new Color(0.08f, 0.07f, 0.06f));
+            AddFacePart(parent, $"RightEye_{suffix}", PrimitiveType.Sphere, new Vector3(0.052f, 0.028f, 0.096f * zSign),
+                new Vector3(0.018f, 0.012f, 0.008f), new Color(0.08f, 0.07f, 0.06f));
+            AddFacePart(parent, $"LeftBrow_{suffix}", PrimitiveType.Cube, new Vector3(-0.052f, 0.052f, 0.101f * zSign),
+                new Vector3(0.042f, 0.006f, 0.005f), new Color(0.18f, 0.16f, 0.14f));
+            AddFacePart(parent, $"RightBrow_{suffix}", PrimitiveType.Cube, new Vector3(0.052f, 0.052f, 0.101f * zSign),
+                new Vector3(0.042f, 0.006f, 0.005f), new Color(0.18f, 0.16f, 0.14f));
+            AddFacePart(parent, $"Smile_{suffix}", PrimitiveType.Cube, new Vector3(0f, -0.025f, 0.103f * zSign),
+                new Vector3(0.066f * smile, 0.008f, 0.005f), new Color(0.45f, 0.12f, 0.10f));
+            AddFacePart(parent, $"LeftCheek_{suffix}", PrimitiveType.Sphere, new Vector3(-0.079f, -0.010f, 0.093f * zSign),
+                new Vector3(0.018f, 0.010f, 0.006f), new Color(0.96f, 0.58f, 0.52f));
+            AddFacePart(parent, $"RightCheek_{suffix}", PrimitiveType.Sphere, new Vector3(0.079f, -0.010f, 0.093f * zSign),
+                new Vector3(0.018f, 0.010f, 0.006f), new Color(0.96f, 0.58f, 0.52f));
+        }
+
+        static void AddFacePart(Transform parent, string name, PrimitiveType type, Vector3 localPosition, Vector3 localScale, Color color)
+        {
+            var part = GameObject.CreatePrimitive(type);
+            part.name = name;
+            part.transform.SetParent(parent, false);
+            part.transform.localPosition = localPosition;
+            part.transform.localRotation = Quaternion.identity;
+            part.transform.localScale = localScale;
+
+            var collider = part.GetComponent<Collider>();
+            if (collider != null)
+                Destroy(collider);
+
+            var renderer = part.GetComponent<Renderer>();
+            if (renderer == null)
+                return;
+
+            var material = new Material(Shader.Find("Standard"));
+            material.color = color;
+            material.SetFloat("_Glossiness", 0.12f);
+            renderer.material = material;
         }
 
         void SetClothes(System.Random random)

@@ -714,7 +714,10 @@ namespace SilverCare.GoStop
             var text = MakeText(go.transform, "Label", label, 26, Vector2.zero, size);
             text.fontStyle = FontStyle.Bold;
 
-            go.GetComponent<Button>().onClick.AddListener(() => onClick?.Invoke());
+            var button = go.GetComponent<Button>();
+            if (button.GetComponent<XRButtonHoverFeedback>() == null)
+                button.gameObject.AddComponent<XRButtonHoverFeedback>();
+            button.onClick.AddListener(() => onClick?.Invoke());
         }
 
         void ClearCardViews()

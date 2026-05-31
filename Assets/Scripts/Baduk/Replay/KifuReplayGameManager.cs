@@ -99,18 +99,24 @@ namespace Baduk.Replay
                 board.transform,
                 cx,
                 cy,
-                0.75f,
-                0.65f,
-                0.35f,
+                0.92f,
+                0.20f,
+                0.62f,
                 UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
                 cam,
                 out Vector3 boardCenter,
                 out float tableY);
 
             float scale = board.transform.localScale.x;
-            BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, board.transform.rotation);
+            BadukRoomEnvironment.Spawn(
+                boardCenter,
+                cx * scale,
+                cy * scale,
+                tableY,
+                board.transform.rotation,
+                true,
+                BadukRoomEnvironment.SceneStyle.Practice);
             _vrBoardSetup?.AttachInteractables();
-            GetComponent<NpcAvatarSpawner>()?.Spawn(board.transform);
         }
 
         void HandleRestart()
@@ -128,6 +134,7 @@ namespace Baduk.Replay
             {
                 _replay.Pause();
                 ClearReplayEnvironment();
+                SelectionBackdropUtility.ClearAllBackdrops();
                 ResetCameraToOrigin();
                 _ui.ShowKifuSelect(_loader.AllKifus);
                 _inReplayView = false;
@@ -149,15 +156,17 @@ namespace Baduk.Replay
 
         void ClearReplayEnvironment()
         {
-            var room = GameObject.Find("BadukRoom");
-            if (room != null)
-                Destroy(room);
-
             GetComponent<NpcAvatarSpawner>()?.Despawn();
+            BadukRoomEnvironment.Cleanup();
+            SelectionBackdropUtility.ClearAllBackdrops();
 
             var board = GetComponent<BadukBoard>();
             if (board != null)
+            {
+                board.RemoveAllPlayerStones();
+                board.transform.position = new Vector3(0f, -100f, 0f);
                 board.gameObject.SetActive(false);
+            }
         }
 
         void LoadLobby()

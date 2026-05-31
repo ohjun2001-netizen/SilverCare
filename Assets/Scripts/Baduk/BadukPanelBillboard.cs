@@ -21,7 +21,15 @@ namespace Baduk
 
         public void RequestReposition() => _positioned = false;
 
-        void LateUpdate()
+        public void ForceReposition()
+        {
+            _positioned = false;
+            UpdatePlacement();
+        }
+
+        void LateUpdate() => UpdatePlacement();
+
+        void UpdatePlacement()
         {
             var cam = Camera.main;
             if (cam == null) return;

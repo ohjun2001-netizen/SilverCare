@@ -5,6 +5,8 @@ namespace Baduk
 {
     public static class BadukDeskLayoutUtility
     {
+        const float BoardLoweringOffset = 0.16f;
+
         struct DeskAnchor
         {
             public Vector3 CameraPosition;
@@ -49,7 +51,7 @@ namespace Baduk
             boardTransform.localScale = Vector3.one * scale;
             boardTransform.rotation = Quaternion.LookRotation(anchor.Forward, Vector3.up);
 
-            tableY = anchor.CameraPosition.y - tableHeightOffset;
+            tableY = anchor.CameraPosition.y - tableHeightOffset - BoardLoweringOffset;
             boardCenter = anchor.CameraPosition + anchor.Forward * boardDistance;
             boardCenter.y = tableY + 0.012f;
 
