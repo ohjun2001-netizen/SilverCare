@@ -36,6 +36,8 @@ EditorBuildSettings:
     path: Assets/Scenes/Golf.unity
     guid: ad098ef88be41114ab17ad9d874405a6
   m_configObjects:
+    Unity.XR.Oculus.Settings: {fileID: 11400000, guid: 6efd231cd7c8a2144b464d0eedcc8fe0,
+      type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 6d0089cabf88f824ca0db55aa28fc5ac,
       type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000,
