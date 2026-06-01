@@ -27,6 +27,15 @@ namespace SilverCare.GoStop
         readonly Dictionary<HwatooCard, GameObject> _cardViews = new();
         readonly Dictionary<int, Texture2D> _textureCache = new();
 
+        GameObject _environmentRoot;
+        AudioSource _sfxSource;
+        Text _opponentScoreText;
+        Text _guideText;
+
+        static readonly Color TableBrown = new Color(0.38f, 0.22f, 0.12f, 1f);
+        static readonly Color MatBrown = new Color(0.48f, 0.30f, 0.16f, 1f);
+        static readonly Color SelectTint = new Color(1f, 0.88f, 0.35f, 1f);
+
         GoStopDeck _deck;
         GoStopScoreCalculator _scorer;
 
@@ -63,6 +72,8 @@ namespace SilverCare.GoStop
             _deck.Initialize();
 
             SetupTable();
+            SetupTableEnvironment();
+            SetupAudio();
             DealCards();
             BuildGameUI();
             RefreshAllViews();
@@ -151,9 +162,13 @@ namespace SilverCare.GoStop
             _waitingForCard = false;
             _isProcessing = true;
 
+            yield return AnimatePlayedCard(selected, true);
+
             var report = PlayTurn(selected, _playerHand, _playerCaptured, _cpuCaptured, true);
             RefreshAllViews();
             SetStatus(report);
+            SpeakShort(report);
+            SpawnFloatingText(report, _tableCenter + _up * 0.9f);
             yield return new WaitForSeconds(0.75f);
 
             var score = CurrentPlayerScore(false);
@@ -191,9 +206,12 @@ namespace SilverCare.GoStop
                 yield break;
             }
 
+            yield return AnimatePlayedCard(selected, false);
+
             var report = PlayTurn(selected, _cpuHand, _cpuCaptured, _playerCaptured, false);
             RefreshAllViews();
             SetStatus("상대: " + report);
+            SpawnFloatingText("상대 " + report, _tableCenter + _up * 1.05f);
             yield return new WaitForSeconds(0.75f);
 
             var cpuScore = CurrentCpuScore(false);
@@ -438,8 +456,9 @@ namespace SilverCare.GoStop
             _goStopCanvas = CreateCanvas("고스톱 선택 Canvas");
             MakePanel(_goStopCanvas.transform, new Vector2(0, 0), new Vector2(520, 260), new Color(0, 0, 0, 0.85f));
             MakeText(_goStopCanvas.transform, "ChoiceText", $"{score}점\n고 / 스톱 선택", 34, new Vector2(0, 60), new Vector2(480, 110));
-            MakeButton(_goStopCanvas.transform, "고", new Vector2(-120, -55), new Vector2(170, 70), new Color(0.1f, 0.5f, 0.2f), OnGo);
-            MakeButton(_goStopCanvas.transform, "스톱", new Vector2(120, -55), new Vector2(170, 70), new Color(0.65f, 0.15f, 0.12f), ShowFinalResult);
+            MakeButton(_goStopCanvas.transform, "고!", new Vector2(-120, -55), new Vector2(170, 70), new Color(0.1f, 0.5f, 0.2f), OnGo);
+            MakeButton(_goStopCanvas.transform, "스톱!", new Vector2(120, -55), new Vector2(170, 70), new Color(0.65f, 0.15f, 0.12f), OnStop);
+            SpeakShort("고 또는 스톱을 선택하세요");
         }
 
         void OnGo()
@@ -447,8 +466,18 @@ namespace SilverCare.GoStop
             if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
             _goStopCanvas = null;
             _goCount++;
+            PlaySfx(880f, 0.08f);
+            SpeakShort("고");
+            SpawnFloatingText($"{_goCount}고!", _tableCenter + _up * 1.2f);
             RefreshScoreText();
             StartCoroutine(ContinueAfterGo());
+        }
+
+        void OnStop()
+        {
+            PlaySfx(520f, 0.12f);
+            SpeakShort("스톱");
+            ShowFinalResult();
         }
 
         IEnumerator ContinueAfterGo()
@@ -489,6 +518,7 @@ namespace SilverCare.GoStop
             MakePanel(_gameCanvas.transform, Vector2.zero, new Vector2(760, 460), new Color(0, 0, 0, 0.88f));
 
             string title = playerWins ? "승리" : "패배";
+            SpeakShort(playerWins ? $"승리했습니다. {player.finalScore}점입니다" : "아쉽지만 패배했습니다");
             string body =
                 $"{title}\n\n" +
                 $"나: {player.finalScore}점 ({player.multiplierLabel})\n" +
@@ -588,8 +618,10 @@ namespace SilverCare.GoStop
 
             if (interactive)
             {
+                mat.color = Color.Lerp(Color.white, SelectTint, 0.12f);
                 var marker = go.AddComponent<HandCardMarker>();
                 marker.Card = card;
+                marker.BaseScale = go.transform.localScale;
             }
 
             _cardViews[card] = go;
@@ -612,8 +644,12 @@ namespace SilverCare.GoStop
             _gameCanvas = CreateCanvas("고스톱 UI Canvas");
 
             _statusText = MakeText(_gameCanvas.transform, "Status", "고스톱", 28, new Vector2(0, 250), new Vector2(900, 60));
-            _scoreText = MakeText(_gameCanvas.transform, "Score", "", 20, new Vector2(-405, 145), new Vector2(340, 150));
-            _deckText = MakeText(_gameCanvas.transform, "Deck", "", 22, new Vector2(405, 165), new Vector2(320, 110));
+            MakePanel(_gameCanvas.transform, new Vector2(-410, 145), new Vector2(360, 165), new Color(0, 0, 0, 0.45f));
+            MakePanel(_gameCanvas.transform, new Vector2(410, 145), new Vector2(360, 165), new Color(0, 0, 0, 0.45f));
+            _scoreText = MakeText(_gameCanvas.transform, "Score", "", 20, new Vector2(-410, 145), new Vector2(340, 150));
+            _opponentScoreText = MakeText(_gameCanvas.transform, "OpponentScore", "", 20, new Vector2(410, 145), new Vector2(340, 150));
+            _deckText = MakeText(_gameCanvas.transform, "Deck", "", 20, new Vector2(0, 165), new Vector2(260, 105));
+            _guideText = MakeText(_gameCanvas.transform, "Guide", "패를 바라보고 트리거/마우스 클릭으로 직접 내세요", 18, new Vector2(0, -290), new Vector2(760, 50));
             MakeButton(_gameCanvas.transform, "로비", new Vector2(505, -275), new Vector2(140, 50), new Color(0.16f, 0.28f, 0.45f), GoToLobbySafe);
         }
 
@@ -654,12 +690,26 @@ namespace SilverCare.GoStop
                     $"고 {_goCount}  흔들기 {_playerShakenMonths.Count}  폭탄 {_playerBombCount}";
             }
 
+            var cpu = CurrentCpuScore(false);
+            int cpuGwang = _cpuCaptured.Count(c => c.cardType == CardType.Gwang);
+            int cpuYul = _cpuCaptured.Count(c => c.cardType == CardType.Yul);
+            int cpuTti = _cpuCaptured.Count(c => c.cardType == CardType.Tti);
+            int cpuPi = CountPiForDisplay(_cpuCaptured);
+
+            if (_opponentScoreText != null)
+            {
+                _opponentScoreText.text =
+                    $"상대 점수 {cpu.finalScore}점\n" +
+                    $"광 {cpuGwang}  열끗 {cpuYul}\n" +
+                    $"띠 {cpuTti}  피 {cpuPi}\n" +
+                    $"고 {_cpuGoCount}  흔들기 {_cpuShakenMonths.Count}  폭탄 {_cpuBombCount}";
+            }
+
             if (_deckText != null)
             {
                 _deckText.text =
                     $"더미 {_deckRemaining.Count}장\n" +
-                    $"바닥 {_floorCards.Count}장\n" +
-                    $"내가 먹은 패 {_playerCaptured.Count}장";
+                    $"바닥 {_floorCards.Count}장";
             }
         }
 
@@ -726,6 +776,129 @@ namespace SilverCare.GoStop
             _cardViews.Clear();
         }
 
+
+
+        void SetupTableEnvironment()
+        {
+            if (_environmentRoot != null) Destroy(_environmentRoot);
+            _environmentRoot = new GameObject("GoStop Table Environment");
+
+            var table = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            table.name = "Brown Blanket Table";
+            table.transform.SetParent(_environmentRoot.transform, true);
+            table.transform.position = _tableCenter + Vector3.down * 0.035f;
+            table.transform.rotation = _cardRotation;
+            table.transform.localScale = new Vector3(4.8f, 0.035f, 3.4f);
+            var tableMat = new Material(Shader.Find("Standard"));
+            tableMat.color = TableBrown;
+            table.GetComponent<MeshRenderer>().material = tableMat;
+            Destroy(table.GetComponent<Collider>());
+
+            var mat = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            mat.name = "Play Mat";
+            mat.transform.SetParent(_environmentRoot.transform, true);
+            mat.transform.position = _tableCenter + Vector3.down * 0.015f;
+            mat.transform.rotation = _cardRotation;
+            mat.transform.localScale = new Vector3(3.8f, 0.02f, 2.45f);
+            var playMat = new Material(Shader.Find("Standard"));
+            playMat.color = MatBrown;
+            mat.GetComponent<MeshRenderer>().material = playMat;
+            Destroy(mat.GetComponent<Collider>());
+        }
+
+        void SetupAudio()
+        {
+            if (_sfxSource != null) return;
+            _sfxSource = gameObject.GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+            _sfxSource.playOnAwake = false;
+            _sfxSource.spatialBlend = 0.35f;
+        }
+
+        IEnumerator AnimatePlayedCard(HwatooCard card, bool isPlayer)
+        {
+            if (!_cardViews.TryGetValue(card, out var view) || view == null)
+                yield break;
+
+            PlaySfx(isPlayer ? 660f : 440f, 0.06f);
+            Vector3 start = view.transform.position;
+            Vector3 end = _tableCenter + (isPlayer ? -_up : _up) * 0.28f;
+            Vector3 peak = (start + end) * 0.5f + Vector3.up * 0.25f;
+            Quaternion startRot = view.transform.rotation;
+            Quaternion endRot = _cardRotation;
+
+            const float duration = 0.22f;
+            float t = 0f;
+            while (t < duration)
+            {
+                float u = Mathf.Clamp01(t / duration);
+                float eased = u * u * (3f - 2f * u);
+                Vector3 a = Vector3.Lerp(start, peak, eased);
+                Vector3 b = Vector3.Lerp(peak, end, eased);
+                view.transform.position = Vector3.Lerp(a, b, eased);
+                view.transform.rotation = Quaternion.Slerp(startRot, endRot, eased);
+                t += Time.deltaTime;
+                yield return null;
+            }
+            view.transform.position = end;
+        }
+
+        void SpawnFloatingText(string message, Vector3 worldPos)
+        {
+            if (_cardRoot == null || string.IsNullOrEmpty(message)) return;
+            var go = new GameObject("GoStop Floating Text", typeof(TextMesh));
+            go.transform.SetParent(_cardRoot, true);
+            go.transform.position = worldPos;
+            go.transform.rotation = _cardRotation;
+            var mesh = go.GetComponent<TextMesh>();
+            mesh.text = message.Length > 28 ? message.Substring(0, 28) + ".." : message;
+            mesh.fontSize = 42;
+            mesh.characterSize = 0.035f;
+            mesh.anchor = TextAnchor.MiddleCenter;
+            mesh.alignment = TextAlignment.Center;
+            mesh.color = new Color(1f, 0.9f, 0.45f, 1f);
+            StartCoroutine(FloatAndFade(go, mesh));
+        }
+
+        IEnumerator FloatAndFade(GameObject go, TextMesh mesh)
+        {
+            float t = 0f;
+            Vector3 start = go.transform.position;
+            const float duration = 0.9f;
+            while (t < duration && go != null)
+            {
+                float u = t / duration;
+                go.transform.position = start + Vector3.up * (u * 0.25f);
+                if (mesh != null)
+                    mesh.color = new Color(mesh.color.r, mesh.color.g, mesh.color.b, 1f - u);
+                t += Time.deltaTime;
+                yield return null;
+            }
+            if (go != null) Destroy(go);
+        }
+
+        void PlaySfx(float frequency, float seconds)
+        {
+            if (_sfxSource == null) return;
+            int sampleRate = 22050;
+            int samples = Mathf.Max(1, Mathf.RoundToInt(sampleRate * seconds));
+            var data = new float[samples];
+            for (int i = 0; i < samples; i++)
+            {
+                float env = 1f - (float)i / samples;
+                data[i] = Mathf.Sin(2f * Mathf.PI * frequency * i / sampleRate) * 0.12f * env;
+            }
+            var clip = AudioClip.Create("GoStopSfx", samples, 1, sampleRate, false);
+            clip.SetData(data, 0);
+            _sfxSource.PlayOneShot(clip);
+        }
+
+        void SpeakShort(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return;
+            TTSManager.Instance?.Speak(text, true);
+        }
+
+
         void GoToLobbySafe()
         {
             if (GameSceneManager.Instance != null) GameSceneManager.Instance.LoadScene(lobbySceneName);
@@ -736,5 +909,16 @@ namespace SilverCare.GoStop
     public class HandCardMarker : MonoBehaviour
     {
         public HwatooCard Card;
+        public Vector3 BaseScale;
+
+        void OnMouseEnter()
+        {
+            if (BaseScale != Vector3.zero) transform.localScale = BaseScale * 1.08f;
+        }
+
+        void OnMouseExit()
+        {
+            if (BaseScale != Vector3.zero) transform.localScale = BaseScale;
+        }
     }
 }
