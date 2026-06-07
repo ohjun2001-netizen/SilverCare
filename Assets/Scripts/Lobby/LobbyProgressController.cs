@@ -4,67 +4,71 @@ using UnityEngine.UI;
 
 public class LobbyProgressController : MonoBehaviour
 {
+    [SerializeField] private bool restrictByStoryProgress = false;
+
     private IEnumerator Start()
     {
-        // VRLobby.cs가 UI 캔버스와 버튼을 동적 생성할 시간을 확보 (0.5초 비동기 대기)
+        // Wait for VRLobby to finish creating runtime buttons.
         yield return new WaitForSeconds(0.5f);
         UpdateLobbyUI();
     }
 
     private void UpdateLobbyUI()
     {
-        if (StoryProgressManager.Instance == null) return;
-
-        var currentStage = StoryProgressManager.Instance.CurrentStage;
-
-        // VRLobby가 생성한 버튼 객체들을 이름(Name)으로 런타임 탐색하여 가로채기
         Button btnBaduk = FindButtonByName("바둑 사활");
-        Button btnBadukReplay = FindButtonByName("바둑 복기");     // 스토리 비활성 콘텐츠
-        Button btnBadukPred = FindButtonByName("수 예측하기");   // 스토리 비활성 콘텐츠
-        Button btnCard = FindButtonByName("카드 맞추기");
+        Button btnBadukReplay = FindButtonByName("바둑 복기");
+        Button btnBadukPrediction = FindButtonByName("수 예측하기");
+        Button btnCardMatch = FindButtonByName("카드 맞추기");
         Button btnGoStop = FindButtonByName("고스톱");
         Button btnGolf = FindButtonByName("골프");
 
-        // 자유 모드 개방 시: 모든 버튼 활성화
-        if (currentStage == StoryProgressManager.GameStage.FreePlay)
+        if (!restrictByStoryProgress || StoryProgressManager.Instance == null)
         {
-            SetButtonState(btnBaduk, true);
-            SetButtonState(btnBadukReplay, true);
-            SetButtonState(btnBadukPred, true);
-            SetButtonState(btnCard, true);
-            SetButtonState(btnGoStop, true);
-            SetButtonState(btnGolf, true);
+            SetAllButtons(btnBaduk, btnBadukReplay, btnBadukPrediction, btnCardMatch, btnGoStop, btnGolf);
             return;
         }
 
-        // 스토리 모드: 현재 진행 중인 스테이지 1개만 활성화하고 나머지는 전부 잠금
-        SetButtonState(btnBaduk, currentStage == StoryProgressManager.GameStage.Baduk);
-        SetButtonState(btnBadukReplay, false); 
-        SetButtonState(btnBadukPred, false);
-        SetButtonState(btnCard, currentStage == StoryProgressManager.GameStage.CardMatch);
+        var currentStage = StoryProgressManager.Instance.CurrentStage;
+        if (currentStage == StoryProgressManager.GameStage.FreePlay)
+        {
+            SetAllButtons(btnBaduk, btnBadukReplay, btnBadukPrediction, btnCardMatch, btnGoStop, btnGolf);
+            return;
+        }
+
+        bool badukStage = currentStage == StoryProgressManager.GameStage.Baduk;
+        SetButtonState(btnBaduk, badukStage);
+        SetButtonState(btnBadukReplay, badukStage);
+        SetButtonState(btnBadukPrediction, badukStage);
+        SetButtonState(btnCardMatch, currentStage == StoryProgressManager.GameStage.CardMatch);
         SetButtonState(btnGoStop, currentStage == StoryProgressManager.GameStage.GoStop);
         SetButtonState(btnGolf, currentStage == StoryProgressManager.GameStage.Golf);
     }
 
-    private Button FindButtonByName(string btnName)
+    private static void SetAllButtons(params Button[] buttons)
     {
-        GameObject go = GameObject.Find(btnName);
+        foreach (var button in buttons)
+            SetButtonState(button, true);
+    }
+
+    private static Button FindButtonByName(string buttonName)
+    {
+        GameObject go = GameObject.Find(buttonName);
         return go != null ? go.GetComponent<Button>() : null;
     }
 
-    private void SetButtonState(Button btn, bool interactable)
+    private static void SetButtonState(Button button, bool interactable)
     {
-        if (btn == null) return;
-        
-        btn.interactable = interactable;
+        if (button == null)
+            return;
 
-        // 시각적 비활성화 (딤 처리: 투명도를 30%로 낮춤)
-        Image img = btn.GetComponent<Image>();
-        if (img != null)
-        {
-            Color c = img.color;
-            c.a = interactable ? 1f : 0.3f; 
-            img.color = c;
-        }
+        button.interactable = interactable;
+
+        Image image = button.GetComponent<Image>();
+        if (image == null)
+            return;
+
+        Color color = image.color;
+        color.a = interactable ? 1f : 0.3f;
+        image.color = color;
     }
 }

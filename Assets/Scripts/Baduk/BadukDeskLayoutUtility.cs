@@ -15,6 +15,30 @@ namespace Baduk
 
         static readonly Dictionary<string, DeskAnchor> AnchorsByScene = new();
 
+        public static void UpdateSceneAnchor(string sceneKey, Camera cam)
+        {
+            if (string.IsNullOrWhiteSpace(sceneKey) || cam == null)
+                return;
+
+            Vector3 flatForward = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (flatForward == Vector3.zero)
+                flatForward = Vector3.forward;
+
+            AnchorsByScene[sceneKey] = new DeskAnchor
+            {
+                CameraPosition = cam.transform.position,
+                Forward = flatForward
+            };
+        }
+
+        public static void ClearSceneAnchor(string sceneKey)
+        {
+            if (string.IsNullOrWhiteSpace(sceneKey))
+                return;
+
+            AnchorsByScene.Remove(sceneKey);
+        }
+
         public static void ApplyDeskLayout(
             Transform boardTransform,
             float cx,
@@ -35,6 +59,8 @@ namespace Baduk
             if (fallbackForward == Vector3.zero)
                 fallbackForward = Vector3.forward;
 
+            UpdateSceneAnchor(sceneKey, cam);
+
             if (!AnchorsByScene.TryGetValue(sceneKey, out var anchor))
             {
                 anchor = new DeskAnchor
@@ -52,6 +78,7 @@ namespace Baduk
             boardTransform.rotation = Quaternion.LookRotation(anchor.Forward, Vector3.up);
 
             tableY = anchor.CameraPosition.y - tableHeightOffset - BoardLoweringOffset;
+            tableY = Mathf.Max(0.28f, tableY);   // 카메라 높이 무관하게 테이블이 바닥 위에 위치
             boardCenter = anchor.CameraPosition + anchor.Forward * boardDistance;
             boardCenter.y = tableY + 0.012f;
 

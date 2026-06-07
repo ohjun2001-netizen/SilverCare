@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using Baduk.Data;
 using SilverCare.Common;
 
@@ -44,11 +45,15 @@ namespace Baduk
         public void ShowDifficultySelect()
         {
             EnsureBuilt();
+            _placementLocked = false;
             EnsureCanvasPlacement();
             HidePlacementConfirm();
             BadukRoomEnvironment.Cleanup();
             SelectionBackdropUtility.ClearAllBackdrops();
+            BadukDeskLayoutUtility.ClearSceneAnchor(SceneManager.GetActiveScene().path);
+            ResetBoardForSelection();
             _billboard.anchorToBoard = false;   // 난이도 선택은 보드가 없으니 카메라 정면
+            _billboard.RequestReposition();
             _billboard.ForceReposition();
             SelectionBackdropUtility.ShowNatureBackdrop(_canvas.transform, "BadukDifficulty");
             _difficultyPanel.SetActive(true);
@@ -196,6 +201,8 @@ namespace Baduk
             rt.localScale = Vector3.one * 0.0018f;
             rt.position = panelOffset;
             rt.rotation = Quaternion.identity;
+            _canvas.overrideSorting = true;
+            _canvas.sortingOrder = 120;
 
             // 카메라를 향해 수평으로 항상 똑바로 보이게 정렬 (삐뚤어짐 방지 + 늦게 잡히는 카메라 대응)
             // 위치는 바둑판(책상) 중심에 맞춰, 시선이 어디를 향하든 판 위쪽 중앙에 오게 한다.
@@ -314,6 +321,16 @@ namespace Baduk
             return panel;
         }
 
+        void ResetBoardForSelection()
+        {
+            var board = GetComponent<BadukBoard>();
+            if (board == null)
+                return;
+
+            board.ClearBoard();
+            board.transform.SetPositionAndRotation(new Vector3(0f, -100f, 0f), Quaternion.identity);
+        }
+
         static string GetDifficultyLabel(int difficulty)
         {
             return difficulty switch
@@ -342,6 +359,14 @@ namespace Baduk
             return go;
         }
 
+        static Font _koreanFont;
+        static Font GetFont()
+        {
+            if (_koreanFont == null)
+                _koreanFont = Resources.Load<Font>("Fonts/Paperlogy-5Medium");
+            return _koreanFont != null ? _koreanFont : Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+        }
+
         Text CreateText(RectTransform parent, string name, string text, int fontSize, FontStyle style, Vector2 pos, Vector2 size, Color color)
         {
             var go = new GameObject(name, typeof(RectTransform), typeof(Text));
@@ -356,7 +381,7 @@ namespace Baduk
             label.fontSize = fontSize;
             label.fontStyle = style;
             label.color = color;
-            label.font = Font.CreateDynamicFontFromOSFont("Malgun Gothic", fontSize);
+            label.font = GetFont();
             label.alignment = TextAnchor.MiddleCenter;
             label.horizontalOverflow = HorizontalWrapMode.Wrap;
             label.verticalOverflow = VerticalWrapMode.Overflow;

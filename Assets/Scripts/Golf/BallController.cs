@@ -10,15 +10,20 @@ namespace SilverCare.Golf
     [RequireComponent(typeof(Rigidbody))]
     public class BallController : MonoBehaviour
     {
-        const float BallRadius = 0.045f;
+        const float BallRadius = 0.03185f;
+        const float VisualScaleBoost = 1.25f;
 
         [Header("Ball State")]
         [SerializeField] float stopSpeed = 0.06f;
         [SerializeField] float oobY = -1f;
-        [SerializeField] float minKeyboardShotSpeed = 4.5f;
+        [SerializeField] float minKeyboardShotSpeed = 1.0f;
         [SerializeField] float maxKeyboardShotSpeed = 13f;
         [SerializeField] float maxChargeTime = 1.6f;
-        [SerializeField] float defaultLaunchDegrees = 28f;
+        [SerializeField] float defaultLaunchDegrees = 23f;
+        [Tooltip("이 속도 이하로 약하게 치면 발사각 0(굴림) — 그린 주변 짧은 퍼팅용")]
+        [SerializeField] float puttSpeedThreshold = 1.6f;
+        [Tooltip("이 속도 이상이면 발사각 최대(띄움)")]
+        [SerializeField] float fullLoftSpeed = 4.5f;
         [SerializeField] float rollingFriction = 1.4f;
 
         Rigidbody _rb;
@@ -33,10 +38,14 @@ namespace SilverCare.Golf
         bool _pendingOOB;
         float _chargeTime;
         float _flightTime;
+        float _wakeGrace; // 움직이는 벽에 깨워진 직후 즉시 재잠금되지 않도록 하는 유예 시간
         Vector3 _shotStartPosition;
         Vector3 _lastSafePosition;
 
         public Vector3 LastSafePosition => _lastSafePosition;
+
+        // 실제 충돌 반지름(시각 공과 동일) — 공 시작 높이 계산용.
+        public float Radius => BallRadius * VisualScaleBoost;
 
         void Awake()
         {
@@ -45,6 +54,13 @@ namespace SilverCare.Golf
             EnsureTrail();
             EnsureHitEffect();
             LockBall();
+        }
+
+        void OnEnable()
+        {
+            if (_rb == null)
+                _rb = GetComponent<Rigidbody>();
+            EnsureVisibleCore();
         }
 
         void Start()
@@ -60,6 +76,8 @@ namespace SilverCare.Golf
             if (_isMoving)
             {
                 _flightTime += Time.deltaTime;
+                if (_wakeGrace > 0f)
+                    _wakeGrace -= Time.deltaTime;
 
                 bool fellOff = transform.position.y < oobY;
                 bool timedOut = _flightTime > 9f;
@@ -73,9 +91,11 @@ namespace SilverCare.Golf
                     return;
                 }
 
-                if (IsGrounded() && HorizontalVelocity(_rb.velocity).magnitude < stopSpeed)
+                // 깨워진 직후 유예 시간 동안은 벽이 밀 시간을 줘야 하므로 재잠금하지 않는다.
+                if (_wakeGrace <= 0f && IsGrounded() && HorizontalVelocity(_rb.velocity).magnitude < stopSpeed)
                 {
                     LockBall();
+                    SnapToGround(); // 굴곡/경사 지형에 공이 파묻히지 않게 지면 표면 위로 올림
                     _isMoving = false;
                     _ui?.SetSwingUIActive(true);
 
@@ -86,6 +106,7 @@ namespace SilverCare.Golf
                             new Vector3(transform.position.x, 0f, transform.position.z));
                         _ui?.ShowShotDistance(distance);
                         _trackingShot = false;
+                        _manager?.OnBallStopped(transform.position, _shotStartPosition);
                     }
                 }
             }
@@ -108,6 +129,18 @@ namespace SilverCare.Golf
             _ui?.SetSwingUIActive(true);
         }
 
+        // 멈춰서 잠긴 공을 다시 물리 상태로 깨운다 — 움직이는 벽이 닿으면 밀리도록.
+        public void WakeFromRest()
+        {
+            if (_pendingOOB || _rb == null)
+                return;
+            _rb.isKinematic = false;
+            _rb.useGravity = true;
+            _isMoving = true;
+            _flightTime = 0f; // 벽에 닿는 동안 타임아웃 OB 방지
+            _wakeGrace = 0.5f; // 즉시 재잠금 방지 — 벽이 공을 밀 시간 확보 (트리거 안에선 매 프레임 갱신)
+        }
+
         void FixedUpdate()
         {
             if (!_isMoving || !IsGrounded())
@@ -127,7 +160,7 @@ namespace SilverCare.Golf
             if (direction.sqrMagnitude < 0.0001f || speed <= 0f)
                 return;
 
-            Vector3 launchDirection = BuildLaunchDirection(direction);
+            Vector3 launchDirection = BuildLaunchDirection(direction, speed);
 
             _shotStartPosition = transform.position;
             _trackingShot = true;
@@ -187,6 +220,8 @@ namespace SilverCare.Golf
                 return;
             if (_pendingOOB)
                 return;
+            if (_manager != null && !_manager.CanHoleIn)
+                return; // 시작/재시작 직후(스윙 전) 비정상 홀 진입 무시
 
             // 공을 홀 안으로 빨아들이는 연출 후 OnHoleIn 호출
             _rb.velocity = Vector3.zero;
@@ -225,7 +260,7 @@ namespace SilverCare.Golf
 
             LockBall();
             if (_visibleCore != null)
-                _visibleCore.localScale = Vector3.one * (BallRadius * 2f);
+                _visibleCore.localScale = Vector3.one * (BallRadius * 2f * VisualScaleBoost);
             _ui?.ShowShotFeedback(1.2f);
             _manager?.OnHoleIn();
         }
@@ -305,18 +340,19 @@ namespace SilverCare.Golf
             var sh2 = ps2.shape;
             sh2.shapeType = ParticleSystemShapeType.Circle;
             sh2.radius    = 0.08f;
-            ps2.Play();
-
+            // ps.Play()가 자식(ps2)까지 재귀 실행하므로 ps2.Play()는 생략한다.
+            // 중복 Play → "Setting duration while playing" 경고 방지.
             ps.Play();
             Destroy(fx, 2.5f);
         }
 
         public void ResetBall(Vector3 position)
         {
+            if (_rb == null)
+                _rb = GetComponent<Rigidbody>();
             EnsureVisibleCore();
-            // ProjectToGround 대신 고정 Y 사용 → 랜덤 위치 방지
-            // PhysicsGround 상단 Y=0 기준, 공 반지름 + 1cm 여유
-            transform.position = new Vector3(position.x, BallRadius + 0.01f, position.z);
+            // position.y 우선 사용, 바닥 아래로 내려가지 않도록 최소값 보장
+            transform.position = new Vector3(position.x, Mathf.Max(position.y, BallRadius + 0.01f), position.z);
             _rb.velocity = Vector3.zero;
             _rb.angularVelocity = Vector3.zero;
             LockBall();
@@ -329,6 +365,31 @@ namespace SilverCare.Golf
             _lastSafePosition = transform.position;
             _ui?.ShowPower(0f);
             _ui?.ShowShotDistance(0f);
+        }
+
+        // 멈춘 공을 그 자리(xz)의 지면 표면 위로 끌어올린다 — 굴곡/경사/그린 단상에서 파묻힘 방지.
+        // 위로 올리기만 하고(끌어올림) 내리지는 않아 공중 부유는 만들지 않는다.
+        void SnapToGround()
+        {
+            float r = BallRadius * VisualScaleBoost;
+            Vector3 origin = transform.position + Vector3.up * 1.5f;
+
+            var ownColliders = GetComponentsInChildren<Collider>();
+            foreach (var c in ownColliders)
+                c.enabled = false;
+
+            bool found = Physics.Raycast(origin, Vector3.down, out RaycastHit hit, 6f, ~0, QueryTriggerInteraction.Ignore);
+
+            foreach (var c in ownColliders)
+                c.enabled = true;
+
+            // 공 바로 아래(현 위치 근방)의 지면만 채택 — 위쪽 벽 상단 등은 제외.
+            if (found && hit.point.y <= transform.position.y + r + 0.05f)
+            {
+                float targetY = hit.point.y + r + 0.005f;
+                if (transform.position.y < targetY)
+                    transform.position = new Vector3(transform.position.x, targetY, transform.position.z);
+            }
         }
 
         Vector3 ProjectToGround(Vector3 position)
@@ -359,7 +420,8 @@ namespace SilverCare.Golf
             var sphere = GetComponent<SphereCollider>();
             if (sphere == null)
                 sphere = gameObject.AddComponent<SphereCollider>();
-            sphere.radius = BallRadius;
+            // 콜라이더를 시각 공과 동일 크기로 맞춰 공이 지면에 파묻혀 보이지 않게 한다.
+            sphere.radius = BallRadius * VisualScaleBoost;
 
             if (_visibleCore == null)
             {
@@ -380,27 +442,46 @@ namespace SilverCare.Golf
                     Destroy(coreCollider);
 
                 var renderer = core.GetComponent<Renderer>();
-                var mat = new Material(Shader.Find("Standard"));
-                mat.color = new Color(1f, 0.88f, 0.05f);  // 밝은 노란색 — 초록 표면 위에서 확실히 보임
-                mat.SetFloat("_Glossiness", 0.75f);
+                Shader shader = Shader.Find("Unlit/Color") ?? Shader.Find("Standard");
+                var mat = new Material(shader);
+                mat.color = new Color(0.02f, 0.018f, 0.015f);  // 초록 잔디 위에서 확실히 보이는 검은색 공
+                if (mat.HasProperty("_Glossiness"))
+                    mat.SetFloat("_Glossiness", 0.75f);
                 renderer.sharedMaterial = mat;
 
                 _visibleCore = core.transform;
             }
 
-            bool hasImportedVisual = false;
             foreach (var renderer in GetComponentsInChildren<MeshRenderer>(true))
             {
-                if (renderer.transform != _visibleCore && renderer.transform.parent != _visibleCore)
-                {
-                    renderer.enabled = true;
-                    hasImportedVisual = true;
-                }
+                renderer.enabled = true;
             }
 
             _visibleCore.localPosition = Vector3.zero;
-            _visibleCore.localScale = Vector3.one * (BallRadius * 2f);  // 물리 콜라이더와 동일 크기
-            _visibleCore.gameObject.SetActive(!hasImportedVisual);
+            _visibleCore.localScale = Vector3.one * (BallRadius * 2f * VisualScaleBoost);
+            _visibleCore.gameObject.SetActive(true);
+
+            var coreRenderer = _visibleCore.GetComponent<Renderer>();
+            if (coreRenderer != null)
+            {
+                coreRenderer.enabled = true;
+                EnsureBallMaterial(coreRenderer);
+            }
+        }
+
+        static void EnsureBallMaterial(Renderer renderer)
+        {
+            Shader shader = Shader.Find("Unlit/Color") ?? Shader.Find("Standard");
+            var mat = renderer.sharedMaterial;
+            if (mat == null || mat.shader != shader)
+            {
+                mat = new Material(shader);
+                renderer.sharedMaterial = mat;
+            }
+
+            mat.color = new Color(0.02f, 0.018f, 0.015f);
+            if (mat.HasProperty("_Glossiness"))
+                mat.SetFloat("_Glossiness", 0.75f);
         }
 
         void EnsureTrail()
@@ -433,19 +514,24 @@ namespace SilverCare.Golf
             return forward.normalized;
         }
 
-        Vector3 BuildLaunchDirection(Vector3 direction)
+        Vector3 BuildLaunchDirection(Vector3 direction, float speed)
         {
             Vector3 horizontal = HorizontalVelocity(direction);
             if (horizontal.sqrMagnitude < 0.0001f)
                 horizontal = Vector3.forward;
             horizontal.Normalize();
 
-            float y = direction.normalized.y;
-            if (y > 0.05f)
-                return direction.normalized;
+            // 입력에 담긴 발사각(VR 퍼터의 loft, 또는 키보드 기본값)
+            float vy = direction.normalized.y;
+            float inputLoft = vy > 0.05f
+                ? Mathf.Asin(Mathf.Clamp01(vy))
+                : defaultLaunchDegrees * Mathf.Deg2Rad;
 
-            float radians = defaultLaunchDegrees * Mathf.Deg2Rad;
-            return (horizontal * Mathf.Cos(radians) + Vector3.up * Mathf.Sin(radians)).normalized;
+            // 약하게 칠수록 발사각을 낮춰 공이 굴러가게 한다(그린 주변 짧은 퍼팅 미세 조정).
+            float loftScale = Mathf.Clamp01(Mathf.InverseLerp(puttSpeedThreshold, fullLoftSpeed, speed));
+            float loft = inputLoft * loftScale;
+
+            return (horizontal * Mathf.Cos(loft) + Vector3.up * Mathf.Sin(loft)).normalized;
         }
 
         bool IsGrounded()

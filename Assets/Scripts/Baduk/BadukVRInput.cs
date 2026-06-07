@@ -1,13 +1,11 @@
 // Assets/Scripts/Baduk/BadukVRInput.cs
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.XR.Interaction.Toolkit;
 using SilverCare.Common;
 
 namespace Baduk
 {
-#if UNITY_XR_INTERACTION_TOOLKIT
-    using UnityEngine.XR.Interaction.Toolkit;
-
     public class BadukVRInput : MonoBehaviour, IBadukInput
     {
         public System.Action<int, int> OnIntersectionClicked { get; set; }
@@ -33,7 +31,9 @@ namespace Baduk
 
         void OnEnable()
         {
-            if (rayInteractor == null) FindRayInteractor();
+            if (rayInteractor == null)
+                FindRayInteractor();
+
             if (rayInteractor != null)
                 rayInteractor.selectEntered.AddListener(OnSelect);
         }
@@ -46,16 +46,22 @@ namespace Baduk
 
         void Update()
         {
-            if (!_inputEnabled) return;
+            if (!_inputEnabled)
+                return;
+
             if (XRPointerInput.TryGetSelectionHit(20f, out RaycastHit hit))
                 TryHandleHit(hit);
         }
 
         void OnSelect(SelectEnterEventArgs args)
         {
-            if (!_inputEnabled) return;
+            if (!_inputEnabled)
+                return;
+
             var go = args.interactableObject?.transform?.gameObject;
-            if (go == null) return;
+            if (go == null)
+                return;
+
             TryParseIntersection(go.name);
         }
 
@@ -77,7 +83,9 @@ namespace Baduk
         bool TryParseIntersection(string name)
         {
             string[] parts = name.Split('_');
-            if (parts.Length < 3 || parts[0] != "I") return false;
+            if (parts.Length < 3 || parts[0] != "I")
+                return false;
+
             if (int.TryParse(parts[1], out int row) && int.TryParse(parts[2], out int col))
             {
                 OnIntersectionClicked?.Invoke(row, col);
@@ -92,13 +100,17 @@ namespace Baduk
 #pragma warning disable CS0618
             var interactors = Object.FindObjectsOfType<XRRayInteractor>();
 #pragma warning restore CS0618
-            if (interactors.Length > 0) rayInteractor = interactors[0];
-            else Debug.LogWarning("[BadukVRInput] XRRayInteractor not found. Falling back to pointer ray.");
+            if (interactors.Length > 0)
+                rayInteractor = interactors[0];
+            else
+                Debug.LogWarning("[BadukVRInput] XRRayInteractor not found. Falling back to pointer ray.");
         }
 
         static void SetupDeskBoard(Transform boardObj, float cx, float cy)
         {
             Camera cam = Camera.main;
+            string sceneKey = SceneManager.GetActiveScene().path;
+            BadukDeskLayoutUtility.UpdateSceneAnchor(sceneKey, cam);
             float boardSizeTarget = 0.92f;
             float boardDistance = 0.20f;
             float tableHeightOffset = 0.62f;
@@ -109,7 +121,7 @@ namespace Baduk
                 boardSizeTarget,
                 boardDistance,
                 tableHeightOffset,
-                SceneManager.GetActiveScene().path,
+                sceneKey,
                 cam,
                 out Vector3 boardCenter,
                 out float tableY);
@@ -118,76 +130,4 @@ namespace Baduk
             BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, boardObj.rotation);
         }
     }
-#else
-    public class BadukVRInput : MonoBehaviour, IBadukInput
-    {
-        public System.Action<int, int> OnIntersectionClicked { get; set; }
-
-        bool _inputEnabled;
-        BadukBoard _board;
-
-        public void EnableInput() => _inputEnabled = true;
-        public void DisableInput() => _inputEnabled = false;
-
-        public void OnBoardReady(int r0, int c0, int r1, int c1)
-        {
-            float cx = (c1 - c0) * BadukBoard.CELL / 2f;
-            float cy = (r1 - r0) * BadukBoard.CELL / 2f;
-            _board = GetComponent<BadukBoard>();
-            var boardObj = _board?.transform;
-            if (boardObj != null)
-                SetupDeskBoard(boardObj, cx, cy);
-        }
-
-        static void SetupDeskBoard(Transform boardObj, float cx, float cy)
-        {
-            Camera cam = Camera.main;
-            float boardSizeTarget = 0.92f;
-            float boardDistance = 0.20f;
-            float tableHeightOffset = 0.62f;
-            BadukDeskLayoutUtility.ApplyDeskLayout(
-                boardObj,
-                cx,
-                cy,
-                boardSizeTarget,
-                boardDistance,
-                tableHeightOffset,
-                SceneManager.GetActiveScene().path,
-                cam,
-                out Vector3 boardCenter,
-                out float tableY);
-
-            float scale = boardObj.localScale.x;
-            BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, boardObj.rotation);
-        }
-
-        void Update()
-        {
-            if (!_inputEnabled) return;
-            if (XRPointerInput.TryGetSelectionHit(20f, out RaycastHit hit))
-            {
-                string[] parts = hit.collider.gameObject.name.Split('_');
-                if (parts.Length >= 3 &&
-                    parts[0] == "I" &&
-                    int.TryParse(parts[1], out int row) &&
-                    int.TryParse(parts[2], out int col))
-                {
-                    OnIntersectionClicked?.Invoke(row, col);
-                    return;
-                }
-
-                if (_board == null)
-                    _board = GetComponent<BadukBoard>();
-
-                if (_board != null && _board.TryWorldToIntersection(hit.point, out int nearestRow, out int nearestCol))
-                    OnIntersectionClicked?.Invoke(nearestRow, nearestCol);
-            }
-        }
-
-        void Awake()
-        {
-            Debug.LogWarning("[BadukVRInput] XR Interaction Toolkit not installed. Using pointer fallback.");
-        }
-    }
-#endif
 }

@@ -27,6 +27,7 @@ namespace SilverCare.Common
 
             Button bestButton = null;
             float bestDistance = float.MaxValue;
+            float bestScreenDistance = float.MaxValue;
 
             foreach (var canvas in FindObjectsOfType<Canvas>())
             {
@@ -56,9 +57,18 @@ namespace SilverCare.Common
                     if (!RectTransformUtility.RectangleContainsScreenPoint(buttonRt, screenPoint, canvas.worldCamera))
                         continue;
 
-                    bestButton = button;
-                    bestDistance = distance;
-                    break;
+                    Vector2 buttonScreenCenter = RectTransformUtility.WorldToScreenPoint(
+                        canvas.worldCamera,
+                        buttonRt.TransformPoint(buttonRt.rect.center));
+                    float screenDistance = Vector2.Distance(screenPoint, buttonScreenCenter);
+
+                    if (distance < bestDistance - 0.001f ||
+                        (Mathf.Abs(distance - bestDistance) <= 0.001f && screenDistance < bestScreenDistance))
+                    {
+                        bestButton = button;
+                        bestDistance = distance;
+                        bestScreenDistance = screenDistance;
+                    }
                 }
             }
 

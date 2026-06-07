@@ -2,13 +2,16 @@
 using System.Collections;
 using System.Collections.Generic;
 using SilverCare.Common;
+using Unity.XR.CoreUtils;
 using UnityEngine;
 
 namespace SilverCare.Golf
 {
     public class GolfGameManager : BaseGameManager
     {
-        const float BallDiameter = 0.09f;
+        const float BallDiameter = 0.0637f;
+        const float FollowBallDistance = 1.5f;
+        const float FollowBallMoveSeconds = 0.65f;
 
         [Header("Golf Settings")]
         [SerializeField] private BallController ball;
@@ -20,6 +23,14 @@ namespace SilverCare.Golf
 
         int _selectedCourse;
         int _strokeCount;
+        bool _resultShown;
+        bool _acceptHoleIn;
+
+        // 스윙해서 친 공만 홀인 인정 — 시작/재시작 직후의 비정상 홀 진입 무시.
+        public bool CanHoleIn => _acceptHoleIn && !_resultShown;
+        Vector3 _fixedBallStartPosition;
+        Coroutine _startPositionRoutine;
+        Coroutine _followBallRoutine;
 
         protected override void InitGame()
         {
@@ -52,7 +63,20 @@ namespace SilverCare.Golf
 
         void ShowCourseSelection()
         {
-            courseManager?.ShowPreviewEnvironment();
+            if (_startPositionRoutine != null)
+            {
+                StopCoroutine(_startPositionRoutine);
+                _startPositionRoutine = null;
+            }
+            if (_followBallRoutine != null)
+            {
+                StopCoroutine(_followBallRoutine);
+                _followBallRoutine = null;
+            }
+
+            // 코스 제거 — 난이도 선택 배경에 골프 맵이 남는 잔상 방지(index<0이면 ClearCurrent만).
+            courseManager?.LoadCourse(-1);
+
             if (ball != null)
                 ball.gameObject.SetActive(false);
             if (putter != null)
@@ -65,6 +89,15 @@ namespace SilverCare.Golf
         {
             _selectedCourse = courseIndex;
             _strokeCount = 0;
+            _resultShown = false;
+            _acceptHoleIn = false; // 첫 스윙 전까지 홀인 무시
+
+            // 공 따라가기 이동 중지 — 다시 하기 시 잔여 이동/위치 어긋남 방지.
+            if (_followBallRoutine != null)
+            {
+                StopCoroutine(_followBallRoutine);
+                _followBallRoutine = null;
+            }
 
             golfUI?.HideCourseSelection();
             golfUI?.SetBackToSelectCallback(ShowCourseSelection);
@@ -78,15 +111,45 @@ namespace SilverCare.Golf
             putter.gameObject.SetActive(true);
             PositionCourseNearPlayer();
             courseManager?.LoadCourse(courseIndex);
+            _fixedBallStartPosition = GetBallRestingPosition(courseIndex);
             golfUI?.ShowCourseInfo(courseIndex + 1, 3);
             golfUI?.UpdateStroke(0);
             golfUI?.ShowShotDistance(0f);
             golfUI?.SetSwingUIActive(true);
 
             if (ball != null && courseManager != null)
-                ball.ResetBall(GetBallRestingPosition(courseIndex));
+            {
+                ball.ResetBall(_fixedBallStartPosition);
+                RestartBallAtCourseStart();
+            }
 
             AudioManager.Instance?.PlayGameStart();
+        }
+
+        void RestartBallAtCourseStart()
+        {
+            if (_startPositionRoutine != null)
+                StopCoroutine(_startPositionRoutine);
+
+            _startPositionRoutine = StartCoroutine(ForceBallToCourseStartAfterLayout());
+        }
+
+        IEnumerator ForceBallToCourseStartAfterLayout()
+        {
+            yield return null;
+            ForceBallToCourseStart();
+            yield return new WaitForEndOfFrame();
+            ForceBallToCourseStart();
+            _startPositionRoutine = null;
+        }
+
+        void ForceBallToCourseStart()
+        {
+            if (ball == null || courseManager == null)
+                return;
+
+            _fixedBallStartPosition = GetBallRestingPosition(_selectedCourse);
+            ball.ResetBall(_fixedBallStartPosition);
         }
 
         void PositionCourseNearPlayer()
@@ -111,16 +174,38 @@ namespace SilverCare.Golf
         public void OnSwingCompleted()
         {
             _strokeCount++;
+            _acceptHoleIn = true; // 공을 친 뒤부터 홀인 인정
             golfUI?.UpdateStroke(_strokeCount);
+        }
+
+        public void OnBallStopped(Vector3 ballPosition, Vector3 shotStartPosition)
+        {
+            MovePlayerNearBall(ballPosition, shotStartPosition);
         }
 
         public void OnHoleIn()
         {
+            if (_resultShown)
+                return; // 이미 결과 표시됨 — 재시작 직후 재홀인 등으로 중복 호출 방지
+            _resultShown = true;
+
             _score = Mathf.Max(100, 650 - _strokeCount * 40);
             AudioManager.Instance?.PlayGameClear();
             PlayerDataManager.Instance?.SaveScore(gameTitle, _score);
 
-            golfUI?.ShowResult(_strokeCount, _score, ShowCourseSelection, GoToLobby);
+            bool firstClear = StoryProgressManager.Instance != null &&
+                              StoryProgressManager.Instance.TryMarkActivityCleared(
+                                  StoryProgressManager.StoryActivity.Golf);
+            if (firstClear)
+                StoryProgressManager.Instance?.SpeakClearNarration(StoryProgressManager.StoryActivity.Golf);
+
+            golfUI?.ShowResult(_strokeCount, _score, RestartCourse, ShowCourseSelection, GoToLobby);
+        }
+
+        // 같은 난이도(코스)로 다시 시작
+        void RestartCourse()
+        {
+            OnCourseSelected(_selectedCourse);
         }
 
         public void OnBallOutOfBounds()
@@ -131,15 +216,107 @@ namespace SilverCare.Golf
             if (ball == null)
                 return;
 
-            // 마지막으로 지면에 안착했던 위치로 복귀. 기록이 없으면 티 위치로.
-            Vector3 safePos = ball.LastSafePosition;
-            bool hasSafePos = safePos != Vector3.zero;
-            ball.ResetBall(hasSafePos ? safePos : GetBallRestingPosition(_selectedCourse));
+            // 코스마다 시작 티 위치로 고정 복귀시켜 재실행/낙하 후 위치가 흔들리지 않게 한다.
+            ball.ResetBall(_fixedBallStartPosition != Vector3.zero
+                ? _fixedBallStartPosition
+                : GetBallRestingPosition(_selectedCourse));
         }
 
         Vector3 GetBallRestingPosition(int courseIndex)
         {
-            return courseManager.GetTeePosition(courseIndex) + Vector3.up * (BallDiameter * 0.5f);
+            // 공 바닥이 티매트 윗면에 정확히 닿도록 실제 콜라이더 반지름만큼 띄운다.
+            float radius = ball != null ? ball.Radius : BallDiameter * 0.5f;
+            return courseManager.GetTeeMatCenterPosition(courseIndex) + Vector3.up * radius;
+        }
+
+        void MovePlayerNearBall(Vector3 ballPosition, Vector3 shotStartPosition)
+        {
+            Camera cam = Camera.main != null ? Camera.main : FindObjectOfType<Camera>();
+            if (cam == null)
+                return;
+
+            Vector3 travel = ballPosition - shotStartPosition;
+            travel.y = 0f;
+            if (travel.sqrMagnitude < 0.001f)
+            {
+                travel = cam.transform.forward;
+                travel.y = 0f;
+            }
+            if (travel.sqrMagnitude < 0.001f)
+                travel = Vector3.forward;
+            travel.Normalize();
+
+            Vector3 desiredEyePosition = ballPosition - travel * FollowBallDistance;
+            desiredEyePosition.y = cam.transform.position.y;
+
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                Vector3 cameraOffset = cam.transform.position - xrOrigin.transform.position;
+                Vector3 targetOrigin = desiredEyePosition - cameraOffset;
+                targetOrigin.y = xrOrigin.transform.position.y;
+                Quaternion targetRotation = BuildOriginRotationFacingBall(xrOrigin.transform, cam.transform, ballPosition);
+                StartFollowBallMove(xrOrigin.transform, targetOrigin, targetRotation);
+                return;
+            }
+
+            Transform cameraRoot = cam.transform.parent != null ? cam.transform.parent : cam.transform;
+            Vector3 rootOffset = cam.transform.position - cameraRoot.position;
+            Vector3 targetRoot = desiredEyePosition - rootOffset;
+            targetRoot.y = cameraRoot.position.y;
+            Quaternion rootRotation = BuildOriginRotationFacingBall(cameraRoot, cam.transform, ballPosition);
+            StartFollowBallMove(cameraRoot, targetRoot, rootRotation);
+        }
+
+        void StartFollowBallMove(Transform root, Vector3 targetPosition, Quaternion targetRotation)
+        {
+            if (root == null)
+                return;
+
+            if (_followBallRoutine != null)
+                StopCoroutine(_followBallRoutine);
+
+            _followBallRoutine = StartCoroutine(SmoothMoveRoot(root, targetPosition, targetRotation));
+        }
+
+        IEnumerator SmoothMoveRoot(Transform root, Vector3 targetPosition, Quaternion targetRotation)
+        {
+            Vector3 startPosition = root.position;
+            Quaternion startRotation = root.rotation;
+            float elapsed = 0f;
+
+            while (elapsed < FollowBallMoveSeconds)
+            {
+                elapsed += Time.deltaTime;
+                float t = Mathf.SmoothStep(0f, 1f, elapsed / FollowBallMoveSeconds);
+                root.position = Vector3.Lerp(startPosition, targetPosition, t);
+                root.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+                yield return null;
+            }
+
+            root.SetPositionAndRotation(targetPosition, targetRotation);
+            _followBallRoutine = null;
+        }
+
+        static Quaternion BuildOriginRotationFacingBall(Transform root, Transform cameraTransform, Vector3 ballPosition)
+        {
+            Vector3 toBallFromCamera = ballPosition - cameraTransform.position;
+            toBallFromCamera.y = 0f;
+            if (toBallFromCamera.sqrMagnitude < 0.001f)
+                return root.rotation;
+            toBallFromCamera.Normalize();
+
+            Vector3 cameraForward = cameraTransform.forward;
+            cameraForward.y = 0f;
+            if (cameraForward.sqrMagnitude < 0.001f)
+                cameraForward = root.forward;
+            cameraForward.y = 0f;
+            if (cameraForward.sqrMagnitude < 0.001f)
+                return root.rotation;
+            cameraForward.Normalize();
+
+            Quaternion delta = Quaternion.FromToRotation(cameraForward, toBallFromCamera);
+            return delta * root.rotation;
         }
 
         BallController CreateBall()

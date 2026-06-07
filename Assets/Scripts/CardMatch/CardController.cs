@@ -11,12 +11,17 @@ namespace SilverCare.CardMatch
 
         GameObject _front, _back;
         Renderer   _frontRenderer;
+        Vector3 _basePosition;
+        Vector3 _baseScale;
+        bool _hasBaseTransform;
+        bool _isHovered;
 
         public void SetFaces(GameObject front, GameObject back)
         {
             _front         = front;
             _back          = back;
             _frontRenderer = front?.GetComponent<Renderer>();
+            CacheBaseTransform();
         }
 
         public void Init(int id, Texture frontTex)
@@ -53,6 +58,7 @@ namespace SilverCare.CardMatch
 
         public void SetMatched()
         {
+            SetHover(false);
             IsMatched = IsFaceUp = true;
             Refresh();
             if (_frontRenderer != null)
@@ -62,6 +68,31 @@ namespace SilverCare.CardMatch
                 mat.color = c;
             }
 
+        }
+
+        public void SetHover(bool hovered)
+        {
+            CacheBaseTransform();
+
+            if (IsMatched)
+                hovered = false;
+
+            if (_isHovered == hovered)
+                return;
+
+            _isHovered = hovered;
+            transform.position = hovered ? _basePosition + Vector3.up * 0.08f : _basePosition;
+            transform.localScale = hovered ? _baseScale * 1.12f : _baseScale;
+        }
+
+        void CacheBaseTransform()
+        {
+            if (_hasBaseTransform)
+                return;
+
+            _basePosition = transform.position;
+            _baseScale = transform.localScale;
+            _hasBaseTransform = true;
         }
 
         void Refresh()

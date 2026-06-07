@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Baduk.Data;
@@ -11,7 +10,6 @@ namespace Baduk.Prediction
     public class PredictionGameManager : MonoBehaviour
     {
         [SerializeField] string lobbySceneName = "MainLobby";
-        [SerializeField] float resumeDelayAfterAnswer = 2.0f;
 
         KifuLoader _loader;
         KifuReplayManager _replay;
@@ -24,6 +22,7 @@ namespace Baduk.Prediction
         int _correctCount;
         int _totalAsked;
         bool _manuallyPaused;
+        bool _answeredCurrentPoint;
 
         Vector3 _originXRPos;
         Quaternion _originXRRot;
@@ -71,6 +70,7 @@ namespace Baduk.Prediction
             };
             _ui.OnSpeedChanged = s => _replay.SetSpeed(s);
             _ui.OnPredictionSubmit = HandlePredictionSubmitted;
+            _ui.OnPredictionContinue = HandlePredictionContinue;
             _ui.OnRestart = HandleRestart;
             _ui.OnBack = HandleBack;
             _ui.OnBackToSelect = HandleBackToSelect;
@@ -132,6 +132,8 @@ namespace Baduk.Prediction
             RestoreOrigin();
 
             Camera cam = Camera.main;
+            string sceneKey = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path;
+            BadukDeskLayoutUtility.UpdateSceneAnchor(sceneKey, cam);
             float cx = (board.C1 - board.C0) * BadukBoard.CELL / 2f;
             float cy = (board.R1 - board.R0) * BadukBoard.CELL / 2f;
 
@@ -142,7 +144,7 @@ namespace Baduk.Prediction
                 0.92f,
                 0.20f,
                 0.62f,
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
+                sceneKey,
                 cam,
                 out Vector3 boardCenter,
                 out float tableY);
@@ -155,7 +157,8 @@ namespace Baduk.Prediction
                 tableY,
                 board.transform.rotation,
                 true,
-                BadukRoomEnvironment.SceneStyle.Practice);
+                BadukRoomEnvironment.SceneStyle.Practice,
+                spawnSpectators: true);
             _vrBoardSetup?.AttachInteractables();
         }
 
@@ -169,6 +172,7 @@ namespace Baduk.Prediction
 
             _consumedPoints.Add(cur);
             _activePoint = point;
+            _answeredCurrentPoint = false;
             _replay.Pause();
             _totalAsked++;
             _ui.ShowPredictionOverlay(point);
@@ -192,20 +196,27 @@ namespace Baduk.Prediction
         {
             if (_activePoint == null)
                 return;
+            if (_answeredCurrentPoint)
+                return;
 
             bool correct = chosenCandidateIndex == _activePoint.correct_index;
             if (correct)
+            {
+                _answeredCurrentPoint = true;
                 _correctCount++;
+            }
 
             _ui.ShowPredictionResult(correct, _activePoint, chosenCandidateIndex);
-            StartCoroutine(ResumeAfterAnswer());
         }
 
-        IEnumerator ResumeAfterAnswer()
+        void HandlePredictionContinue()
         {
-            yield return new WaitForSeconds(resumeDelayAfterAnswer);
+            if (_activePoint == null || !_answeredCurrentPoint)
+                return;
+
             _ui.HidePredictionOverlay();
             _activePoint = null;
+            _answeredCurrentPoint = false;
 
             if (_currentKifu != null && _replay.MoveIndex < _replay.TotalMoves && !_manuallyPaused)
                 _replay.Play();
@@ -214,6 +225,11 @@ namespace Baduk.Prediction
         void HandleReplayEnded()
         {
             _ui.ShowResult(_correctCount, _totalAsked);
+            bool firstClear = StoryProgressManager.Instance != null &&
+                              StoryProgressManager.Instance.TryMarkActivityCleared(
+                                  StoryProgressManager.StoryActivity.BadukPrediction);
+            if (firstClear)
+                StoryProgressManager.Instance?.SpeakClearNarration(StoryProgressManager.StoryActivity.BadukPrediction);
         }
 
         void HandleRestart()
@@ -241,6 +257,7 @@ namespace Baduk.Prediction
                 board.transform.position = new Vector3(0f, -100f, 0f);
             }
 
+            BadukDeskLayoutUtility.ClearSceneAnchor(UnityEngine.SceneManagement.SceneManager.GetActiveScene().path);
             RestoreOrigin();
             ShowKifuSelect();
         }

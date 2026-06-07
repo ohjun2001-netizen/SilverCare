@@ -224,21 +224,21 @@ namespace Baduk.Replay
             _playersText = CreateText(topRt, "Players", "", 22, FontStyle.Normal,
                 new Vector2(0, -24), new Vector2(790, 58), _ink);
 
-            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -44), new Vector2(860, 150));
+            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -64), new Vector2(860, 190));
             var botRt = bottom.GetComponent<RectTransform>();
 
             _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,
-                new Vector2(0, 36), new Vector2(790, 56), new Color(0.58f, 0.38f, 0.05f));
+                new Vector2(0, 58), new Vector2(790, 54), new Color(0.58f, 0.38f, 0.05f));
 
-            var prev = CreateButton(botRt, "이전", 20, new Vector2(-300, -18), new Vector2(110, 50), new Color(0.30f, 0.36f, 0.42f));
-            _btnPlayPause = CreateButton(botRt, "재생", 20, new Vector2(-180, -18), new Vector2(110, 50), _accent);
-            var next = CreateButton(botRt, "다음", 20, new Vector2(-60, -18), new Vector2(110, 50), _accent);
-            var restart = CreateButton(botRt, "처음부터", 18, new Vector2(70, -18), new Vector2(130, 50), new Color(0.35f, 0.52f, 0.28f));
-            var back = CreateButton(botRt, "목록", 18, new Vector2(210, -18), new Vector2(110, 50), new Color(0.34f, 0.38f, 0.40f));
+            var prev = CreateButton(botRt, "이전", 20, new Vector2(-295, -10), new Vector2(110, 50), new Color(0.30f, 0.36f, 0.42f));
+            _btnPlayPause = CreateButton(botRt, "재생", 20, new Vector2(-170, -10), new Vector2(110, 50), _accent);
+            var next = CreateButton(botRt, "다음", 20, new Vector2(-45, -10), new Vector2(110, 50), _accent);
+            var restart = CreateButton(botRt, "처음부터", 18, new Vector2(92, -10), new Vector2(130, 50), new Color(0.35f, 0.52f, 0.28f));
+            var back = CreateButton(botRt, "목록", 18, new Vector2(230, -10), new Vector2(110, 50), new Color(0.34f, 0.38f, 0.40f));
 
-            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-120, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
-            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(0, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
-            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(120, -80), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-120, -78), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(0, -78), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(120, -78), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
 
             prev.onClick.AddListener(() => OnPrev?.Invoke());
             _btnPlayPause.onClick.AddListener(() => OnPlayPause?.Invoke());

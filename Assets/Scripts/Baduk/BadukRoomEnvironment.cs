@@ -18,7 +18,8 @@ namespace Baduk
         const string NpcResourceRoot = "BadukNPC";
 
         public static void Spawn(Vector3 boardCenter, float halfW, float halfD,
-            float tableY, Quaternion roomRot, bool adjustCamera = true, SceneStyle style = SceneStyle.Practice)
+            float tableY, Quaternion roomRot, bool adjustCamera = true, SceneStyle style = SceneStyle.Practice,
+            bool spawnSpectators = true)
         {
             Cleanup();
 
@@ -30,7 +31,7 @@ namespace Baduk
             float boardRadius = Mathf.Max(halfW, halfD);
 
             ConfigureOutdoorMood(style);
-            SpawnParkBackground(root, boardCenter, halfW, halfD, tableY, roomRot, right, forward, style);
+            SpawnParkBackground(root, boardCenter, halfW, halfD, tableY, roomRot, right, forward, style, spawnSpectators);
             SpawnDarkTable(root, boardCenter, halfW, halfD, tableY, roomRot);
             SpawnStoneBowl(root, boardCenter + right * (boardRadius + 0.24f) + forward * 0.02f, tableY, true);
             SpawnStoneBowl(root, boardCenter - right * (boardRadius + 0.24f) + forward * 0.02f, tableY, false);
@@ -42,6 +43,28 @@ namespace Baduk
         public static void SpawnPracticeBackdrop(Vector3 boardCenter, Quaternion roomRot)
         {
             Cleanup();
+        }
+
+        // GoStop 등 다른 게임에서 바둑 공원 배경만 빌려쓸 때 호출.
+        // 바둑판·돌그릇은 생성하지 않고 지형·나무·벤치만 만든다.
+        // groundWorldY: 공원 지면(잔디 윗면)을 맞출 월드 높이 — 호출부의 바닥과 정합시킨다.
+        // 분위기(fog/ambient)는 호출부에서 직접 설정한다.
+        public static void SpawnOutdoorBackground(GameObject parent, Vector3 center, Quaternion roomRot, float groundWorldY)
+        {
+            Vector3 right = roomRot * Vector3.right;
+            Vector3 forward = roomRot * Vector3.forward;
+
+            // 공원 오브젝트는 내부에서 월드 좌표(지면≈0)로 생성되므로, 별도 루트에 담아
+            // 통째로 groundWorldY 만큼 올려 호출부의 바닥과 정확히 맞춘다.
+            var parkRoot = new GameObject("OutdoorPark");
+            parkRoot.transform.SetParent(parent.transform, false);
+
+            SpawnGround(parkRoot, center);
+            SpawnBenches(parkRoot, center, right, forward, center.y);
+            SpawnTreeLine(parkRoot, center, right, forward);
+            SpawnBushLine(parkRoot, center, right, forward);
+
+            parkRoot.transform.position += new Vector3(0f, groundWorldY, 0f);
         }
 
         public static void Cleanup()
@@ -117,18 +140,12 @@ namespace Baduk
         }
 
         static void SpawnParkBackground(GameObject root, Vector3 center, float halfW, float halfD, float tableY,
-            Quaternion rot, Vector3 right, Vector3 forward, SceneStyle style)
+            Quaternion rot, Vector3 right, Vector3 forward, SceneStyle style, bool spawnSpectators)
         {
             SpawnGround(root, center);
-            if (style == SceneStyle.Practice)
-            {
-                SpawnBenches(root, center, right, forward, tableY);
+            SpawnBenches(root, center, right, forward, tableY);
+            if (spawnSpectators)
                 SpawnSpectators(root, center, right, forward);
-            }
-            else
-            {
-                SpawnBenches(root, center, right, forward, tableY);
-            }
             SpawnTreeLine(root, center, right, forward);
             SpawnBushLine(root, center, right, forward);
         }
@@ -136,18 +153,25 @@ namespace Baduk
         static void SpawnSpectators(GameObject root, Vector3 center, Vector3 right, Vector3 forward)
         {
             Vector3 boardInterest = center + forward * 0.10f;
+            Vector3[] avoidPoints = BuildSpectatorAvoidPoints(center, right, forward);
+            float[] avoidRadii = BuildSpectatorAvoidRadii();
             Vector3[] positions =
             {
-                center - right * 1.18f + forward * 1.38f,
-                center + right * 1.20f + forward * 1.42f,
-                center - right * 1.85f + forward * 2.05f,
-                center + right * 1.92f + forward * 2.05f,
-                center - right * 0.45f + forward * 2.42f,
-                center + right * 0.52f + forward * 2.48f,
-                center - right * 2.35f + forward * 1.05f
+                center - right * 5.2f + forward * 4.8f,
+                center - right * 3.6f + forward * 1.8f,
+                center - right * 2.1f + forward * 5.7f,
+                center - right * 0.4f + forward * 4.2f,
+                center + right * 1.4f + forward * 5.4f,
+                center + right * 3.6f + forward * 1.8f,
+                center + right * 5.0f + forward * 4.6f,
+                center - right * 5.2f - forward * 1.9f,
+                center + right * 5.2f - forward * 1.9f,
+                center - right * 3.6f - forward * 3.4f,
+                center + right * 3.6f - forward * 3.4f,
+                center + right * 0.2f + forward * 6.8f
             };
 
-            float[] heights = { 0.98f, 1.02f, 0.95f, 1.04f, 0.97f, 1.00f, 0.96f };
+            float[] heights = { 0.98f, 1.02f, 0.95f, 1.04f, 0.97f, 1.00f, 0.96f, 1.03f, 0.99f, 1.01f, 0.97f, 1.02f };
             Color[] clothes =
             {
                 new Color(0.24f, 0.31f, 0.42f),
@@ -156,17 +180,23 @@ namespace Baduk
                 new Color(0.42f, 0.35f, 0.28f),
                 new Color(0.22f, 0.24f, 0.29f),
                 new Color(0.52f, 0.44f, 0.33f),
-                new Color(0.34f, 0.41f, 0.50f)
+                new Color(0.34f, 0.41f, 0.50f),
+                new Color(0.31f, 0.24f, 0.21f),
+                new Color(0.43f, 0.47f, 0.34f),
+                new Color(0.28f, 0.36f, 0.37f),
+                new Color(0.46f, 0.38f, 0.31f),
+                new Color(0.30f, 0.34f, 0.45f)
             };
             for (int i = 0; i < positions.Length; i++)
             {
+                Vector3 spawnPosition = PushOutsideAvoidance(positions[i], avoidPoints, avoidRadii);
                 Vector3 lookTarget = boardInterest + ((i % 2 == 0) ? right * 0.08f : -right * 0.08f);
-                Quaternion rot = Quaternion.LookRotation((lookTarget - positions[i]).normalized, Vector3.up);
-                float wanderRadius = (i < 2) ? 0.16f : 0.22f;
-                float moveSpeed = 0.010f + (i * 0.0015f);
-                GameObject spectator = SpawnSpectatorNpc(root, positions[i], rot, boardInterest, wanderRadius, moveSpeed, heights[i]);
+                Quaternion rot = Quaternion.LookRotation((lookTarget - spawnPosition).normalized, Vector3.up);
+                float wanderRadius = 1.35f;
+                float moveSpeed = 0.28f + (i * 0.01f);
+                GameObject spectator = SpawnSpectatorNpc(root, spawnPosition, rot, boardInterest, wanderRadius, moveSpeed, heights[i], avoidPoints, avoidRadii);
                 if (spectator == null)
-                    spectator = SpawnSpectatorFigure(root, positions[i], rot, heights[i], clothes[i], wanderRadius, moveSpeed);
+                    spectator = SpawnSpectatorFigure(root, spawnPosition, rot, boardInterest, heights[i], clothes[i], wanderRadius, moveSpeed, avoidPoints, avoidRadii);
 
                 if (spectator != null)
                 {
@@ -174,6 +204,72 @@ namespace Baduk
                     gesture.Initialize(i * 0.73f);
                 }
             }
+        }
+
+        static Vector3[] BuildSpectatorAvoidPoints(Vector3 center, Vector3 right, Vector3 forward)
+        {
+            Vector3 backBand = center + forward * 4.8f;
+            Vector3 farBand = center + forward * 7.2f;
+            Vector3 bushBand = center + forward * 2.4f;
+            Vector3 sideBand = center + forward * 3.5f;
+            return new[]
+            {
+                center,
+                center + forward * 3.15f,
+                center + forward * 3.15f - right * 0.95f,
+                center + forward * 3.15f + right * 0.95f,
+                backBand - right * 5.4f,
+                backBand - right * 3.2f + forward * 0.4f,
+                backBand - right * 1.3f - forward * 0.3f,
+                backBand + right * 1.7f,
+                backBand + right * 4.6f - forward * 0.5f,
+                farBand - right * 7.2f,
+                farBand - right * 4.8f + forward * 0.4f,
+                farBand - right * 2.1f - forward * 0.2f,
+                farBand + right * 1.2f + forward * 0.5f,
+                farBand + right * 3.9f - forward * 0.3f,
+                farBand + right * 6.6f,
+                bushBand - right * 2.2f,
+                bushBand - right * 1.0f + forward * 0.2f,
+                bushBand + right * 0.9f + forward * 0.15f,
+                bushBand + right * 2.4f - forward * 0.1f,
+                sideBand - right * 4.4f,
+                sideBand - right * 3.1f + forward * 0.15f,
+                sideBand + right * 3.0f + forward * 0.20f,
+                sideBand + right * 4.5f - forward * 0.12f
+            };
+        }
+
+        static float[] BuildSpectatorAvoidRadii()
+        {
+            return new[]
+            {
+                1.75f,
+                1.85f,
+                1.45f, 1.45f,
+                1.05f, 1.05f, 1.05f, 1.05f, 1.05f,
+                1.15f, 1.15f, 1.15f, 1.15f, 1.15f, 1.15f,
+                0.85f, 0.85f, 0.85f, 0.85f,
+                0.90f, 0.90f, 0.90f, 0.90f
+            };
+        }
+
+        static Vector3 PushOutsideAvoidance(Vector3 candidate, Vector3[] avoidPoints, float[] avoidRadii)
+        {
+            int count = Mathf.Min(avoidPoints.Length, avoidRadii.Length);
+            for (int i = 0; i < count; i++)
+            {
+                float radius = avoidRadii[i];
+                Vector3 offset = candidate - avoidPoints[i];
+                offset.y = 0f;
+                if (offset.sqrMagnitude >= radius * radius)
+                    continue;
+
+                Vector3 push = offset.sqrMagnitude > 0.0001f ? offset.normalized : Vector3.forward;
+                candidate = avoidPoints[i] + push * radius;
+            }
+
+            return candidate;
         }
 
         static void SpawnDarkTable(GameObject root, Vector3 center, float halfW, float halfD, float tableY, Quaternion roomRot)
@@ -363,7 +459,7 @@ namespace Baduk
         }
 
         static GameObject SpawnSpectatorNpc(GameObject root, Vector3 position, Quaternion rotation, Vector3 interestPoint,
-            float wanderRadius, float moveSpeed, float heightScale)
+            float wanderRadius, float moveSpeed, float heightScale, Vector3[] avoidPoints, float[] avoidRadii)
         {
             var prefab = Resources.Load<GameObject>($"{NpcResourceRoot}/SimpleHuman");
             if (prefab == null) return null;
@@ -380,7 +476,7 @@ namespace Baduk
             styler.ApplyStyle(Random.Range(1, 100000));
 
             var walker = instance.AddComponent<BadukAmbientWalker>();
-            walker.Initialize(instance.transform.position, interestPoint, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f, 180f);
+            walker.Initialize(instance.transform.position, interestPoint, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f, 180f, 1.75f, avoidPoints, avoidRadii);
             return instance;
         }
 
@@ -415,8 +511,8 @@ namespace Baduk
             back.transform.rotation = rot;
         }
 
-        static GameObject SpawnSpectatorFigure(GameObject root, Vector3 center, Quaternion rot, float height, Color clothColor,
-            float wanderRadius, float moveSpeed)
+        static GameObject SpawnSpectatorFigure(GameObject root, Vector3 center, Quaternion rot, Vector3 interestPoint, float height, Color clothColor,
+            float wanderRadius, float moveSpeed, Vector3[] avoidPoints, float[] avoidRadii)
         {
             var actor = new GameObject("Spectator");
             actor.transform.SetParent(root.transform);
@@ -472,7 +568,7 @@ namespace Baduk
             actor.transform.rotation = rot;
 
             var walker = actor.AddComponent<BadukAmbientWalker>();
-            walker.Initialize(center, center + rot * Vector3.forward * 1.2f, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f);
+            walker.Initialize(center, interestPoint, wanderRadius, moveSpeed, 0f, 4.0f, 8.5f, 0f, 1.75f, avoidPoints, avoidRadii);
             return actor;
         }
 

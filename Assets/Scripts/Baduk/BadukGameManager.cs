@@ -1,16 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Baduk.Data;
 using SilverCare.Common;
+using Unity.XR.CoreUtils;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Baduk
 {
     public class BadukGameManager : MonoBehaviour
     {
-        [Header("Scene Names")]
-        [SerializeField] string lobbySceneName = "MainLobby";
-
         BadukBoard _board;
         BadukProblemLoader _loader;
         BadukAnswerChecker _checker;
@@ -21,13 +20,21 @@ namespace Baduk
         IBadukUI _ui;
         BadukVRBoardSetup _vrBoardSetup;
 
-        BadukProblem _cur;
-        readonly HashSet<(int r, int c)> _placedStones = new();
-        (int r, int c)? _selectedPlacement;
+        BadukProblem _currentProblem;
+        readonly HashSet<(int row, int col)> _placedStones = new();
+        (int row, int col)? _selectedPlacement;
         bool _awaitingPlacementConfirm;
 
         List<BadukProblem> _filteredProblems = new();
-        int _filteredIdx;
+        int _filteredIndex;
+
+        Vector3 _originXRPos;
+        Quaternion _originXRRot;
+        bool _originXRSaved;
+
+        Vector3 _originCamPos;
+        Quaternion _originCamRot;
+        bool _originCamSaved;
 
         void Awake()
         {
@@ -48,6 +55,22 @@ namespace Baduk
 
         void Start()
         {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originXRSaved = true;
+            }
+
+            Camera cam = Camera.main;
+            if (cam != null)
+            {
+                _originCamPos = cam.transform.position;
+                _originCamRot = cam.transform.rotation;
+                _originCamSaved = true;
+            }
+
             _input.OnIntersectionClicked += HandlePlayerMove;
 
             _ui.OnNext = NextProblem;
@@ -55,21 +78,25 @@ namespace Baduk
             _ui.OnHint = ShowHint;
             _ui.OnRetry = () =>
             {
-                if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 차단
-                LoadFilteredProblem(_filteredIdx);
+                if (_awaitingPlacementConfirm)
+                    return;
+
+                LoadFilteredProblem(_filteredIndex);
             };
             _ui.OnBack = () =>
             {
-                if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 차단
-                _board.ClearBoard();
-                BadukRoomEnvironment.Cleanup();
-                _ui.ShowDifficultySelect();
+                if (_awaitingPlacementConfirm)
+                    return;
+
+                ReturnToDifficultySelect();
             };
             _ui.OnConfirmPlacement = ConfirmPlacement;
             _ui.OnCancelPlacement = CancelPlacement;
             _ui.OnDifficultySelected = OnDifficultySelected;
 
             _hint.OnHintTextReady = text => _ui.ShowHintText(text);
+
+            RestoreOrigin();
             _ui.ShowDifficultySelect();
         }
 
@@ -79,6 +106,38 @@ namespace Baduk
                 _input.OnIntersectionClicked -= HandlePlayerMove;
 
             BadukRoomEnvironment.Cleanup();
+        }
+
+        void RestoreOrigin()
+        {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null && _originXRSaved)
+            {
+                xrOrigin.transform.position = _originXRPos;
+                xrOrigin.transform.rotation = _originXRRot;
+            }
+
+            Camera cam = Camera.main;
+            if (cam != null && _originCamSaved)
+            {
+                cam.transform.position = _originCamPos;
+                cam.transform.rotation = _originCamRot;
+            }
+        }
+
+        void ReturnToDifficultySelect()
+        {
+            _board.ClearBoard();
+            _board.HideHintMarker();
+            _board.transform.position = new Vector3(0f, -100f, 0f);
+            _placedStones.Clear();
+            _selectedPlacement = null;
+            _awaitingPlacementConfirm = false;
+
+            BadukRoomEnvironment.Cleanup();
+            BadukDeskLayoutUtility.ClearSceneAnchor(SceneManager.GetActiveScene().path);
+            RestoreOrigin();
+            _ui.ShowDifficultySelect();
         }
 
         void OnDifficultySelected(int difficulty)
@@ -104,41 +163,43 @@ namespace Baduk
                 return;
             }
 
-            _filteredIdx = 0;
+            _filteredIndex = 0;
+            BadukDeskLayoutUtility.ClearSceneAnchor(SceneManager.GetActiveScene().path);
             LoadFilteredProblem(0);
         }
 
-        void LoadFilteredProblem(int idx)
+        void LoadFilteredProblem(int index)
         {
             if (_filteredProblems.Count == 0)
                 return;
 
-            _filteredIdx = idx;
-            _cur = _filteredProblems[idx];
+            RestoreOrigin();
+
+            _filteredIndex = index;
+            _currentProblem = _filteredProblems[index];
             _placedStones.Clear();
             _selectedPlacement = null;
             _awaitingPlacementConfirm = false;
 
-            _board.SetupBoard(_cur);
-            _checker.SetProblem(_cur);
-            _hint.SetProblem(_cur);
-            _ui.ShowProblem(_cur, idx + 1, _filteredProblems.Count);
+            _board.SetupBoard(_currentProblem);
+            _checker.SetProblem(_currentProblem);
+            _hint.SetProblem(_currentProblem);
+            _ui.ShowProblem(_currentProblem, index + 1, _filteredProblems.Count);
             RefreshPlacementGuide();
 
             _input.OnBoardReady(_board.R0, _board.C0, _board.R1, _board.C1);
             _input.EnableInput();
             _vrBoardSetup?.AttachInteractables();
 
-            if (TTSManager.Instance != null)
-                TTSManager.Instance.Speak(_cur.description, interruptCurrent: true);
-            else
-                _tts?.Speak(_cur.description);
+            SpeakTTS(_currentProblem.description);
         }
 
         void NextProblem()
         {
-            if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 이동 차단(다시 선택 클릭이 새는 것 방지)
-            int next = _filteredIdx + 1;
+            if (_awaitingPlacementConfirm)
+                return;
+
+            int next = _filteredIndex + 1;
             if (next >= _filteredProblems.Count)
                 next = 0;
 
@@ -147,8 +208,10 @@ namespace Baduk
 
         void PrevProblem()
         {
-            if (_awaitingPlacementConfirm) return;   // 확인창이 떠 있는 동안엔 이동 차단
-            int prev = _filteredIdx - 1;
+            if (_awaitingPlacementConfirm)
+                return;
+
+            int prev = _filteredIndex - 1;
             if (prev < 0)
                 prev = _filteredProblems.Count - 1;
 
@@ -157,19 +220,15 @@ namespace Baduk
 
         void HandlePlayerMove(int row, int col)
         {
-            if (_awaitingPlacementConfirm)
-                return;
-
-            if (IsOccupied(row, col))
+            if (_awaitingPlacementConfirm || IsOccupied(row, col))
                 return;
 
             _selectedPlacement = (row, col);
             _awaitingPlacementConfirm = true;
             _board.ShowHintMarker(row, col);
             _ui.ShowPlacementConfirm("선택하신 자리가 여기 맞을까요?");
-            // 확인창이 떠 있는 동안에는 보드 입력을 꺼서, 레이저가 확인창 뒤 보드로 새는 오작동을 막는다.
             _input.DisableInput();
-            SpeakTTS("선택하신 자리가 여기 맞을까요? 맞으면 확인, 아니면 다시 선택해 주세요.");
+            SpeakTTS("선택하신 자리가 여기 맞을까요? 맞으면 확인, 아니면 다시 선택을 눌러 주세요.");
         }
 
         void ConfirmPlacement()
@@ -178,28 +237,26 @@ namespace Baduk
                 return;
 
             var placement = _selectedPlacement.Value;
-            StoneType playerStone = _cur.player == "black" ? StoneType.Black : StoneType.White;
-            _board.PlaceStone(placement.r, placement.c, playerStone);
-            _placedStones.Add((placement.r, placement.c));
+            StoneType playerStone = _currentProblem.player == "black" ? StoneType.Black : StoneType.White;
+            _board.PlaceStone(placement.row, placement.col, playerStone);
+            _placedStones.Add((placement.row, placement.col));
 
             _awaitingPlacementConfirm = false;
             _selectedPlacement = null;
             _ui.HidePlacementConfirm();
             _board.HideHintMarker();
 
-            ProblemResult result = _checker.CheckMove(placement.r, placement.c);
+            ProblemResult result = _checker.CheckMove(placement.row, placement.col);
             switch (result)
             {
                 case ProblemResult.Correct:
-                    _ui.ShowResult(result, _cur.explanation);
-                    _input.DisableInput();
-                    SpeakTTS(_cur.tts_correct);
+                    HandleCorrectAnswer();
                     break;
 
                 case ProblemResult.Wrong:
                     _ui.ShowResult(result);
                     _board.HighlightPlayerStone(Color.red);
-                    SpeakTTS(_cur.tts_wrong);
+                    SpeakTTS(_currentProblem.tts_wrong);
                     _hint.ResetOnWrongAnswer();
                     StartCoroutine(RemoveWrongStoneAfterDelay(1.2f));
                     break;
@@ -207,9 +264,40 @@ namespace Baduk
                 case ProblemResult.PartialCorrect:
                     _ui.ShowResult(result);
                     RefreshPlacementGuide();
-                    _input.EnableInput();   // 다음 수를 두도록 보드 입력 재개
+                    _input.EnableInput();
                     break;
             }
+        }
+
+        void HandleCorrectAnswer()
+        {
+            _ui.ShowResult(ProblemResult.Correct, _currentProblem.explanation);
+            _input.DisableInput();
+
+            bool firstProblemClear = StoryProgressManager.Instance != null &&
+                                     StoryProgressManager.Instance.TryMarkActivityCleared(
+                                         StoryProgressManager.StoryActivity.BadukProblem);
+
+            string clearMessage = _currentProblem.tts_correct;
+            if (StoryProgressManager.Instance != null)
+            {
+                if (firstProblemClear)
+                {
+                    string storyMessage = StoryProgressManager.Instance.GetClearNarration(
+                        StoryProgressManager.StoryActivity.BadukProblem);
+                    StoryProgressManager.Instance.ShowStoryPanel("바둑 사활 완료", storyMessage, 6.5f);
+                    clearMessage = $"{_currentProblem.tts_correct} {storyMessage}";
+                }
+                else
+                {
+                    StoryProgressManager.Instance.ShowStoryPanel(
+                        "정답입니다",
+                        "좋습니다. 이 문제를 잘 해결하셨습니다. 다음 문제도 천천히 이어가 보세요.",
+                        4.5f);
+                }
+            }
+
+            SpeakTTS(clearMessage);
         }
 
         void CancelPlacement()
@@ -218,7 +306,7 @@ namespace Baduk
             _selectedPlacement = null;
             _board.HideHintMarker();
             _ui.HidePlacementConfirm();
-            _input.EnableInput();   // 확인창을 닫았으니 다시 자리를 고를 수 있게 보드 입력 재개
+            _input.EnableInput();
             _ui.ShowGuideMessage("괜찮습니다. 다시 바둑돌을 둘 자리를 눌러보세요.");
             SpeakTTS("괜찮습니다. 다시 고르시면 됩니다.");
         }
@@ -257,18 +345,18 @@ namespace Baduk
             if (_placedStones.Contains((row, col)))
                 return true;
 
-            if (_cur.stones?.black != null)
+            if (_currentProblem.stones?.black != null)
             {
-                foreach (var stone in _cur.stones.black)
+                foreach (var stone in _currentProblem.stones.black)
                 {
                     if (stone.row == row && stone.col == col)
                         return true;
                 }
             }
 
-            if (_cur.stones?.white != null)
+            if (_currentProblem.stones?.white != null)
             {
-                foreach (var stone in _cur.stones.white)
+                foreach (var stone in _currentProblem.stones.white)
                 {
                     if (stone.row == row && stone.col == col)
                         return true;

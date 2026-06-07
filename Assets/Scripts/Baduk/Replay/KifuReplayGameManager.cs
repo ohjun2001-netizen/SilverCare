@@ -1,6 +1,7 @@
 using UnityEngine;
 using Baduk.Data;
 using SilverCare.Common;
+using Unity.XR.CoreUtils;
 
 namespace Baduk.Replay
 {
@@ -19,6 +20,10 @@ namespace Baduk.Replay
         BadukVRBoardSetup _vrBoardSetup;
 
         bool _inReplayView;
+
+        Vector3 _originXRPos;
+        Quaternion _originXRRot;
+        bool _originXRSaved;
 
         Vector3 _originCamPos;
         Quaternion _originCamRot;
@@ -39,6 +44,14 @@ namespace Baduk.Replay
 
         void Start()
         {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originXRSaved = true;
+            }
+
             Camera cam = Camera.main;
             if (cam != null)
             {
@@ -57,6 +70,7 @@ namespace Baduk.Replay
 
             _replay.OnMoveAdvanced = (cur, total) => _ui.UpdateProgress(cur, total);
             _replay.OnPlaybackStateChanged = () => _ui.UpdatePlayPauseLabel(_replay.IsPlaying);
+            _replay.OnReplayEnded = HandleReplayEnded;
 
             if (_commentator != null)
                 _commentator.OnComment = text => _ui.ShowComment(text);
@@ -85,15 +99,13 @@ namespace Baduk.Replay
             if (board == null)
                 return;
 
-            Camera cam = Camera.main;
-            if (cam != null && _originCamSaved)
-            {
-                cam.transform.position = _originCamPos;
-                cam.transform.rotation = _originCamRot;
-            }
+            ResetOrigin();
 
+            Camera cam = Camera.main;
             float cx = (board.C1 - board.C0) * BadukBoard.CELL / 2f;
             float cy = (board.R1 - board.R0) * BadukBoard.CELL / 2f;
+            string sceneKey = UnityEngine.SceneManagement.SceneManager.GetActiveScene().path;
+            BadukDeskLayoutUtility.UpdateSceneAnchor(sceneKey, cam);
 
             BadukDeskLayoutUtility.ApplyDeskLayout(
                 board.transform,
@@ -102,7 +114,7 @@ namespace Baduk.Replay
                 0.92f,
                 0.20f,
                 0.62f,
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().path,
+                sceneKey,
                 cam,
                 out Vector3 boardCenter,
                 out float tableY);
@@ -115,7 +127,8 @@ namespace Baduk.Replay
                 tableY,
                 board.transform.rotation,
                 true,
-                BadukRoomEnvironment.SceneStyle.Practice);
+                BadukRoomEnvironment.SceneStyle.Practice,
+                spawnSpectators: true);
             _vrBoardSetup?.AttachInteractables();
         }
 
@@ -128,6 +141,15 @@ namespace Baduk.Replay
             HandleKifuSelected(current);
         }
 
+        void HandleReplayEnded()
+        {
+            bool firstClear = StoryProgressManager.Instance != null &&
+                              StoryProgressManager.Instance.TryMarkActivityCleared(
+                                  StoryProgressManager.StoryActivity.BadukReplay);
+            if (firstClear)
+                StoryProgressManager.Instance?.SpeakClearNarration(StoryProgressManager.StoryActivity.BadukReplay);
+        }
+
         void HandleBack()
         {
             if (_inReplayView)
@@ -135,7 +157,8 @@ namespace Baduk.Replay
                 _replay.Pause();
                 ClearReplayEnvironment();
                 SelectionBackdropUtility.ClearAllBackdrops();
-                ResetCameraToOrigin();
+                BadukDeskLayoutUtility.ClearSceneAnchor(UnityEngine.SceneManagement.SceneManager.GetActiveScene().path);
+                ResetOrigin();
                 _ui.ShowKifuSelect(_loader.AllKifus);
                 _inReplayView = false;
                 return;
@@ -144,8 +167,15 @@ namespace Baduk.Replay
             LoadLobby();
         }
 
-        void ResetCameraToOrigin()
+        void ResetOrigin()
         {
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null && _originXRSaved)
+            {
+                xrOrigin.transform.position = _originXRPos;
+                xrOrigin.transform.rotation = _originXRRot;
+            }
+
             Camera cam = Camera.main;
             if (cam == null || !_originCamSaved)
                 return;

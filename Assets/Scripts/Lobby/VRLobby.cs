@@ -15,6 +15,8 @@ public class VRLobby : MonoBehaviour
     Canvas _canvas;
     Text _recText;
     Text _scoreText;
+    GameObject _tutorialPanel;
+    Text _tutorialGuideText;
 
     static readonly Dictionary<string, Texture2D> TextureCache = new Dictionary<string, Texture2D>();
     static readonly Color PanelColor = new(0.96f, 0.94f, 0.88f, 0.98f);
@@ -187,7 +189,7 @@ public class VRLobby : MonoBehaviour
         _canvas = canvasGO.AddComponent<Canvas>();
         _canvas.renderMode = RenderMode.WorldSpace;
         var scaler = canvasGO.AddComponent<CanvasScaler>();
-        scaler.dynamicPixelsPerUnit = 4f;
+        scaler.dynamicPixelsPerUnit = 14f;
         scaler.referencePixelsPerUnit = 140f;
         XRUIUtility.ConfigureWorldCanvas(canvasGO, _canvas);
 
@@ -245,6 +247,156 @@ public class VRLobby : MonoBehaviour
             23, FontStyle.Bold, new Vector2(0, -258), new Vector2(880, 36), AccentColor);
         _scoreText = MakeText(bgrt, "HighScoreText", "",
             20, FontStyle.Normal, new Vector2(0, -294), new Vector2(880, 32), MutedColor);
+
+        MakeFlatButton(bgrt, "조작법", new Vector2(365, 252), new Vector2(150, 50),
+            new Color(0.62f, 0.38f, 0.14f), ShowTutorial);
+        BuildTutorialPanel(bgrt);
+    }
+
+    void BuildTutorialPanel(RectTransform parent)
+    {
+        _tutorialPanel = new GameObject("TutorialPanelRoot", typeof(RectTransform), typeof(Image));
+        _tutorialPanel.transform.SetParent(parent, false);
+        var rootRt = _tutorialPanel.GetComponent<RectTransform>();
+        rootRt.anchorMin = Vector2.zero;
+        rootRt.anchorMax = Vector2.one;
+        rootRt.offsetMin = Vector2.zero;
+        rootRt.offsetMax = Vector2.zero;
+        _tutorialPanel.GetComponent<Image>().color = new Color(0.03f, 0.05f, 0.05f, 0.58f);
+
+        var panel = CreatePanel(rootRt, "TutorialCard", new Color(0.98f, 0.95f, 0.86f, 0.99f),
+            Vector2.zero, new Vector2(980, 710));
+        var panelRt = panel.GetComponent<RectTransform>();
+
+        CreatePanel(panelRt, "TutorialAccent", AccentColor, new Vector2(0, 320), new Vector2(860, 6));
+        MakeText(panelRt, "TutorialTitle", "VR 조작법 안내", 42, FontStyle.Bold,
+            new Vector2(0, 282), new Vector2(860, 54), AccentColor);
+        MakeText(panelRt, "TutorialSubtitle", "오른손 컨트롤러의 레이저를 기준으로 조작합니다.", 24, FontStyle.Normal,
+            new Vector2(0, 240), new Vector2(860, 36), MutedColor);
+
+        CreatePanel(panelRt, "TutorialButtonRail", new Color(0.91f, 0.86f, 0.74f, 0.95f),
+            new Vector2(-325, 12), new Vector2(250, 408));
+        CreatePanel(panelRt, "TutorialBodyPanel", new Color(1.0f, 0.98f, 0.91f, 0.98f),
+            new Vector2(135, 12), new Vector2(620, 408));
+
+        (string key, string label)[] guideTabs =
+        {
+            ("common", "공통"),
+            ("baduk", "바둑 사활"),
+            ("replay", "바둑 복기"),
+            ("prediction", "수 예측하기"),
+            ("card", "카드 맞추기"),
+            ("gostop", "고스톱"),
+            ("golf", "골프")
+        };
+
+        for (int i = 0; i < guideTabs.Length; i++)
+        {
+            string key = guideTabs[i].key;
+            MakeFlatButton(panelRt, guideTabs[i].label,
+                new Vector2(-325, 170 - i * 50), new Vector2(210, 40),
+                i == 0 ? AccentColor : new Color(0.22f, 0.32f, 0.30f),
+                () => SetTutorialGuide(key));
+        }
+
+        _tutorialGuideText = MakeText(panelRt, "TutorialGuideText", GetTutorialGuide("common"), 21, FontStyle.Bold,
+            new Vector2(135, 10), new Vector2(560, 344), InkColor);
+        _tutorialGuideText.alignment = TextAnchor.UpperLeft;
+        _tutorialGuideText.verticalOverflow = VerticalWrapMode.Truncate;
+        _tutorialGuideText.lineSpacing = 1.12f;
+
+        string safetyGuide =
+            "안전 안내: 앉거나 안정된 자세에서 천천히 이용하세요. 어지러우면 바로 쉬어가세요.";
+
+        CreatePanel(panelRt, "TutorialSafetyBox", new Color(0.93f, 0.86f, 0.68f, 0.95f),
+            new Vector2(0, -236), new Vector2(850, 56));
+        MakeText(panelRt, "TutorialSafety", safetyGuide, 24, FontStyle.Bold,
+            new Vector2(0, -236), new Vector2(810, 48), new Color(0.36f, 0.22f, 0.08f));
+
+        MakeFlatButton(panelRt, "닫기", new Vector2(0, -308), new Vector2(190, 54),
+            new Color(0.12f, 0.32f, 0.34f), HideTutorial);
+
+        _tutorialPanel.SetActive(false);
+    }
+
+    void SetTutorialGuide(string key)
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        if (_tutorialGuideText != null)
+            _tutorialGuideText.text = GetTutorialGuide(key);
+    }
+
+    static string GetTutorialGuide(string key)
+    {
+        switch (key)
+        {
+            case "baduk":
+                return "바둑 사활 조작법\n\n" +
+                       "- 바둑판의 교차점을 오른손 레이저로 가리킵니다.\n" +
+                       "- 검지 트리거를 누르면 둘 위치가 선택됩니다.\n" +
+                       "- 확인창이 먼저 뜬 뒤 돌이 놓입니다.\n" +
+                       "- 맞는 위치면 확인, 실수했으면 다시 선택을 누릅니다.\n" +
+                       "- 힌트, 이전, 다음도 레이저로 누릅니다.";
+            case "replay":
+                return "바둑 복기 조작법\n\n" +
+                       "- 기보를 선택하면 바둑 수순을 차례대로 볼 수 있습니다.\n" +
+                       "- 이전 버튼은 한 수 뒤로 이동합니다.\n" +
+                       "- 일시정지/재생으로 진행을 멈추거나 다시 봅니다.\n" +
+                       "- 다음 버튼은 한 수 앞으로 이동합니다.\n" +
+                       "- 느리게, 보통, 빠르게로 속도를 바꿉니다.\n" +
+                       "- 목록 버튼을 누르면 기보 선택 화면으로 돌아갑니다.";
+            case "prediction":
+                return "수 예측하기 조작법\n\n" +
+                       "- 기보가 진행되다가 문제 지점에서 멈춥니다.\n" +
+                       "- 화면에 나온 후보 위치 중 하나를 레이저로 고릅니다.\n" +
+                       "- 틀리면 다시 선택할 수 있습니다.\n" +
+                       "- 맞으면 설명을 읽은 뒤 다음으로 버튼을 누릅니다.\n" +
+                       "- 다시 보기 버튼으로 같은 문제를 처음부터 볼 수 있습니다.";
+            case "card":
+                return "카드 맞추기 조작법\n\n" +
+                       "- 뒤집을 카드를 레이저로 가리킵니다.\n" +
+                       "- 카드가 살짝 강조되면 검지 트리거로 선택합니다.\n" +
+                       "- 같은 그림 카드 2장을 찾으면 성공입니다.\n" +
+                       "- 틀린 카드는 잠시 보여준 뒤 다시 뒤집힙니다.\n" +
+                       "- 모든 짝을 맞추면 활동이 완료됩니다.";
+            case "gostop":
+                return "고스톱 조작법\n\n" +
+                       "- 내 손패 중 낼 패를 레이저로 가리킵니다.\n" +
+                       "- 카드가 올라오거나 커지면 검지 트리거로 냅니다.\n" +
+                       "- 같은 월의 패가 있으면 자동으로 패를 먹습니다.\n" +
+                       "- 점수 계산과 특수 상황은 화면 안내를 따릅니다.\n" +
+                       "- 고/스톱 선택창이 뜨면 원하는 버튼을 누릅니다.";
+            case "golf":
+                return "골프 조작법\n\n" +
+                       "- 코스를 선택하면 공과 퍼터가 나타납니다.\n" +
+                       "- 오른손 컨트롤러에 붙은 퍼터를 공 옆에 가져갑니다.\n" +
+                       "- 검지 트리거를 누른 채 퍼팅처럼 휘두릅니다.\n" +
+                       "- 스윙 속도와 방향에 따라 공이 날아갑니다.\n" +
+                       "- 공이 멈추면 다음 위치 근처로 이동해 다시 칩니다.";
+            default:
+                return "공통 조작법\n\n" +
+                       "- 오른손 컨트롤러를 메뉴나 물체 쪽으로 향합니다.\n" +
+                       "- 파란 레이저 끝이 닿은 곳이 현재 선택 대상입니다.\n" +
+                       "- 검지 트리거를 누르면 버튼 클릭 또는 물체 선택이 됩니다.\n" +
+                       "- 그립/기본 선택 버튼도 클릭으로 처리될 수 있습니다.\n" +
+                       "- 버튼 위에 레이저를 올리면 밝아지거나 살짝 커집니다.\n" +
+                       "- 로비로 돌아가려면 각 게임의 로비/목록 버튼을 누릅니다.";
+        }
+    }
+
+    void ShowTutorial()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        SetTutorialGuide("common");
+        if (_tutorialPanel != null)
+            _tutorialPanel.SetActive(true);
+    }
+
+    void HideTutorial()
+    {
+        AudioManager.Instance?.PlayButtonClick();
+        if (_tutorialPanel != null)
+            _tutorialPanel.SetActive(false);
     }
 
     static void GoTo(string sceneName)
@@ -291,6 +443,7 @@ public class VRLobby : MonoBehaviour
         text.alignment = TextAnchor.MiddleCenter;
         text.horizontalOverflow = HorizontalWrapMode.Wrap;
         text.verticalOverflow = VerticalWrapMode.Overflow;
+        text.raycastTarget = false;
         return text;
     }
 
@@ -319,6 +472,32 @@ public class VRLobby : MonoBehaviour
         btn.colors = colors;
         if (btn.GetComponent<XRButtonHoverFeedback>() == null)
             btn.gameObject.AddComponent<XRButtonHoverFeedback>();
+        return btn;
+    }
+
+    static Button MakeFlatButton(RectTransform parent, string label, Vector2 pos, Vector2 size, Color color, System.Action onClick)
+    {
+        var go = new GameObject(label, typeof(RectTransform), typeof(Image), typeof(Button));
+        go.transform.SetParent(parent, false);
+
+        var rt = go.GetComponent<RectTransform>();
+        rt.anchoredPosition = pos;
+        rt.sizeDelta = size;
+
+        go.GetComponent<Image>().color = color;
+        var text = MakeText(rt, "Label", label, 24, FontStyle.Bold, Vector2.zero, size, Color.white);
+        text.raycastTarget = false;
+
+        var btn = go.GetComponent<Button>();
+        var colors = btn.colors;
+        colors.normalColor = color;
+        colors.highlightedColor = Color.Lerp(color, Color.white, 0.22f);
+        colors.pressedColor = Color.Lerp(color, Color.black, 0.18f);
+        colors.selectedColor = colors.highlightedColor;
+        btn.colors = colors;
+        if (btn.GetComponent<XRButtonHoverFeedback>() == null)
+            btn.gameObject.AddComponent<XRButtonHoverFeedback>();
+        btn.onClick.AddListener(() => onClick?.Invoke());
         return btn;
     }
 

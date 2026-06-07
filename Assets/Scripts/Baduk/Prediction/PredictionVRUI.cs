@@ -13,6 +13,7 @@ namespace Baduk.Prediction
         public System.Action OnPlayPause;
         public System.Action<float> OnSpeedChanged;
         public System.Action<int> OnPredictionSubmit;
+        public System.Action OnPredictionContinue;
         public System.Action OnRestart;
         public System.Action OnBack;
         public System.Action OnBackToSelect;
@@ -40,14 +41,25 @@ namespace Baduk.Prediction
         Text _predictQuestion;
         Text _predictResultLabel;
         Text _predictExplain;
+        Button _btnPredictionContinue;
         RectTransform _predictCandidatesRoot;
         readonly List<Button> _candidateButtons = new();
+        readonly List<int> _displayedCandidateIndices = new();
 
         Text _resultHeadline;
         Text _resultDetail;
 
         bool _built;
         bool _placementLocked;
+        VisiblePanel _currentVisiblePanel;
+        static Font _uiFont;
+
+        enum VisiblePanel
+        {
+            Select,
+            Replay,
+            Result
+        }
 
         public void ShowKifuSelect(List<Kifu> kifus)
         {
@@ -71,11 +83,11 @@ namespace Baduk.Prediction
             _billboard.RequestReposition();
             ShowOnly(_replayPanel);
 
-            _titleText.text = string.IsNullOrWhiteSpace(kifu.title) ? "수 예측하기" : kifu.title;
-            _playersText.text = $"흑 {Safe(kifu.black_player)}    백 {Safe(kifu.white_player)}";
-            _commentText.text = string.IsNullOrWhiteSpace(kifu.description)
-                ? "재생 버튼을 눌러 다음 수 예측을 시작해보세요."
-                : kifu.description;
+            _titleText.text = CleanDisplay(kifu.title, "수 예측하기");
+            _playersText.text = $"흑 {CleanDisplay(kifu.black_player, "-")}    백 {CleanDisplay(kifu.white_player, "-")}";
+            _commentText.text = CleanDisplay(
+                kifu.description,
+                "재생 버튼을 눌러 흐름을 살펴보다가, 중요한 장면에서 다음 수를 예측해보세요.");
             UpdateProgress(0, kifu.moves?.Count ?? 0);
             UpdatePlayPauseLabel(false);
         }
@@ -83,12 +95,14 @@ namespace Baduk.Prediction
         public void ShowPredictionOverlay(PredictionPoint point)
         {
             EnsureBuilt();
+            _replayPanel.SetActive(false);
             _predictPanel.SetActive(true);
+            _predictPanel.transform.SetAsLastSibling();
             _predictResultLabel.text = "";
             _predictExplain.text = "";
-            _predictQuestion.text = string.IsNullOrWhiteSpace(point?.question)
-                ? "다음 수는 어디일까요?"
-                : point.question;
+            if (_btnPredictionContinue != null)
+                _btnPredictionContinue.gameObject.SetActive(false);
+            _predictQuestion.text = CleanDisplay(point?.question, "다음 한 수는 어디가 좋을까요?");
             BuildCandidateButtons(point);
         }
 
@@ -98,21 +112,35 @@ namespace Baduk.Prediction
             _predictResultLabel.color = correct
                 ? new Color(0.10f, 0.55f, 0.22f)
                 : new Color(0.78f, 0.20f, 0.16f);
-            _predictExplain.text = string.IsNullOrWhiteSpace(point?.explanation)
-                ? "설명을 준비 중입니다."
-                : point.explanation;
+
+            string explanation = correct
+                ? BuildCorrectExplanation(point, chosenCandidateIndex)
+                : BuildRetryExplanation(point, chosenCandidateIndex);
+            if (point?.candidate_feedback != null &&
+                chosenCandidateIndex >= 0 &&
+                chosenCandidateIndex < point.candidate_feedback.Count)
+            {
+                string feedback = CleanDisplay(point.candidate_feedback[chosenCandidateIndex], "");
+                if (!string.IsNullOrWhiteSpace(feedback))
+                    explanation = $"{ShortenLine(feedback, 54)}\n{explanation}";
+            }
+            _predictExplain.text = explanation;
+
+            if (_btnPredictionContinue != null)
+                _btnPredictionContinue.gameObject.SetActive(correct);
 
             for (int i = 0; i < _candidateButtons.Count; i++)
             {
+                int originalIndex = i < _displayedCandidateIndices.Count ? _displayedCandidateIndices[i] : i;
                 var image = _candidateButtons[i].GetComponent<Image>();
-                if (i == point.correct_index)
+                if (correct && originalIndex == point.correct_index)
                     image.color = new Color(0.22f, 0.55f, 0.28f);
-                else if (i == chosenCandidateIndex && !correct)
+                else if (originalIndex == chosenCandidateIndex && !correct)
                     image.color = new Color(0.63f, 0.24f, 0.20f);
                 else
                     image.color = _accent;
 
-                _candidateButtons[i].interactable = false;
+                _candidateButtons[i].interactable = !correct && originalIndex != chosenCandidateIndex;
             }
         }
 
@@ -120,6 +148,9 @@ namespace Baduk.Prediction
         {
             if (_predictPanel != null)
                 _predictPanel.SetActive(false);
+
+            if (_replayPanel != null && _currentVisiblePanel == VisiblePanel.Replay)
+                _replayPanel.SetActive(true);
         }
 
         public void ShowResult(int correct, int total)
@@ -128,11 +159,11 @@ namespace Baduk.Prediction
             EnsureCanvasPlacement();
             ShowOnly(_resultPanel);
             _resultHeadline.text = total <= 0
-                ? "수 예측이 끝났습니다."
+                ? "수 예측을 마쳤습니다."
                 : $"{correct} / {total} 문제를 맞혔습니다.";
             _resultDetail.text = correct == total && total > 0
-                ? "모든 수를 정확히 읽어냈어요."
-                : "다시 도전해서 흐름을 익혀보세요.";
+                ? "모든 다음 수를 정확히 읽으셨어요."
+                : "다시 도전해서 흐름을 천천히 읽어보세요.";
         }
 
         public void UpdateProgress(int current, int total)
@@ -148,7 +179,7 @@ namespace Baduk.Prediction
 
             var text = _btnPlayPause.GetComponentInChildren<Text>();
             if (text != null)
-                text.text = isPlaying ? "일시 정지" : "재생";
+                text.text = isPlaying ? "일시정지" : "재생";
         }
 
         void EnsureBuilt()
@@ -225,6 +256,13 @@ namespace Baduk.Prediction
             _replayPanel.SetActive(panel == _replayPanel);
             _resultPanel.SetActive(panel == _resultPanel);
             _predictPanel.SetActive(false);
+
+            if (panel == _selectPanel)
+                _currentVisiblePanel = VisiblePanel.Select;
+            else if (panel == _replayPanel)
+                _currentVisiblePanel = VisiblePanel.Replay;
+            else if (panel == _resultPanel)
+                _currentVisiblePanel = VisiblePanel.Result;
         }
 
         GameObject BuildSelectPanel(RectTransform parent)
@@ -236,7 +274,7 @@ namespace Baduk.Prediction
             CreatePanel(prt, "Accent", _accent, new Vector2(0, 240), new Vector2(840, 6));
             CreateText(prt, "Title", "수 예측하기", 42, FontStyle.Bold,
                 new Vector2(0, 190), new Vector2(820, 60), _accent);
-            CreateText(prt, "Sub", "관찰할 기보를 고르고 다음 수를 맞혀보세요.", 24, FontStyle.Normal,
+            CreateText(prt, "Sub", "기보를 고르고 중요한 장면에서 다음 수를 읽어보세요.", 24, FontStyle.Normal,
                 new Vector2(0, 142), new Vector2(820, 42), _muted);
 
             var list = new GameObject("KifuList", typeof(RectTransform));
@@ -275,7 +313,7 @@ namespace Baduk.Prediction
             {
                 var kifu = kifus[i];
                 int predictionCount = kifu.prediction_points?.Count ?? 0;
-                string label = string.IsNullOrWhiteSpace(kifu.title) ? $"기보 {i + 1}" : kifu.title;
+                string label = CleanDisplay(kifu.title, $"수 예측 기보 {i + 1}");
                 if (predictionCount > 0)
                     label = $"{label}  ({predictionCount}문제)";
 
@@ -307,13 +345,12 @@ namespace Baduk.Prediction
             _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,
                 new Vector2(0, 36), new Vector2(790, 56), _note);
 
-            _btnPlayPause = CreateButton(botRt, "재생", 20, new Vector2(-180, -30), new Vector2(120, 46), _accent);
-            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-60, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
-            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(60, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
-            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(180, -30), new Vector2(110, 46), new Color(0.48f, 0.35f, 0.16f));
-            var back = CreateButton(botRt, "목록", 18, new Vector2(310, -30), new Vector2(110, 46), new Color(0.34f, 0.38f, 0.40f));
-
-            var restart = CreateButton(botRt, "다시 보기", 18, new Vector2(0, -78), new Vector2(150, 38), new Color(0.35f, 0.52f, 0.28f));
+            _btnPlayPause = CreateButton(botRt, "재생", 18, new Vector2(-310, -36), new Vector2(105, 46), _accent);
+            var speed05 = CreateButton(botRt, "느리게", 18, new Vector2(-185, -36), new Vector2(105, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed1 = CreateButton(botRt, "보통", 18, new Vector2(-60, -36), new Vector2(105, 46), new Color(0.48f, 0.35f, 0.16f));
+            var speed2 = CreateButton(botRt, "빠르게", 18, new Vector2(65, -36), new Vector2(105, 46), new Color(0.48f, 0.35f, 0.16f));
+            var restart = CreateButton(botRt, "다시 보기", 18, new Vector2(200, -36), new Vector2(125, 46), new Color(0.35f, 0.52f, 0.28f));
+            var back = CreateButton(botRt, "목록", 18, new Vector2(335, -36), new Vector2(105, 46), new Color(0.34f, 0.38f, 0.40f));
 
             _btnPlayPause.onClick.AddListener(() => OnPlayPause?.Invoke());
             speed05.onClick.AddListener(() => OnSpeedChanged?.Invoke(0.5f));
@@ -331,22 +368,28 @@ namespace Baduk.Prediction
             Stretch(panel);
             var prt = panel.GetComponent<RectTransform>();
 
-            var modal = CreatePanel(prt, "Modal", _panel, new Vector2(0, 12), new Vector2(760, 390));
+            var modal = CreatePanel(prt, "Modal", _panel, Vector2.zero, new Vector2(820, 520));
             var modalRt = modal.GetComponent<RectTransform>();
 
             _predictQuestion = CreateText(modalRt, "Question", "", 30, FontStyle.Bold,
-                new Vector2(0, 138), new Vector2(680, 60), _accent);
+                new Vector2(0, 198), new Vector2(730, 58), _accent);
 
             var list = new GameObject("Candidates", typeof(RectTransform));
             list.transform.SetParent(modalRt, false);
             _predictCandidatesRoot = list.GetComponent<RectTransform>();
-            _predictCandidatesRoot.anchoredPosition = new Vector2(0, 16);
-            _predictCandidatesRoot.sizeDelta = new Vector2(640, 170);
+            _predictCandidatesRoot.anchoredPosition = new Vector2(0, 10);
+            _predictCandidatesRoot.sizeDelta = new Vector2(680, 230);
 
             _predictResultLabel = CreateText(modalRt, "Result", "", 28, FontStyle.Bold,
-                new Vector2(0, -92), new Vector2(640, 42), _ink);
-            _predictExplain = CreateText(modalRt, "Explain", "", 20, FontStyle.Normal,
-                new Vector2(0, -140), new Vector2(640, 72), _muted);
+                new Vector2(0, -128), new Vector2(680, 38), _ink);
+            _predictExplain = CreateText(modalRt, "Explain", "", 15, FontStyle.Normal,
+                new Vector2(0, -184), new Vector2(750, 74), _muted);
+            _predictExplain.verticalOverflow = VerticalWrapMode.Truncate;
+
+            _btnPredictionContinue = CreateButton(modalRt, "다음으로", 22,
+                new Vector2(0, -238), new Vector2(220, 48), new Color(0.35f, 0.52f, 0.28f));
+            _btnPredictionContinue.onClick.AddListener(() => OnPredictionContinue?.Invoke());
+            _btnPredictionContinue.gameObject.SetActive(false);
 
             return panel;
         }
@@ -354,6 +397,7 @@ namespace Baduk.Prediction
         void BuildCandidateButtons(PredictionPoint point)
         {
             _candidateButtons.Clear();
+            _displayedCandidateIndices.Clear();
             if (_predictCandidatesRoot == null)
                 return;
 
@@ -367,19 +411,48 @@ namespace Baduk.Prediction
                 return;
             }
 
-            int count = Mathf.Min(point.candidates.Count, 4);
-            float spacing = 62f;
+            List<int> indices = BuildDisplayedCandidateIndices(point);
+            int count = indices.Count;
+            float spacing = 76f;
             float startY = (count - 1) * spacing * 0.5f;
 
-            for (int i = 0; i < count; i++)
+            for (int displayIndex = 0; displayIndex < count; displayIndex++)
             {
-                int index = i;
-                string label = FormatCandidateLabel(point.candidates[i], i);
+                int originalIndex = indices[displayIndex];
+                _displayedCandidateIndices.Add(originalIndex);
+
+                string label = FormatCandidateLabel(point.candidates[originalIndex], displayIndex);
+                if (point.candidate_labels != null &&
+                    originalIndex < point.candidate_labels.Count &&
+                    !string.IsNullOrWhiteSpace(point.candidate_labels[originalIndex]))
+                {
+                    label = $"{GetChoicePrefix(displayIndex)} {CleanCandidateLabel(point.candidate_labels[originalIndex])}\n{FormatCoordinate(point.candidates[originalIndex])}";
+                }
                 var btn = CreateButton(_predictCandidatesRoot, label, 22,
-                    new Vector2(0, startY - i * spacing), new Vector2(560, 50), _accent);
-                btn.onClick.AddListener(() => OnPredictionSubmit?.Invoke(index));
+                    new Vector2(0, startY - displayIndex * spacing), new Vector2(570, 62), _accent);
+                btn.onClick.AddListener(() => OnPredictionSubmit?.Invoke(originalIndex));
                 _candidateButtons.Add(btn);
             }
+        }
+
+        static List<int> BuildDisplayedCandidateIndices(PredictionPoint point)
+        {
+            var indices = new List<int>();
+            int total = point?.candidates?.Count ?? 0;
+            if (total <= 0)
+                return indices;
+
+            int correct = Mathf.Clamp(point.correct_index, 0, total - 1);
+            indices.Add(correct);
+
+            for (int i = 0; i < total && indices.Count < 3; i++)
+            {
+                if (i != correct)
+                    indices.Add(i);
+            }
+
+            indices.Sort();
+            return indices;
         }
 
         GameObject BuildResultPanel(RectTransform parent)
@@ -408,14 +481,106 @@ namespace Baduk.Prediction
             return panel;
         }
 
-        static string Safe(string value) => string.IsNullOrWhiteSpace(value) ? "-" : value;
-
         static string FormatCandidateLabel(StonePosition stone, int index)
         {
             if (stone == null)
                 return $"후보 {index + 1}";
 
-            return $"후보 {index + 1}  ({stone.row + 1}, {stone.col + 1})";
+            return $"{GetChoicePrefix(index)} 추천 위치\n{FormatCoordinate(stone)}";
+        }
+
+        static string GetCandidateSummary(PredictionPoint point, int index, string prefix)
+        {
+            if (point?.candidates == null || index < 0 || index >= point.candidates.Count)
+                return $"{prefix}: 확인할 수 없습니다.";
+
+            string label = "추천 위치";
+            if (point.candidate_labels != null &&
+                index < point.candidate_labels.Count &&
+                !string.IsNullOrWhiteSpace(point.candidate_labels[index]))
+            {
+                label = CleanCandidateLabel(point.candidate_labels[index]);
+            }
+
+            return $"{prefix}: {label}, {FormatCoordinate(point.candidates[index])}";
+        }
+
+        static string BuildCorrectExplanation(PredictionPoint point, int chosenCandidateIndex)
+        {
+            string correctSummary = GetCandidateSummary(point, chosenCandidateIndex, "정답 위치");
+            string baseExplanation = CleanDisplay(
+                point?.explanation,
+                "이 수는 단순히 한 점을 차지하는 수가 아니라, 주변 돌의 연결과 다음 공격 방향을 함께 살리는 수입니다.");
+
+            string label = "추천 위치";
+            if (point?.candidate_labels != null &&
+                chosenCandidateIndex >= 0 &&
+                chosenCandidateIndex < point.candidate_labels.Count &&
+                !string.IsNullOrWhiteSpace(point.candidate_labels[chosenCandidateIndex]))
+            {
+                label = CleanCandidateLabel(point.candidate_labels[chosenCandidateIndex]);
+            }
+
+            return $"{correctSummary}\n'{label}'는 주변 돌을 이어 주고 다음 공격 방향을 만드는 자리입니다.\n{ShortenLine(baseExplanation, 60)}";
+        }
+
+        static string BuildRetryExplanation(PredictionPoint point, int chosenCandidateIndex)
+        {
+            string selected = GetCandidateSummary(point, chosenCandidateIndex, "선택 위치");
+            return $"{selected}\n아직 정답은 공개하지 않을게요. 연결, 끊김, 다음 공격 방향을 다시 살펴보세요.";
+        }
+
+        static string ShortenLine(string value, int maxLength)
+        {
+            value = CleanDisplay(value, "");
+            if (string.IsNullOrWhiteSpace(value))
+                return "";
+
+            value = value.Replace("\r", " ").Replace("\n", " ").Trim();
+            return value.Length <= maxLength ? value : value.Substring(0, maxLength).TrimEnd() + "...";
+        }
+
+        static string CleanCandidateLabel(string value)
+        {
+            string label = CleanDisplay(value, "추천 위치");
+            label = label.Replace("후보 수", "추천 위치").Replace("후보수", "추천 위치");
+            label = label.Replace("A안 ", "").Replace("B안 ", "").Replace("C안 ", "").Replace("D안 ", "");
+            return string.IsNullOrWhiteSpace(label) ? "추천 위치" : label.Trim();
+        }
+
+        static string FormatCoordinate(StonePosition stone)
+        {
+            if (stone == null)
+                return "";
+
+            return $"좌표 ({stone.row + 1}, {stone.col + 1})";
+        }
+
+        static string GetChoicePrefix(int index)
+        {
+            return index switch
+            {
+                0 => "A안",
+                1 => "B안",
+                2 => "C안",
+                3 => "D안",
+                _ => $"후보 {index + 1}"
+            };
+        }
+
+        static string CleanDisplay(string value, string fallback)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+                return fallback;
+
+            int suspicious = 0;
+            foreach (char c in value)
+            {
+                if (c == '?' || c == '�' || c == '濡' || c == '湲' || c == '諛' || c == '紐' || c == '臾')
+                    suspicious++;
+            }
+
+            return suspicious >= 2 ? fallback : value;
         }
 
         GameObject CreatePanel(RectTransform parent, string name, Color color)
@@ -450,7 +615,7 @@ namespace Baduk.Prediction
 
             var label = go.GetComponent<Text>();
             label.text = text;
-            label.font = CreateUIFont(fontSize);
+            label.font = CreateUIFont();
             label.fontSize = fontSize;
             label.fontStyle = style;
             label.alignment = TextAnchor.MiddleCenter;
@@ -488,18 +653,17 @@ namespace Baduk.Prediction
             return btn;
         }
 
-        static Font CreateUIFont(int fontSize)
+        static Font CreateUIFont()
         {
-            string[] fontNames =
-            {
-                "Malgun Gothic",
-                "Noto Sans CJK KR",
-                "Noto Sans KR",
-                "Droid Sans Fallback",
-                "sans-serif"
-            };
+            if (_uiFont == null)
+                _uiFont = Resources.Load<Font>("Fonts/Paperlogy-5Medium");
 
-            return Font.CreateDynamicFontFromOSFont(fontNames, fontSize);
+            if (_uiFont != null)
+                return _uiFont;
+
+            return Font.CreateDynamicFontFromOSFont(
+                new[] { "Malgun Gothic", "Noto Sans CJK KR", "Noto Sans KR", "Droid Sans Fallback", "sans-serif" },
+                24);
         }
 
         static void Stretch(GameObject go)

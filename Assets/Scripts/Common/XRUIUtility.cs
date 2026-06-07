@@ -12,6 +12,9 @@ namespace SilverCare.Common
 {
     public static class XRUIUtility
     {
+        const float MinWorldCanvasDynamicPixelsPerUnit = 14f;
+        const float MinWorldCanvasReferencePixelsPerUnit = 140f;
+
         static bool _sceneHookRegistered;
         static readonly Dictionary<string, (Vector3 position, Vector3 forward)> SceneViewAnchors = new();
 
@@ -202,6 +205,8 @@ namespace SilverCare.Common
             if (canvas.renderMode == RenderMode.WorldSpace && canvas.worldCamera == null)
                 canvas.worldCamera = Camera.main;
 
+            ConfigureWorldCanvasSharpness(canvasObject, canvas);
+
             if (canvasObject.GetComponent<GraphicRaycaster>() == null)
                 canvasObject.AddComponent<GraphicRaycaster>();
 
@@ -209,6 +214,28 @@ namespace SilverCare.Common
                 canvasObject.AddComponent<TrackedDeviceGraphicRaycaster>();
 
             ConfigureWorldCanvasButtons(canvas);
+        }
+
+        static void ConfigureWorldCanvasSharpness(GameObject canvasObject, Canvas canvas)
+        {
+            if (canvasObject == null || canvas == null || canvas.renderMode != RenderMode.WorldSpace)
+                return;
+
+            var scaler = canvasObject.GetComponent<CanvasScaler>();
+            if (scaler == null)
+                scaler = canvasObject.AddComponent<CanvasScaler>();
+
+            // Higher dynamic pixels keep world-space Korean text readable inside Quest 2.
+            scaler.dynamicPixelsPerUnit = Mathf.Max(scaler.dynamicPixelsPerUnit, MinWorldCanvasDynamicPixelsPerUnit);
+            scaler.referencePixelsPerUnit = Mathf.Max(scaler.referencePixelsPerUnit, MinWorldCanvasReferencePixelsPerUnit);
+            canvas.pixelPerfect = false;
+
+            foreach (var text in canvasObject.GetComponentsInChildren<Text>(true))
+            {
+                if (text == null) continue;
+                text.alignByGeometry = true;
+                text.resizeTextForBestFit = false;
+            }
         }
 
         static void ConfigureWorldCanvasButtons(Canvas canvas)

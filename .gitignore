@@ -25,6 +25,7 @@ AssetBundles/
 Thumbs.db
 
 # Python
+*.py
 __pycache__/
 *.pyc
 .venv/
@@ -33,8 +34,16 @@ venv/
 # Misc
 *.tmp
 *.bak
+*.log
+*.pptx
 
 # Claude Code
 .claude/
 
+# Markdown docs
 *.md
+
+# Local generated artifacts
+TempVideoFrames/
+docx_render_feedback/
+docx_render_feedback_5pages/
