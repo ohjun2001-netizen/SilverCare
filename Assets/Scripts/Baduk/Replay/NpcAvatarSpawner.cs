@@ -409,8 +409,9 @@ namespace Baduk.Replay
             go.transform.localPosition = localPos;
             go.transform.localScale    = localScale;
             Object.Destroy(go.GetComponent<Collider>());
-            var mat = new Material(Shader.Find("Standard"));
+            var mat = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
             mat.color = color;
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
             go.GetComponent<Renderer>().material = mat;
             return go;
         }

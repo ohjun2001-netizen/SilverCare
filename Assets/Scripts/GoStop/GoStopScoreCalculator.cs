@@ -62,7 +62,8 @@ namespace SilverCare.GoStop
                     labels.Add("광박 x2");
                 }
 
-                if (captured.Count(c => c.cardType == CardType.Yul) >= 7)
+                if (captured.Count(c => c.cardType == CardType.Yul) >= 7
+                    && opponentCaptured.Count(c => c.cardType == CardType.Yul) == 0)
                 {
                     multiplier *= 2;
                     labels.Add("멍박 x2");

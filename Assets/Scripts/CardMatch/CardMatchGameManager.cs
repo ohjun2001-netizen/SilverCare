@@ -224,7 +224,7 @@ namespace SilverCare.CardMatch
                 _matchedPairs++;
                 _score += 100;
                 AudioManager.Instance?.PlayCorrect();
-                TTSManager.Instance?.Speak("같은 카드입니다. 잘 찾으셨어요.");
+                TTSManager.Instance?.SpeakClip("card_match_success");
                 RefreshScore();
 
                 if (_matchedPairs >= _activePairCount)
@@ -264,6 +264,7 @@ namespace SilverCare.CardMatch
             _cardRoot = new GameObject("CardGrid").transform;
 
             Camera cam = Camera.main ?? FindObjectOfType<Camera>();
+            XRUIUtility.RefreshSceneViewAnchor();
             XRUIUtility.GetSceneViewAnchor(cam, out Vector3 camPos, out Vector3 forward);
 
             Vector3 right = Vector3.Cross(Vector3.up, forward).normalized;

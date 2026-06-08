@@ -18,13 +18,14 @@ namespace Baduk
         public bool anchorToBoard;         // true면 보드 중심 기준, false면 카메라 정면
 
         bool _positioned;
+        int _freeFrames;  // 0이 될 때까지 매 프레임 재배치 (카메라 트래킹 안정화 대기)
 
         public void RequestReposition() => _positioned = false;
 
         public void ForceReposition()
         {
             _positioned = false;
-            UpdatePlacement();
+            _freeFrames = 60; // ~2초간 매 프레임 앞에 재배치, 이후 고정
         }
 
         void LateUpdate() => UpdatePlacement();
@@ -38,23 +39,24 @@ namespace Baduk
             if (canvas != null && canvas.worldCamera == null)
                 canvas.worldCamera = cam;
 
-            if (!_positioned)
+            bool needsUpdate = !_positioned || _freeFrames > 0;
+            if (needsUpdate)
             {
                 if (anchorToBoard && TryGetBoardCenter(out Vector3 boardCenter))
                 {
-                    // 카메라 → 보드 수평 방향(=플레이어가 보는 쪽). 그 뒤로 살짝 밀어 판 위/뒤에 띄운다.
                     Vector3 toBoard = boardCenter - cam.transform.position;
                     toBoard.y = 0f;
                     Vector3 backDir = toBoard.sqrMagnitude > 1e-4f ? toBoard.normalized : Vector3.forward;
 
                     Vector3 pos = boardCenter + backDir * backOffset;
-                    pos.y = cam.transform.position.y + heightOffset; // 눈높이 → 책상보다 위로 떠 보임
+                    pos.y = cam.transform.position.y + heightOffset;
                     transform.position = pos;
                     _positioned = true;
+                    _freeFrames = 0;
                 }
                 else
                 {
-                    // 보드 준비 전: 카메라 정면. 보드가 잡히면 다음 프레임에 보드 기준으로 다시 잡는다.
+                    // 카메라 정면 배치. _freeFrames 동안 매 프레임 갱신해 트래킹 안정화 후 고정.
                     Vector3 flat = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up);
                     if (flat.sqrMagnitude < 1e-4f) flat = Vector3.forward;
                     flat.Normalize();
@@ -62,7 +64,11 @@ namespace Baduk
                     Vector3 pos = cam.transform.position + flat * distance;
                     pos.y = cam.transform.position.y + heightOffset;
                     transform.position = pos;
-                    if (!anchorToBoard) _positioned = true; // 보드를 안 쓸 땐 한 번만
+
+                    if (_freeFrames > 0)
+                        _freeFrames--;
+                    else if (!anchorToBoard)
+                        _positioned = true;
                 }
             }
 

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 namespace SilverCare.Common
@@ -22,9 +23,21 @@ namespace SilverCare.Common
 
         protected virtual void Start()
         {
+            StartCoroutine(DelayedStart());
+        }
+
+        IEnumerator DelayedStart()
+        {
+            // Quest XR 트래킹이 BeforeRender 단계에서 카메라를 갱신하므로
+            // Start()가 그보다 먼저 실행될 경우 카메라 방향이 identity다.
+            // 2프레임 대기 후 앵커를 강제 갱신해 콘텐츠를 실제 시점 기준으로 배치한다.
+            yield return null;
+            yield return null;
+            XRUIUtility.RefreshSceneViewAnchor();
             TTSManager.Instance?.Speak($"{gameTitle} 시작합니다.");
             StartGame();
             _isPlaying = true;
+            XRUIUtility.StepPlayerBack(1.5f);
         }
 
         protected virtual void OnGameClear()

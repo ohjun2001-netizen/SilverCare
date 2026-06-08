@@ -35,7 +35,11 @@ public class StoryboardManager : MonoBehaviour
         _storyText.text = resolvedMessage;
 
         if (StoryProgressManager.Instance != null)
-            StoryProgressManager.Instance.ShowIntroNarration(resolvedMessage, displayDuration);
+        {
+            string sceneName = SceneManager.GetActiveScene().name;
+            string clipKey = $"intro_{sceneName.ToLower().Replace(" ", "_")}";
+            StoryProgressManager.Instance.ShowIntroNarration(resolvedMessage, clipKey, displayDuration);
+        }
 
         gameObject.SetActive(false);
     }

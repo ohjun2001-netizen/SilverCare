@@ -18,6 +18,12 @@ public class VRLobby : MonoBehaviour
     GameObject _tutorialPanel;
     Text _tutorialGuideText;
 
+    // 씬 전환 직후 이전 씬의 트리거 입력이 게임 버튼을 즉시 클릭하는 현상 방지
+    static float _inputReadyTime;
+
+    // 환영 음성은 앱 실행 후 로비에 처음 들어왔을 때 한 번만 (게임에서 복귀 시 반복 X)
+    static bool _welcomeSpoken;
+
     static readonly Dictionary<string, Texture2D> TextureCache = new Dictionary<string, Texture2D>();
     static readonly Color PanelColor = new(0.96f, 0.94f, 0.88f, 0.98f);
     static readonly Color InkColor = new(0.10f, 0.13f, 0.16f);
@@ -40,6 +46,7 @@ public class VRLobby : MonoBehaviour
 
     void Start()
     {
+        _inputReadyTime = Time.time + 0.6f;
         ApplyVisualQuality();
         EnsureEventSystem();
         BuildUI();
@@ -47,6 +54,21 @@ public class VRLobby : MonoBehaviour
         BuildLobbyEnvironment();
         StartCoroutine(RefreshInitialLayout());
         StartCoroutine(UpdateInfoTexts());
+        StartCoroutine(SpeakWelcomeIfFirstLaunch());
+    }
+
+    // 앱을 처음 켜고 로비에 들어왔을 때 환영 음성을 한 번 재생한다.
+    // 게임을 마치고 로비로 돌아온 경우(같은 앱 세션)에는 반복하지 않는다.
+    // 음성은 Resources/Audio/TTS/lobby_welcome.mp3 클립을 사용한다.
+    IEnumerator SpeakWelcomeIfFirstLaunch()
+    {
+        if (_welcomeSpoken) yield break;
+        _welcomeSpoken = true;
+
+        // 씬 전환음/트래킹 안정화를 위해 잠시 대기
+        yield return new WaitForSeconds(1.0f);
+
+        TTSManager.Instance?.SpeakClip("lobby_welcome", interruptCurrent: true);
     }
 
     static void ApplyVisualQuality()
@@ -299,8 +321,8 @@ public class VRLobby : MonoBehaviour
                 () => SetTutorialGuide(key));
         }
 
-        _tutorialGuideText = MakeText(panelRt, "TutorialGuideText", GetTutorialGuide("common"), 21, FontStyle.Bold,
-            new Vector2(135, 10), new Vector2(560, 344), InkColor);
+        _tutorialGuideText = MakeText(panelRt, "TutorialGuideText", GetTutorialGuide("common"), 19, FontStyle.Bold,
+            new Vector2(135, 10), new Vector2(560, 390), InkColor);
         _tutorialGuideText.alignment = TextAnchor.UpperLeft;
         _tutorialGuideText.verticalOverflow = VerticalWrapMode.Truncate;
         _tutorialGuideText.lineSpacing = 1.12f;
@@ -324,6 +346,10 @@ public class VRLobby : MonoBehaviour
         AudioManager.Instance?.PlayButtonClick();
         if (_tutorialGuideText != null)
             _tutorialGuideText.text = GetTutorialGuide(key);
+
+        // 선택한 항목의 조작법을 음성으로 읽어준다 (이전 안내는 중단)
+        // 음성은 Resources/Audio/TTS/tutorial_{key}.mp3 클립을 사용한다.
+        TTSManager.Instance?.SpeakClip($"tutorial_{key}", interruptCurrent: true);
     }
 
     static string GetTutorialGuide(string key)
@@ -370,7 +396,7 @@ public class VRLobby : MonoBehaviour
                 return "골프 조작법\n\n" +
                        "- 코스를 선택하면 공과 퍼터가 나타납니다.\n" +
                        "- 오른손 컨트롤러에 붙은 퍼터를 공 옆에 가져갑니다.\n" +
-                       "- 검지 트리거를 누른 채 퍼팅처럼 휘두릅니다.\n" +
+                       "- 퍼팅하듯 가볍게 스윙하면 공이 맞습니다.\n" +
                        "- 스윙 속도와 방향에 따라 공이 날아갑니다.\n" +
                        "- 공이 멈추면 다음 위치 근처로 이동해 다시 칩니다.";
             default:
@@ -378,9 +404,13 @@ public class VRLobby : MonoBehaviour
                        "- 오른손 컨트롤러를 메뉴나 물체 쪽으로 향합니다.\n" +
                        "- 파란 레이저 끝이 닿은 곳이 현재 선택 대상입니다.\n" +
                        "- 검지 트리거를 누르면 버튼 클릭 또는 물체 선택이 됩니다.\n" +
-                       "- 그립/기본 선택 버튼도 클릭으로 처리될 수 있습니다.\n" +
                        "- 버튼 위에 레이저를 올리면 밝아지거나 살짝 커집니다.\n" +
-                       "- 로비로 돌아가려면 각 게임의 로비/목록 버튼을 누릅니다.";
+                       "- 로비로 돌아가려면 각 게임의 로비/목록 버튼을 누릅니다.\n\n" +
+                       "이동 조작\n" +
+                       "- 왼쪽 조이스틱: 앞뒤좌우 이동\n" +
+                       "- 오른쪽 조이스틱 좌우: 시점(바라보는 방향) 전환\n" +
+                       "- 오른쪽 조이스틱 위로 밀기: 몸이 위로 올라갑니다\n" +
+                       "- 오른쪽 조이스틱 아래로 밀기: 몸이 아래로 내려갑니다";
         }
     }
 
@@ -395,12 +425,14 @@ public class VRLobby : MonoBehaviour
     void HideTutorial()
     {
         AudioManager.Instance?.PlayButtonClick();
+        TTSManager.Instance?.StopSpeaking();   // 닫으면 안내 음성도 멈춘다
         if (_tutorialPanel != null)
             _tutorialPanel.SetActive(false);
     }
 
     static void GoTo(string sceneName)
     {
+        if (Time.time < _inputReadyTime) return;
         if (GameSceneManager.Instance != null)
             GameSceneManager.Instance.LoadScene(sceneName);
         else

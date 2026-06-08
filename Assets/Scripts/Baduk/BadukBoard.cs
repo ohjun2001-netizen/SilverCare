@@ -90,8 +90,10 @@ namespace Baduk
         {
             EnsureMaterials();
             ClearBoard();
-            // OnBoardReady에서 회전 전 반드시 초기화 (2번째 문제부터 로컬 좌표 틀어짐 방지)
-            transform.SetPositionAndRotation(Vector3.zero, Quaternion.identity);
+            // ApplyDeskLayout 호출 전까지 보드가 화면에 보이지 않도록 아래쪽에 숨긴다.
+            // 이전 ApplyDeskLayout 의 스케일이 남을 수 있으므로 localScale 도 초기화한다.
+            transform.SetPositionAndRotation(new Vector3(0f, -100f, 0f), Quaternion.identity);
+            transform.localScale = Vector3.one;
 
             _r0 = problem.view_area[0]; _c0 = problem.view_area[1];
             _r1 = problem.view_area[2]; _c1 = problem.view_area[3];

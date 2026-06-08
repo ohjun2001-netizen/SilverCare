@@ -9,22 +9,34 @@ namespace SilverCare.Golf
     public class VRPutter : MonoBehaviour
     {
         [Header("Hit")]
-        [SerializeField] float minHitSpeed = 0.4f;
+        [SerializeField] float minHitSpeed = 0.2f;
         [SerializeField] float maxHitSpeed = 10f;
         [SerializeField] float forceMultiplier = 2.0f;
         [SerializeField] float hitCooldown = 0.4f;
         [Tooltip("Vertical launch angle in degrees")]
         [SerializeField] float loftDegrees = 20f;
         [Tooltip("How much the club face direction overrides swing direction (0=swing only, 1=face only)")]
-        [SerializeField] [Range(0f, 1f)] float faceVsSwingBlend = 0.1f; // face 10%, swing velocity 80%
+        [SerializeField] [Range(0f, 1f)] float faceVsSwingBlend = 0.1f;
 
-        [Header("Shape")]
-        [SerializeField] float shaftLength = 1.2f;
-        [SerializeField] float headForwardOffset = 0f;
+        [Header("Club Model")]
+        [Tooltip("임포트된 골프채 모델의 스케일 (기본값으로 실제 퍼터 크기에 맞춤)")]
+        [SerializeField] float clubModelScale = 0.045f;
+        [Tooltip("모델 회전 오프셋 (Y축 — 페이스 방향 미세 조정)")]
+        [SerializeField] float clubModelYaw = 90f;
 
         [Header("Feedback")]
         [SerializeField] float hapticAmp = 0.9f;
         [SerializeField] float hapticDur = 0.18f;
+
+        // 기존 프리미티브 fallback 치수
+        const float GripLen = 0.13f;
+        const float ShaftLength = 1.2f;
+
+        // 임포트 모델 기준 치수 (Golf Club Model.fbx, UnitScaleFactor=1.0)
+        // CapsuleCollider: direction=Z, center=(0.95,0.2,0.85), height=20.83 → grip end at Z≈11.27
+        // BoxCollider head: center=(−0.15,−0.03,−10.09)
+        const float ModelGripZ = 11.27f;
+        const float ModelHeadZ = -10.09f;
 
         Transform _rightController;
         ActionBasedController _rightAction;
@@ -159,26 +171,72 @@ namespace SilverCare.Golf
             _root = new GameObject("VRPutterRoot");
             _root.transform.SetParent(transform, false);
 
-            float gripLen = 0.13f;
-            float gripCenterY = -gripLen * 0.5f - 0.02f;
+            float scale = clubModelScale;
+            // 모델 Z축이 샤프트 방향. Euler(-90,0,0)로 Z→Y 변환(헤드가 -Y 방향으로).
+            // 그립 끝이 루트 원점(손 위치)에 오도록 Y축으로 내림.
+            float gripHeight = ModelGripZ * scale;           // ≈ 0.507m
+            float headY = ModelHeadZ * scale - gripHeight;   // ≈ -0.961m (손에서 헤드까지)
+
+            var clubPrefab = Resources.Load<GameObject>("GolfPark/GolfClub");
+            if (clubPrefab != null)
+            {
+                var visual = Instantiate(clubPrefab, _root.transform);
+                visual.name = "ClubVisual";
+                visual.transform.localScale = Vector3.one * scale;
+                // Euler(-90,0,0): 모델 +Z→ root +Y(그립), 모델 -Z→ root -Y(헤드)
+                visual.transform.localRotation = Quaternion.Euler(-90f, clubModelYaw, 0f);
+                // 그립 끝을 손 위치(root 원점)에 맞춤
+                visual.transform.localPosition = new Vector3(0f, -gripHeight, 0f);
+                // 기존 콜라이더는 크기가 잘못되어 있으므로 비활성화
+                foreach (var col in visual.GetComponentsInChildren<Collider>(true))
+                    col.enabled = false;
+            }
+            else
+            {
+                // 폴백: 기존 프리미티브 시각
+                BuildPrimitiveVisual();
+                headY = -(GripLen + 0.02f + ShaftLength);
+            }
+
+            // 헤드 히트 트리거 (공과의 물리 감지)
+            var headRoot = new GameObject("PutterHead");
+            headRoot.transform.SetParent(_root.transform, false);
+            headRoot.transform.localPosition = new Vector3(0f, headY, 0f);
+            _head = headRoot.transform;
+
+            // 콜라이더를 넓게 설정해 공이 더 잘 맞도록
+            var trigger = headRoot.AddComponent<BoxCollider>();
+            trigger.size = new Vector3(0.26f, 0.12f, 0.22f);
+            trigger.isTrigger = true;
+
+            var rb = headRoot.AddComponent<Rigidbody>();
+            rb.isKinematic = true;
+            rb.useGravity = false;
+            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
+
+            var relay = headRoot.AddComponent<PutterHeadCollider>();
+            relay.putter = this;
+        }
+
+        void BuildPrimitiveVisual()
+        {
+            float gripCenterY = -GripLen * 0.5f - 0.02f;
             CreatePart("Grip", PrimitiveType.Cylinder,
                 new Vector3(0f, gripCenterY, 0f),
                 Quaternion.identity,
-                new Vector3(0.045f, gripLen * 0.5f, 0.045f),
+                new Vector3(0.045f, GripLen * 0.5f, 0.045f),
                 new Color(0.08f, 0.08f, 0.09f), 0.18f, _root.transform);
 
-            float shaftCenterY = -(gripLen + 0.02f + shaftLength * 0.5f);
+            float shaftCenterY = -(GripLen + 0.02f + ShaftLength * 0.5f);
             CreatePart("Shaft", PrimitiveType.Cylinder,
                 new Vector3(0f, shaftCenterY, 0f),
                 Quaternion.identity,
-                new Vector3(0.022f, shaftLength * 0.5f, 0.022f),
+                new Vector3(0.022f, ShaftLength * 0.5f, 0.022f),
                 new Color(0.82f, 0.84f, 0.88f), 0.55f, _root.transform);
 
-            var headRoot = new GameObject("PutterHead");
+            var headRoot = new GameObject("PutterHeadVisual");
             headRoot.transform.SetParent(_root.transform, false);
-            headRoot.transform.localPosition = new Vector3(0f, -(gripLen + 0.02f + shaftLength), headForwardOffset);
-            headRoot.transform.localRotation = Quaternion.identity;
-            _head = headRoot.transform;
+            headRoot.transform.localPosition = new Vector3(0f, -(GripLen + 0.02f + ShaftLength), 0f);
 
             CreatePart("HeadBody", PrimitiveType.Cube,
                 Vector3.zero, Quaternion.identity,
@@ -195,18 +253,6 @@ namespace SilverCare.Golf
                 Quaternion.Euler(loftDegrees, 0f, 0f),
                 new Vector3(0.12f, 0.052f, 0.004f),
                 new Color(0.95f, 0.78f, 0.30f), 0.6f, headRoot.transform);
-
-            var trigger = headRoot.AddComponent<BoxCollider>();
-            trigger.size = new Vector3(0.18f, 0.09f, 0.14f);
-            trigger.isTrigger = true;
-
-            var rb = headRoot.AddComponent<Rigidbody>();
-            rb.isKinematic = true;
-            rb.useGravity = false;
-            rb.collisionDetectionMode = CollisionDetectionMode.ContinuousSpeculative;
-
-            var relay = headRoot.AddComponent<PutterHeadCollider>();
-            relay.putter = this;
         }
 
         void CreatePart(string name, PrimitiveType type, Vector3 localPos, Quaternion localRot,
@@ -236,14 +282,13 @@ namespace SilverCare.Golf
         public bool TryConsumeHit(out Vector3 velocity)
         {
             velocity = _velocity;
-            if (Time.time - _enabledAtTime < 0.5f)
+            if (Time.time - _enabledAtTime < 0.3f)
                 return false;
             if (Time.time - _lastHitTime < hitCooldown)
                 return false;
             if (velocity.magnitude < minHitSpeed)
                 return false;
-            // 트리거 버튼을 누르고 있어야만 타구 가능
-            if (!IsTriggerHeld())
+            if (!IsTriggerPressed(0.75f))
                 return false;
 
             _lastHitTime = Time.time;
@@ -251,23 +296,17 @@ namespace SilverCare.Golf
             return true;
         }
 
-        bool IsTriggerHeld()
+        bool IsTriggerPressed(float threshold = 0.75f)
         {
-            // XR 디바이스에서 직접 트리거 값 읽기 (ActionBinding 불필요)
-            var rightDevice = GetRightHandDevice();
-            if (rightDevice.isValid)
-            {
-                if (rightDevice.TryGetFeatureValue(CommonUsages.trigger, out float val))
-                    return val > 0.3f;
-            }
-
-            // 에디터/폴백: 항상 허용
-            return true;
+            var devices = new List<InputDevice>();
+            InputDevices.GetDevicesAtXRNode(XRNode.RightHand, devices);
+            if (devices.Count > 0 && devices[0].TryGetFeatureValue(CommonUsages.trigger, out float val))
+                return val > threshold;
+            return false;
         }
 
         void SendHaptic()
         {
-            // XR 디바이스 직접 햅틱만 사용 — ActionBasedController와 이중 호출 시 무한진동 발생
             var rightDevice = GetRightHandDevice();
             if (rightDevice.isValid
                 && rightDevice.TryGetHapticCapabilities(out HapticCapabilities caps)
@@ -301,14 +340,14 @@ namespace SilverCare.Golf
             if (!putter.TryConsumeHit(out Vector3 headVelocity))
                 return;
 
-            // 퍼터 페이스가 가리키는 방향 (85% 비중) — VR에서 의도한 방향과 일치
+            // 퍼터 페이스가 가리키는 방향 (수평 투영)
             Vector3 faceHoriz = transform.forward;
             faceHoriz.y = 0f;
             if (faceHoriz.sqrMagnitude < 0.0001f)
                 faceHoriz = Vector3.forward;
             faceHoriz.Normalize();
 
-            // 스윙 속도 방향 (15% 비중) — 보조 방향 보정
+            // 스윙 속도 방향
             Vector3 swingHoriz = new Vector3(headVelocity.x, 0f, headVelocity.z);
             if (swingHoriz.sqrMagnitude < 0.0001f)
                 swingHoriz = faceHoriz;

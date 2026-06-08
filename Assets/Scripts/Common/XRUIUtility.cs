@@ -1,3 +1,4 @@
+using Unity.XR.CoreUtils;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
@@ -90,6 +91,21 @@ namespace SilverCare.Common
 
             position = anchor.position;
             forward = anchor.forward;
+        }
+
+        // 게임 시작 시 XR Origin을 카메라 뒤로 물려 테이블/보드와 자연스러운 거리를 확보한다.
+        // 앵커(테이블·보드 위치)는 이미 저장된 상태에서 호출해야 한다.
+        public static void StepPlayerBack(float distance = 1.5f)
+        {
+            var cam = Camera.main;
+            if (cam == null) return;
+
+            var xrOrigin = Object.FindObjectOfType<XROrigin>();
+            if (xrOrigin == null) return;
+
+            Vector3 fwd = Vector3.ProjectOnPlane(cam.transform.forward, Vector3.up).normalized;
+            if (fwd.sqrMagnitude < 0.001f) fwd = Vector3.forward;
+            xrOrigin.transform.position -= fwd * distance;
         }
 
         public static void RefreshSceneViewAnchor(Camera cam = null)

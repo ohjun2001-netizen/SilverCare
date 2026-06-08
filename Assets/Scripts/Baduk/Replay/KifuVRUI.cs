@@ -224,7 +224,7 @@ namespace Baduk.Replay
             _playersText = CreateText(topRt, "Players", "", 22, FontStyle.Normal,
                 new Vector2(0, -24), new Vector2(790, 58), _ink);
 
-            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -64), new Vector2(860, 190));
+            var bottom = CreatePanel(prt, "BottomPanel", _panel, new Vector2(0, -64), new Vector2(860, 220));
             var botRt = bottom.GetComponent<RectTransform>();
 
             _commentText = CreateText(botRt, "Comment", "", 23, FontStyle.Bold,

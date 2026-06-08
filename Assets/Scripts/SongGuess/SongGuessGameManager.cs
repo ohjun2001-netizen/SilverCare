@@ -85,13 +85,13 @@ namespace SilverCare.SongGuess
         {
             _current = _pool[_round];
             songUI?.ShowRoundStart(_round + 1, totalRounds);
-            TTSManager.Instance?.Speak("노래를 잘 들어보세요.");
+            TTSManager.Instance?.SpeakClip("song_listen");
 
             songPlayer?.PlaySong(_current.audioFile, playDuration);
             yield return new WaitForSeconds(playDuration);
 
             songUI?.ShowAnswerInput();
-            TTSManager.Instance?.Speak("어떤 노래인지 맞춰보세요.");
+            TTSManager.Instance?.SpeakClip("song_guess");
             // TODO: 조성우 - 음성 인식(STT) 자동 시작
         }
 

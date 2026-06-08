@@ -112,8 +112,8 @@ namespace Baduk
             string sceneKey = SceneManager.GetActiveScene().path;
             BadukDeskLayoutUtility.UpdateSceneAnchor(sceneKey, cam);
             float boardSizeTarget = 0.92f;
-            float boardDistance = 0.20f;
-            float tableHeightOffset = 0.62f;
+            float boardDistance = 2.5f;
+            float tableHeightOffset = 0.85f;
             BadukDeskLayoutUtility.ApplyDeskLayout(
                 boardObj,
                 cx,
@@ -128,6 +128,7 @@ namespace Baduk
 
             float scale = boardObj.localScale.x;
             BadukRoomEnvironment.Spawn(boardCenter, cx * scale, cy * scale, tableY, boardObj.rotation);
+            XRUIUtility.StepPlayerBack(1.5f);
         }
     }
 }

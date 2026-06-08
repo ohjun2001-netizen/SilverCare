@@ -25,10 +25,6 @@ namespace Baduk.Replay
         Quaternion _originXRRot;
         bool _originXRSaved;
 
-        Vector3 _originCamPos;
-        Quaternion _originCamRot;
-        bool _originCamSaved;
-
         void Awake()
         {
             _loader = GetComponent<KifuLoader>();
@@ -44,22 +40,6 @@ namespace Baduk.Replay
 
         void Start()
         {
-            var xrOrigin = FindObjectOfType<XROrigin>();
-            if (xrOrigin != null)
-            {
-                _originXRPos = xrOrigin.transform.position;
-                _originXRRot = xrOrigin.transform.rotation;
-                _originXRSaved = true;
-            }
-
-            Camera cam = Camera.main;
-            if (cam != null)
-            {
-                _originCamPos = cam.transform.position;
-                _originCamRot = cam.transform.rotation;
-                _originCamSaved = true;
-            }
-
             _ui.OnKifuSelected = HandleKifuSelected;
             _ui.OnPlayPause = () => _replay.TogglePlayPause();
             _ui.OnNext = () => _replay.Next();
@@ -74,6 +54,24 @@ namespace Baduk.Replay
 
             if (_commentator != null)
                 _commentator.OnComment = text => _ui.ShowComment(text);
+
+            StartCoroutine(DelayedInit());
+        }
+
+        System.Collections.IEnumerator DelayedInit()
+        {
+            // Quest XR 트래킹이 BeforeRender 단계에서 카메라를 갱신하므로
+            // Start()보다 먼저 실행될 경우 위치/방향이 identity다.
+            yield return null;
+            yield return null;
+
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originXRSaved = true;
+            }
 
             _ui.ShowKifuSelect(_loader.AllKifus);
         }
@@ -112,8 +110,8 @@ namespace Baduk.Replay
                 cx,
                 cy,
                 0.92f,
-                0.20f,
-                0.62f,
+                2.5f,
+                0.85f,
                 sceneKey,
                 cam,
                 out Vector3 boardCenter,
@@ -130,6 +128,7 @@ namespace Baduk.Replay
                 BadukRoomEnvironment.SceneStyle.Practice,
                 spawnSpectators: true);
             _vrBoardSetup?.AttachInteractables();
+            XRUIUtility.StepPlayerBack(1.5f);
         }
 
         void HandleRestart()
@@ -175,13 +174,6 @@ namespace Baduk.Replay
                 xrOrigin.transform.position = _originXRPos;
                 xrOrigin.transform.rotation = _originXRRot;
             }
-
-            Camera cam = Camera.main;
-            if (cam == null || !_originCamSaved)
-                return;
-
-            cam.transform.position = _originCamPos;
-            cam.transform.rotation = _originCamRot;
         }
 
         void ClearReplayEnvironment()

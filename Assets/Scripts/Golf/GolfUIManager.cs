@@ -208,6 +208,11 @@ namespace SilverCare.Golf
             MakeCourseButton(panel.transform, "CourseBtn2", "보통", "조금 더 생각하는 경사 코스", new Vector2(220f, 55f));
             MakeCourseButton(panel.transform, "CourseBtn3", "어려움", "집중해서 치는 언덕 코스", new Vector2(0f, -70f));
 
+            // 조작법 안내 (코스 버튼과 하단 구분선 사이 빈 공간 활용)
+            MakeLabel(panel.transform, "ControlsHint", new Vector2(0f, -133f), new Vector2(840f, 26f), 15,
+                new Color(0.28f, 0.48f, 0.40f),
+                "왼쪽 조이스틱: 이동   |   오른쪽 조이스틱 좌우: 시점 변경");
+
             // 하단 악센트 + 안내문으로 빈 공간을 채워 단조로움을 줄인다.
             MakePanel(panel.transform, "BottomAccent", new Vector2(840f, 4f), new Color(0.08f, 0.41f, 0.33f, 0.55f), new Vector2(0f, -150f));
             MakeLabel(panel.transform, "BottomHint", new Vector2(0f, -176f), new Vector2(820f, 30f), 18,
@@ -227,7 +232,7 @@ namespace SilverCare.Golf
             _powerText = MakeLabel(panel.transform, "PowerText", new Vector2(0f, -8f), new Vector2(280f, 24f), 13, new Color(1f, 0.93f, 0.45f), "파워 0%");
             _powerFill = MakePowerBar(panel.transform, new Vector2(0f, -30f), new Vector2(210f, 14f));
             _feedbackText = MakeLabel(panel.transform, "FeedbackText", new Vector2(0f, -58f), new Vector2(280f, 30f), 18, new Color(1f, 0.94f, 0.42f), string.Empty);
-            _swingGuide = MakeLabel(panel.transform, "SwingGuide", new Vector2(0f, -83f), new Vector2(290f, 22f), 11, new Color(0.94f, 0.86f, 0.54f), "트리거를 누른 채 퍼터를 휘두르세요").gameObject;
+            _swingGuide = MakeLabel(panel.transform, "SwingGuide", new Vector2(0f, -83f), new Vector2(290f, 22f), 11, new Color(0.94f, 0.86f, 0.54f), "퍼터를 스윙하여 공을 치세요").gameObject;
 
             MakeButton(panel.transform, "BackToSelectBtn", new Vector2(0f, -111f), new Vector2(142f, 26f), new Color(0.16f, 0.20f, 0.23f), "코스 선택", 12);
             return panel;

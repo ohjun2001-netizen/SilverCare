@@ -154,9 +154,11 @@ namespace Baduk
             if (renderer == null)
                 return;
 
-            var material = new Material(Shader.Find("Standard"));
+            var material = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
             material.color = color;
-            material.SetFloat("_Glossiness", 0.12f);
+            if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", color);
+            if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.12f);
+            else if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.12f);
             renderer.material = material;
         }
 
@@ -269,11 +271,11 @@ namespace Baduk
                 var materials = new Material[shared.Length];
                 for (int i = 0; i < shared.Length; i++)
                 {
-                    var material = new Material(Shader.Find("Standard"));
+                    var material = new Material(Shader.Find("Universal Render Pipeline/Lit") ?? Shader.Find("Standard"));
                     material.color = skinColor;
-                    if (material.HasProperty("_BaseColor"))
-                        material.SetColor("_BaseColor", skinColor);
-                    material.SetFloat("_Glossiness", 0.08f);
+                    if (material.HasProperty("_BaseColor")) material.SetColor("_BaseColor", skinColor);
+                    if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.08f);
+                    else if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.08f);
                     materials[i] = material;
                 }
 

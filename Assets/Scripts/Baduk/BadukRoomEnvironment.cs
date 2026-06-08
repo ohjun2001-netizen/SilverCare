@@ -110,6 +110,11 @@ namespace Baduk
 
         static void AdjustCamera(Vector3 boardCenter, float halfD, float tableY, Vector3 forward)
         {
+            // VR에서는 XR 런타임이 카메라 transform과 FOV를 관리하므로 건드리지 않는다.
+            // FOV를 강제 설정하면 스테레오 렌더링이 깨진다.
+            if (UnityEngine.XR.XRSettings.enabled)
+                return;
+
             Camera cam = Camera.main;
             if (cam == null) return;
 
@@ -315,9 +320,9 @@ namespace Baduk
             var renderer = floor.GetComponent<Renderer>();
             if (renderer != null)
             {
-                var material = new Material(Shader.Find("Standard"));
-                material.color = new Color(0.50f, 0.59f, 0.42f);
-                material.SetFloat("_Glossiness", 0.05f);
+                var material = MakeRoomMat(new Color(0.50f, 0.59f, 0.42f));
+                if (material.HasProperty("_Smoothness")) material.SetFloat("_Smoothness", 0.05f);
+                else if (material.HasProperty("_Glossiness")) material.SetFloat("_Glossiness", 0.05f);
                 renderer.material = material;
             }
         }
@@ -653,11 +658,21 @@ namespace Baduk
             Object.Destroy(go.GetComponent<Collider>());
             go.transform.position = pos;
             go.transform.localScale = scale;
-
-            var mat = new Material(Shader.Find("Standard"));
-            mat.color = color;
-            go.GetComponent<Renderer>().material = mat;
+            go.GetComponent<Renderer>().material = MakeRoomMat(color);
             return go;
+        }
+
+        // URP와 Built-in RP 양쪽에서 올바르게 렌더링되는 재질 생성.
+        // Standard 셰이더는 URP 빌드에서 제외돼 핑크색으로 보이는 문제를 방지한다.
+        static Material MakeRoomMat(Color color)
+        {
+            var shader = Shader.Find("Universal Render Pipeline/Lit")
+                      ?? Shader.Find("Universal Render Pipeline/Simple Lit")
+                      ?? Shader.Find("Standard");
+            var mat = new Material(shader);
+            mat.color = color;
+            if (mat.HasProperty("_BaseColor")) mat.SetColor("_BaseColor", color);
+            return mat;
         }
     }
 }

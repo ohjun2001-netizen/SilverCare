@@ -15,7 +15,7 @@ namespace SilverCare.GoStop
         const float CardH = 0.54f;
         const float GapX = 0.52f;
         const float GapY = 0.78f;
-        const float TableDistance = 2.5f;
+        const float TableDistance = 3.0f;
         const float CardLift = 0.028f;
         const float CardHoverLift = 0.075f;
         const float CardHoverScale = 1.14f;
@@ -233,6 +233,7 @@ namespace SilverCare.GoStop
                 go.transform.rotation = Quaternion.Euler(20f, 0f, 0f);
             }
 
+            XRUIUtility.RefreshSceneViewAnchor();
             XRUIUtility.GetSceneViewAnchor(cam, out Vector3 anchorPosition, out Vector3 anchorForward);
             anchorForward.y = 0f;
             if (anchorForward.sqrMagnitude < 0.001f)
@@ -370,7 +371,7 @@ namespace SilverCare.GoStop
                     _cpuGoCount++;
                     _cpuLastGoMeld = cpuScore.meldScore;
                     SetStatus($"상대: {_cpuGoCount}고!");
-                    TTSManager.Instance?.Speak("고!");
+                    TTSManager.Instance?.SpeakClip("gostop_go");
                     yield return new WaitForSeconds(0.5f);
                 }
             }
@@ -644,7 +645,7 @@ namespace SilverCare.GoStop
         {
             if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
             _goStopCanvas = null;
-            TTSManager.Instance?.Speak("고!");
+            TTSManager.Instance?.SpeakClip("gostop_go");
             _goCount++;
             _lastGoMeldScore = CurrentPlayerScore(false).meldScore; // 이 점수보다 올라야 다음 고/스톱
             RefreshScoreText();
@@ -655,7 +656,7 @@ namespace SilverCare.GoStop
         {
             if (_goStopCanvas != null) Destroy(_goStopCanvas.gameObject);
             _goStopCanvas = null;
-            TTSManager.Instance?.Speak("스톱!");
+            TTSManager.Instance?.SpeakClip("gostop_stop");
             ShowFinalResult(true);
         }
 
@@ -1069,7 +1070,7 @@ namespace SilverCare.GoStop
             _deckText = MakeText(_gameCanvas.transform, "Deck", "", 22, new Vector2(450, 120), new Vector2(310, 130));
             _deckText.alignment = TextAnchor.UpperLeft;
 
-            MakeButton(_gameCanvas.transform, "로비", new Vector2(505, -275), new Vector2(140, 50), new Color(0.16f, 0.28f, 0.45f), GoToLobbySafe);
+            MakeButton(_gameCanvas.transform, "로비로 나가기", new Vector2(530, 272), new Vector2(185, 65), new Color(0.50f, 0.18f, 0.14f), GoToLobbySafe);
         }
 
         // 둥근 느낌의 패널 + 외곽 강조선.
@@ -1236,7 +1237,8 @@ namespace SilverCare.GoStop
                 forward = Vector3.forward;
             forward.Normalize();
 
-            _environmentRoot.position = _tableCenter + Vector3.down * 1.10f;
+            // 환경 루트 Y를 월드 바닥(0)에 고정: 카메라 높이 기반으로 계산하면 테이블이 눈높이 근처에 떠버림
+            _environmentRoot.position = new Vector3(_tableCenter.x, 0f, _tableCenter.z);
             _environmentRoot.rotation = Quaternion.LookRotation(forward, Vector3.up);
 
             // ── 1. 공원 배경 (바둑/사활과 동일) — 잔디 윗면을 마루 바닥(local y=0)에 정합 ──
@@ -1256,12 +1258,12 @@ namespace SilverCare.GoStop
             Color woodDark    = new Color(0.30f, 0.17f, 0.07f);
             Color wallColor   = new Color(0.82f, 0.74f, 0.60f);
 
-            CreateRoomPart("MaruBase",    new Vector3(0f, -1.0f, 0.2f),  new Vector3(9.2f, 2.0f, 7.8f), new Color(0.42f, 0.28f, 0.14f), woodMat);
-            CreateRoomPart("MaruSurface", new Vector3(0f,  0.02f, 0.2f), new Vector3(8.8f, 0.04f, 7.4f), new Color(0.56f, 0.40f, 0.22f), parquet, false);
+            CreateRoomPart("MaruBase",    new Vector3(0f, -1.0f, 0.2f),  new Vector3(9.2f, 2.0f, 8.6f), new Color(0.42f, 0.28f, 0.14f), woodMat);
+            CreateRoomPart("MaruSurface", new Vector3(0f,  0.02f, 0.2f), new Vector3(8.8f, 0.04f, 8.2f), new Color(0.56f, 0.40f, 0.22f), parquet, false);
 
             // ── 3. 한옥 기둥 + 인방(보) — 3면 개방형 구조 ───────────────
             // 기둥 6개: 좌우 앞/뒤/중간
-            float px = 3.9f, pzF = -3.0f, pzB = 3.4f, pzM = 0.3f;
+            float px = 3.9f, pzF = -3.6f, pzB = 3.4f, pzM = 0.3f;
             foreach (var lp in new[] {
                 new Vector3(-px, 1.22f, pzF), new Vector3(px, 1.22f, pzF),
                 new Vector3(-px, 1.22f, pzM), new Vector3(px, 1.22f, pzM),
@@ -1270,16 +1272,16 @@ namespace SilverCare.GoStop
                 CreateRoomPart("Pillar", lp, new Vector3(0.14f, 2.44f, 0.14f), woodDark, woodMat, false);
 
             // 인방(상단 가로 보)
-            CreateRoomPart("BeamLeft",  new Vector3(-px, 2.46f, 0.2f),  new Vector3(0.14f, 0.14f, 7.0f), woodDark, woodMat, false);
-            CreateRoomPart("BeamRight", new Vector3( px, 2.46f, 0.2f),  new Vector3(0.14f, 0.14f, 7.0f), woodDark, woodMat, false);
+            CreateRoomPart("BeamLeft",  new Vector3(-px, 2.46f, 0.2f),  new Vector3(0.14f, 0.14f, 7.8f), woodDark, woodMat, false);
+            CreateRoomPart("BeamRight", new Vector3( px, 2.46f, 0.2f),  new Vector3(0.14f, 0.14f, 7.8f), woodDark, woodMat, false);
             CreateRoomPart("BeamBack",  new Vector3(0f, 2.46f, pzB),    new Vector3(8.0f, 0.14f, 0.14f), woodDark, woodMat, false);
             CreateRoomPart("BeamFront", new Vector3(0f, 2.46f, pzF),    new Vector3(8.0f, 0.14f, 0.14f), woodDark, woodMat, false);
 
             // ── 천장 — 한옥 서까래 천장(막힘) : 뚫린 하늘 가림 ─────────────
-            CreateRoomPart("Ceiling", new Vector3(0f, 2.66f, 0.2f), new Vector3(8.4f, 0.12f, 7.6f), new Color(0.34f, 0.22f, 0.11f), woodMat, false);
+            CreateRoomPart("Ceiling", new Vector3(0f, 2.66f, 0.2f), new Vector3(8.4f, 0.12f, 8.4f), new Color(0.34f, 0.22f, 0.11f), woodMat, false);
             // 서까래(세로 보) 디테일
             for (int i = -4; i <= 4; i++)
-                CreateRoomPart("Rafter", new Vector3(i * 0.85f, 2.56f, 0.2f), new Vector3(0.06f, 0.06f, 7.2f), woodDark, woodMat, false);
+                CreateRoomPart("Rafter", new Vector3(i * 0.85f, 2.56f, 0.2f), new Vector3(0.06f, 0.06f, 8.0f), woodDark, woodMat, false);
 
             // ── 4. 뒷벽 — 한옥 미닫이 창호(살창) + 공원이 비치는 느낌 ──
             // 아랫단 낮은 벽
@@ -1293,8 +1295,8 @@ namespace SilverCare.GoStop
                 CreateRoomPart("ShojiBar", new Vector3(i * 0.9f, 1.7f, pzB - 0.035f), new Vector3(0.04f, 1.36f, 0.04f), woodDark, woodMat, false);
 
             // ── 5. 측면 반벽 ────────────────────────────────────────────
-            CreateRoomPart("WallLeft",  new Vector3(-4.32f, 1.0f, 0.2f), new Vector3(0.10f, 2.0f, 6.8f), wallColor, null, false);
-            CreateRoomPart("WallRight", new Vector3( 4.32f, 1.0f, 0.2f), new Vector3(0.10f, 2.0f, 6.8f), wallColor, null, false);
+            CreateRoomPart("WallLeft",  new Vector3(-4.32f, 1.0f, 0.2f), new Vector3(0.10f, 2.0f, 7.6f), wallColor, null, false);
+            CreateRoomPart("WallRight", new Vector3( 4.32f, 1.0f, 0.2f), new Vector3(0.10f, 2.0f, 7.6f), wallColor, null, false);
 
             // ── 6. 실내 장식 ─────────────────────────────────────────────
             // 벽 그림(좌측)
@@ -1748,6 +1750,15 @@ namespace SilverCare.GoStop
 
         void GoToLobbySafe()
         {
+            _isPlaying = false;
+            _waitingForCard = false;
+            StopAllCoroutines();
+
+            if (_gameCanvas != null)   { Destroy(_gameCanvas.gameObject);   _gameCanvas = null; }
+            if (_goStopCanvas != null) { Destroy(_goStopCanvas.gameObject); _goStopCanvas = null; }
+            if (_cardRoot != null)     { Destroy(_cardRoot.gameObject);     _cardRoot = null; }
+            if (_environmentRoot != null) { Destroy(_environmentRoot.gameObject); _environmentRoot = null; }
+
             if (GameSceneManager.Instance != null) GameSceneManager.Instance.LoadScene(lobbySceneName);
             else UnityEngine.SceneManagement.SceneManager.LoadScene(lobbySceneName);
         }

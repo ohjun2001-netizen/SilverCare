@@ -110,19 +110,19 @@ public class StoryProgressManager : MonoBehaviour
         return firstClear;
     }
 
-    public void ShowIntroNarration(string message, float duration = 6f)
+    public void ShowIntroNarration(string message, string clipKey = null, float duration = 6f)
     {
         ShowStoryPanel("오늘의 활동 안내", message, duration);
-        if (!string.IsNullOrWhiteSpace(message))
-            TTSManager.Instance?.Speak(message, interruptCurrent: true);
+        if (!string.IsNullOrWhiteSpace(clipKey))
+            TTSManager.Instance?.SpeakClip(clipKey, interruptCurrent: true);
     }
 
     public void SpeakClearNarration(StoryActivity activity)
     {
         string message = GetClearNarration(activity);
         ShowStoryPanel($"{GetActivityDisplayName(activity)} 완료", message, 6.5f);
-        if (!string.IsNullOrWhiteSpace(message))
-            TTSManager.Instance?.Speak(message, interruptCurrent: true);
+        string key = HasCompletedAllActivities ? "clear_all" : $"clear_{activity.ToString().ToLower()}";
+        TTSManager.Instance?.SpeakClip(key, interruptCurrent: true);
     }
 
     public void ShowStoryPanel(string title, string message, float duration = 6f)

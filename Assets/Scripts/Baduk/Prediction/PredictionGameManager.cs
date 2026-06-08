@@ -28,10 +28,6 @@ namespace Baduk.Prediction
         Quaternion _originXRRot;
         bool _originSaved;
 
-        Vector3 _originCamPos;
-        Quaternion _originCamRot;
-        bool _originCamSaved;
-
         void Awake()
         {
             _loader = GetComponent<KifuLoader>();
@@ -46,22 +42,6 @@ namespace Baduk.Prediction
 
         void Start()
         {
-            var xrOrigin = FindObjectOfType<XROrigin>();
-            if (xrOrigin != null)
-            {
-                _originXRPos = xrOrigin.transform.position;
-                _originXRRot = xrOrigin.transform.rotation;
-                _originSaved = true;
-            }
-
-            Camera cam = Camera.main;
-            if (cam != null)
-            {
-                _originCamPos = cam.transform.position;
-                _originCamRot = cam.transform.rotation;
-                _originCamSaved = true;
-            }
-
             _ui.OnKifuSelected = HandleKifuSelected;
             _ui.OnPlayPause = () =>
             {
@@ -78,6 +58,22 @@ namespace Baduk.Prediction
             _replay.OnMoveAdvanced = HandleMoveAdvanced;
             _replay.OnPlaybackStateChanged = () => _ui.UpdatePlayPauseLabel(_replay.IsPlaying);
             _replay.OnReplayEnded = HandleReplayEnded;
+
+            StartCoroutine(DelayedInit());
+        }
+
+        System.Collections.IEnumerator DelayedInit()
+        {
+            yield return null;
+            yield return null;
+
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originSaved = true;
+            }
 
             ShowKifuSelect();
         }
@@ -114,13 +110,6 @@ namespace Baduk.Prediction
                 xrOrigin.transform.position = _originXRPos;
                 xrOrigin.transform.rotation = _originXRRot;
             }
-
-            Camera cam = Camera.main;
-            if (cam != null && _originCamSaved)
-            {
-                cam.transform.position = _originCamPos;
-                cam.transform.rotation = _originCamRot;
-            }
         }
 
         void SetupBoardAndRoom()
@@ -142,8 +131,8 @@ namespace Baduk.Prediction
                 cx,
                 cy,
                 0.92f,
-                0.20f,
-                0.62f,
+                2.5f,
+                0.85f,
                 sceneKey,
                 cam,
                 out Vector3 boardCenter,
@@ -160,6 +149,7 @@ namespace Baduk.Prediction
                 BadukRoomEnvironment.SceneStyle.Practice,
                 spawnSpectators: true);
             _vrBoardSetup?.AttachInteractables();
+            XRUIUtility.StepPlayerBack(1.5f);
         }
 
         void HandleMoveAdvanced(int cur, int total)

@@ -32,10 +32,6 @@ namespace Baduk
         Quaternion _originXRRot;
         bool _originXRSaved;
 
-        Vector3 _originCamPos;
-        Quaternion _originCamRot;
-        bool _originCamSaved;
-
         void Awake()
         {
             _board = GetComponent<BadukBoard>();
@@ -55,22 +51,6 @@ namespace Baduk
 
         void Start()
         {
-            var xrOrigin = FindObjectOfType<XROrigin>();
-            if (xrOrigin != null)
-            {
-                _originXRPos = xrOrigin.transform.position;
-                _originXRRot = xrOrigin.transform.rotation;
-                _originXRSaved = true;
-            }
-
-            Camera cam = Camera.main;
-            if (cam != null)
-            {
-                _originCamPos = cam.transform.position;
-                _originCamRot = cam.transform.rotation;
-                _originCamSaved = true;
-            }
-
             _input.OnIntersectionClicked += HandlePlayerMove;
 
             _ui.OnNext = NextProblem;
@@ -96,7 +76,22 @@ namespace Baduk
 
             _hint.OnHintTextReady = text => _ui.ShowHintText(text);
 
-            RestoreOrigin();
+            StartCoroutine(DelayedStart());
+        }
+
+        IEnumerator DelayedStart()
+        {
+            yield return null;
+            yield return null;
+
+            var xrOrigin = FindObjectOfType<XROrigin>();
+            if (xrOrigin != null)
+            {
+                _originXRPos = xrOrigin.transform.position;
+                _originXRRot = xrOrigin.transform.rotation;
+                _originXRSaved = true;
+            }
+
             _ui.ShowDifficultySelect();
         }
 
@@ -115,13 +110,6 @@ namespace Baduk
             {
                 xrOrigin.transform.position = _originXRPos;
                 xrOrigin.transform.rotation = _originXRRot;
-            }
-
-            Camera cam = Camera.main;
-            if (cam != null && _originCamSaved)
-            {
-                cam.transform.position = _originCamPos;
-                cam.transform.rotation = _originCamRot;
             }
         }
 
